@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>AvenGO · 今天练什么</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="AvenGO">
+<meta name="theme-color" content="#234A3C">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<style>
+  :root{
+    --paper:#F3F4F1;
+    --card:#FBFCFA;
+    --ink:#1B211E;
+    --soft:#5C665F;
+    --line:#DDE2DC;
+    --pine:#234A3C;
+    --pine-tint:#E7EFE9;
+    --gold:#B8892B;
+    --green:#2F6B4A;
+    --green-tint:#E6F1E9;
+    --amber:#B07A16;
+    --amber-tint:#F7EEDC;
+    --red:#A65221;
+    --red-tint:#F6EAE1;
+    --rest:#5A6B78;
+    --rest-tint:#E8ECEF;
+    --aero:#3E6D8E;
+    --aero-tint:#E4EEF3;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+    font-size:16.5px;line-height:1.65;padding:0 0 60px;
+  }
+  .wrap{max-width:720px;margin:0 auto;padding:0 16px}
+
+  header{background:var(--pine);color:#EAF1EB;padding:calc(24px + env(safe-area-inset-top)) 0 20px;border-bottom:3px solid var(--gold)}
+  .wrap{padding-left:calc(16px + env(safe-area-inset-left));padding-right:calc(16px + env(safe-area-inset-right))}
+  body{padding-bottom:calc(60px + env(safe-area-inset-bottom))}
+  .kicker{font-size:11.5px;letter-spacing:.26em;text-transform:uppercase;color:#9DC0AC;margin:0 0 6px}
+  header h1{font-size:23px;margin:0;font-weight:700}
+  header .sub{font-size:13.5px;color:#B9CFbf;margin:6px 0 0}
+
+  /* ---- 步骤条 ---- */
+  .step{margin:22px 0 0}
+  .step-label{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--soft);text-transform:uppercase;margin-bottom:9px}
+  .step-label .n{background:var(--pine);color:#fff;width:19px;height:19px;border-radius:50%;display:grid;place-items:center;font-size:11px;letter-spacing:0}
+
+  /* ---- 切换按钮 ---- */
+  .switch{display:flex;gap:8px}
+  .switch button{
+    flex:1;border:1.5px solid var(--line);background:var(--card);color:var(--soft);
+    border-radius:12px;padding:12px 8px;font:inherit;font-size:14.5px;font-weight:600;
+    cursor:pointer;transition:.15s;line-height:1.35;
+  }
+  .switch button .big{display:block;font-size:16.5px;font-weight:700;color:var(--ink);margin-bottom:1px}
+  .switch button[aria-pressed="true"]{background:var(--pine);border-color:var(--pine);color:#C9DCCF}
+  .switch button[aria-pressed="true"] .big{color:#fff}
+
+  .switch.state button[aria-pressed="true"][data-s="green"]{background:var(--green);border-color:var(--green)}
+  .switch.state button[aria-pressed="true"][data-s="amber"]{background:var(--amber);border-color:var(--amber)}
+  .switch.state button[aria-pressed="true"][data-s="red"]{background:var(--red);border-color:var(--red)}
+  .switch.state .dot{font-size:15px;margin-right:3px}
+
+  /* ---- 状态提示条 ---- */
+  #stateNote{
+    margin-top:10px;border-radius:11px;padding:11px 14px;font-size:14px;line-height:1.55;
+    background:var(--green-tint);color:#204d36;
+  }
+  #stateNote b{font-weight:700}
+
+  /* ---- 训练面板 ---- */
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-top:12px;overflow:hidden}
+  .panel-head{background:var(--pine-tint);padding:12px 15px;border-bottom:1px solid var(--line)}
+  .panel-head h2{margin:0;font-size:16.5px;font-weight:700;color:var(--pine)}
+  .panel-head p{margin:3px 0 0;font-size:13px;color:var(--soft)}
+
+  .block-title{
+    font-size:11.5px;font-weight:700;letter-spacing:.14em;color:var(--gold);text-transform:uppercase;
+    padding:14px 15px 2px;
+  }
+  ul.moves{list-style:none;margin:0;padding:0 15px 4px}
+  ul.moves li{
+    display:flex;align-items:flex-start;gap:11px;padding:9px 0;border-bottom:1px solid #EDF0EC;
+  }
+  ul.moves li:last-child{border-bottom:none}
+  ul.moves .tick{
+    flex:0 0 auto;width:21px;height:21px;border:1.5px solid #C6CFC8;border-radius:6px;margin-top:2px;
+    cursor:pointer;display:grid;place-items:center;font-size:13px;color:transparent;transition:.12s;
+  }
+  ul.moves li.done .tick{background:var(--green);border-color:var(--green);color:#fff}
+  ul.moves li.done .nm{text-decoration:line-through;color:#98A29B}
+  .mv{flex:1;min-width:0}
+  .nm{font-size:15.5px;font-weight:600;line-height:1.4}
+  .dose{font-size:13.5px;color:var(--soft);margin-top:1px}
+  .dose b{color:var(--pine);font-weight:700}
+  .why{font-size:12.5px;color:#8A948C;margin-top:1px}
+
+  .swap{font-size:11px;background:var(--amber-tint);color:var(--amber);font-weight:700;padding:1px 6px;border-radius:5px;margin-left:5px;white-space:nowrap}
+
+  /* ---- 动作详解 ---- */
+  ul.moves .mv{cursor:pointer}
+  .caret{display:inline-block;margin-left:6px;font-size:11px;color:var(--gold);transition:transform .2s;vertical-align:1px}
+  li.open .caret{transform:rotate(90deg)}
+  .exp{display:grid;grid-template-rows:0fr;transition:grid-template-rows .25s ease}
+  .exp-in{overflow:hidden;min-height:0}
+  li.open .exp{grid-template-rows:1fr}
+  .exp-in p{margin:8px 0 0;font-size:13.5px;color:#3C4741;line-height:1.6}
+  .exp-in p b{color:var(--pine);font-weight:700}
+  .exp-in .hint{border-radius:8px;padding:7px 10px;margin-top:7px;font-size:13px;line-height:1.55}
+  .exp-in .hint.ok{background:var(--green-tint);color:#204d36}
+  .exp-in .hint.no{background:var(--amber-tint);color:#6b4a0d}
+
+  /* ---- 铁规 ---- */
+  .rule{
+    background:#2C1E14;color:#F0E4D8;border-radius:13px;padding:14px 16px;margin-top:14px;
+    font-size:14.5px;line-height:1.6;border-left:4px solid var(--gold);
+  }
+  .rule b{color:#F0C060}
+
+  /* ---- 打卡区 ---- */
+  .checkin-btn{
+    display:block;width:100%;border:none;border-radius:14px;padding:15px;margin-top:12px;
+    font:inherit;font-size:16px;font-weight:700;cursor:pointer;transition:.15s;
+    background:var(--pine);color:#fff;
+  }
+  .checkin-btn.done{background:var(--green)}
+  .storage-hint{font-size:12px;color:var(--red);margin-top:8px}
+
+  .grid14{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:14px}
+  .cell{
+    border:1px solid var(--line);border-radius:9px;padding:7px 4px;text-align:center;background:var(--card);
+  }
+  .cell .d{font-size:11px;color:var(--soft)}
+  .cell .m{font-size:15px;font-weight:700;color:var(--ink);margin-top:2px}
+  .cell.hit{background:var(--green-tint);border-color:#BFE0CC}
+  .cell.hit .d{color:#204d36}
+  .cell.hit .m{color:var(--green)}
+  .cell.today{border-color:var(--gold);border-width:2px}
+
+  .streak{margin-top:12px;font-size:14.5px;color:var(--pine);font-weight:700}
+  .tiny-note{font-size:12px;color:var(--soft);margin-top:6px;line-height:1.6}
+
+  /* ---- 页签 ---- */
+  .tabs{position:sticky;top:0;z-index:20;background:var(--paper);display:flex;gap:8px;padding:10px 0 8px}
+  .tabs button{flex:1;border:1.5px solid var(--line);background:var(--card);color:var(--soft);border-radius:11px;padding:9px;font:inherit;font-size:14.5px;font-weight:700;cursor:pointer;transition:.15s}
+  .tabs button[aria-pressed="true"]{background:var(--pine);border-color:var(--pine);color:#fff}
+
+  /* ---- 今日有氧 + 备注 ---- */
+  .aero-box{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:12px 14px;margin-top:10px}
+  .aero-label{font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--soft);margin-bottom:8px}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chips button{border:1.5px solid var(--line);background:var(--paper);color:var(--soft);border-radius:9px;padding:6px 12px;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer;transition:.12s}
+  .chips button[aria-pressed="true"]{background:var(--pine);border-color:var(--pine);color:#fff}
+  .aero-min{display:flex;gap:6px;margin-top:8px;align-items:center}
+  .aero-min input{width:90px;border:1.5px solid var(--line);border-radius:9px;padding:7px 10px;font:inherit;font-size:14px;background:var(--paper)}
+  .aero-min .qmin{border:1.5px solid var(--line);background:var(--paper);color:var(--soft);border-radius:9px;padding:6px 11px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+  .note-input{width:100%;margin-top:8px;border:1.5px solid var(--line);border-radius:9px;padding:7px 10px;font:inherit;font-size:14px;background:var(--paper)}
+
+  /* ---- 记录页:月历 ---- */
+  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-top:16px}
+  .cal-title{font-size:16.5px;font-weight:700;color:var(--pine)}
+  .cal-nav{border:1.5px solid var(--line);background:var(--card);color:var(--pine);border-radius:9px;width:38px;height:34px;font-size:13px;cursor:pointer}
+  .cal-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:10px;font-size:11px;color:var(--soft);text-align:center}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:5px}
+  .cal-cell{border:1px solid var(--line);border-radius:8px;background:var(--card);min-height:44px;padding:3px 5px;font-size:12px;position:relative}
+  .cal-cell.empty{border:none;background:transparent}
+  .cal-cell .dnum{color:var(--soft)}
+  .cal-cell .dmark{position:absolute;left:5px;bottom:2px;font-size:12px;font-weight:700}
+  .cal-cell.st-green{background:var(--green-tint);border-color:#BFE0CC}
+  .cal-cell.st-green .dmark{color:var(--green)}
+  .cal-cell.st-amber{background:var(--amber-tint);border-color:#E4D2A8}
+  .cal-cell.st-amber .dmark{color:var(--amber)}
+  .cal-cell.st-red{background:var(--red-tint);border-color:#E8C9B4}
+  .cal-cell.st-red .dmark{color:var(--red)}
+  .cal-cell.st-rest{background:var(--rest-tint);border-color:#CDD6DB}
+  .cal-cell.st-rest .dmark{color:var(--rest)}
+  .cal-cell.st-aero{background:var(--aero-tint);border-color:#C4DCE8}
+  .cal-cell.st-aero .dmark{color:var(--aero)}
+  .cal-cell.today{border-color:var(--gold);border-width:2px}
+  .cal-cell.has{cursor:pointer}
+  .aero-ico{margin-left:2px;font-weight:700}
+  .day-detail{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 14px;margin-top:10px;font-size:13.5px;line-height:1.7}
+  .day-detail b{color:var(--pine)}
+  .stats{display:flex;flex-wrap:wrap;gap:7px 16px;margin-top:12px;font-size:13.5px;color:var(--soft)}
+  .stats b{color:var(--pine)}
+  .report-btn{display:block;width:100%;border:none;border-radius:13px;padding:13px;margin-top:14px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;background:var(--pine);color:#fff}
+  .report-fallback{width:100%;margin-top:8px;border:1.5px solid var(--line);border-radius:9px;padding:8px;font:inherit;font-size:13px;min-height:120px;background:var(--card)}
+
+  /* ---- 日期类型(第一层)---- */
+  .switch.daytype button[aria-pressed="true"][data-dt="rest"]{background:var(--rest);border-color:var(--rest);color:#fff}
+  .switch.daytype button[aria-pressed="true"][data-dt="aero"]{background:var(--aero);border-color:var(--aero);color:#fff}
+  .rest-note{background:var(--rest-tint);color:#33414B;border-radius:13px;padding:16px;margin-top:14px;font-size:14.5px;line-height:1.6;border-left:4px solid var(--rest)}
+  .rest-note.aero{background:var(--aero-tint);color:#2A4A5E;border-left-color:var(--aero)}
+  .rest-note b{color:inherit;font-weight:700}
+
+  /* ---- 动作实际值 ---- */
+  .act{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}
+  .act .fld{display:inline-flex;align-items:center;gap:3px;background:var(--paper);border:1.5px solid var(--line);border-radius:8px;padding:3px 7px;font-size:12.5px;color:var(--soft)}
+  .act .fld input{width:36px;border:none;background:transparent;font:inherit;font-size:13.5px;font-weight:700;color:var(--pine);text-align:center;padding:0;-moz-appearance:textfield}
+  .act .fld input::-webkit-outer-spin-button,.act .fld input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .act .fld.reps-multi input{width:28px}
+  .act .a-toggle{background:transparent;border:none;color:var(--gold);font:inherit;font-size:12px;font-weight:700;cursor:pointer;padding:3px 4px;text-decoration:underline}
+  .act .repwrap{display:inline-flex;gap:4px;align-items:center}
+
+  /* ---- 力量趋势 ---- */
+  .trend{margin-top:22px}
+  .trend h3{font-size:15px;font-weight:700;color:var(--pine);margin:0 0 8px}
+  .trend-sel{width:100%;border:1.5px solid var(--line);border-radius:9px;padding:9px 10px;font:inherit;font-size:14.5px;background:var(--card);color:var(--ink)}
+  .chart-box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 10px 8px;margin-top:10px;overflow-x:auto}
+  .chart-box svg{display:block;width:100%;height:auto}
+  .trend-summary{font-size:13.5px;color:#3C4741;line-height:1.6;margin-top:10px;padding:10px 12px;background:var(--pine-tint);border-radius:10px}
+  .trend-summary b{color:var(--pine)}
+  .bars-cap{font-size:12px;color:var(--soft);margin:16px 0 6px;font-weight:700;letter-spacing:.05em}
+
+  /* ---- 备份 ---- */
+  .backup-btns{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+  .backup-btns button,.file-label{border:1.5px solid var(--pine);border-radius:10px;padding:9px 14px;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer;background:var(--pine);color:#fff}
+  .backup-btns button.ghost,.file-label{background:var(--card);color:var(--pine)}
+  .file-label{display:inline-block}
+  #importBox{width:100%;margin-top:4px;border:1.5px solid var(--line);border-radius:9px;padding:8px;font:inherit;font-size:12.5px;min-height:70px;background:var(--card);resize:vertical}
+  .backup-msg{font-size:13px;margin-top:4px;min-height:18px;line-height:1.5}
+  .backup-msg.ok{color:var(--green)}
+  .backup-msg.err{color:var(--red)}
+
+  /* ---- 周期感知 ---- */
+  .cycle-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:14px}
+  .period-toggle{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:var(--paper);color:var(--soft);border-radius:10px;padding:8px 14px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:.12s}
+  .period-toggle[aria-pressed="true"]{background:#F4E4E9;border-color:#D9A7B6;color:#8A3F56}
+  .cycle-body{margin-top:11px}
+  .cycle-hint{font-size:14px;font-weight:700;color:var(--pine);line-height:1.55}
+  .cycle-hint .ph{color:var(--gold)}
+  .cycle-advice{margin-top:9px;font-size:13.5px;line-height:1.65;color:#3C4741}
+  .cycle-advice p{margin:5px 0}
+  .cycle-advice b{color:var(--pine)}
+  .cycle-disc{margin-top:9px;font-size:12px;color:var(--soft);line-height:1.55;border-left:3px solid var(--line);padding-left:9px}
+  .cycle-overdue{margin-top:9px;font-size:12.5px;color:var(--amber);line-height:1.55;background:var(--amber-tint);border-radius:8px;padding:8px 10px}
+  .cycle-empty{font-size:13.5px;color:var(--soft);line-height:1.65;margin-top:4px}
+  .cycle-info{background:var(--pine-tint);border-radius:11px;padding:11px 14px;margin-top:12px;font-size:13.5px;color:var(--pine);line-height:1.7}
+  .cycle-info b{font-weight:700}
+  .cycle-info .muted{color:var(--soft);font-size:12px;display:block;margin-top:3px}
+  .period-dot{position:absolute;top:3px;right:4px;width:6px;height:6px;border-radius:50%;background:#C67E92}
+  .day-period-btn{border:1.5px solid #D9A7B6;background:var(--card);color:#8A3F56;border-radius:8px;padding:6px 11px;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+  .day-period-btn[data-on="true"]{background:#F4E4E9}
+  .day-detail .dd-hint{font-size:12px;color:var(--soft);margin-top:6px}
+  .dd-edit{margin-top:11px;border-top:1px solid #EDF0EC;padding-top:11px;display:flex;flex-direction:column;gap:9px}
+  .dd-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .dd-lbl{font-size:12.5px;color:var(--soft);font-weight:700;min-width:46px}
+  .dd-chips{display:flex;gap:6px;flex-wrap:wrap}
+  .dd-chips button{border:1.5px solid var(--line);background:var(--paper);color:var(--soft);border-radius:8px;padding:6px 11px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+  .dd-chips button[aria-pressed="true"]{background:var(--pine);border-color:var(--pine);color:#fff}
+  .dd-chips.st button[aria-pressed="true"][data-s="green"]{background:var(--green);border-color:var(--green)}
+  .dd-chips.st button[aria-pressed="true"][data-s="amber"]{background:var(--amber);border-color:var(--amber)}
+  .dd-chips.st button[aria-pressed="true"][data-s="red"]{background:var(--red);border-color:var(--red)}
+  .dd-min{width:74px;border:1.5px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;font-size:13px;background:var(--paper)}
+  .dd-note{width:100%;border:1.5px solid var(--line);border-radius:8px;padding:6px 9px;font:inherit;font-size:13px;background:var(--paper)}
+  .dd-clear{align-self:flex-start;border:1.5px solid var(--line);background:var(--card);color:var(--soft);border-radius:8px;padding:6px 11px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
+
+  /* ---- 折叠 ---- */
+  details{background:var(--card);border:1px solid var(--line);border-radius:13px;margin-top:10px;overflow:hidden}
+  details summary{
+    padding:13px 15px;font-size:15px;font-weight:700;cursor:pointer;list-style:none;
+    display:flex;justify-content:space-between;align-items:center;color:var(--pine);
+  }
+  details summary::-webkit-details-marker{display:none}
+  details summary::after{content:"+";font-size:19px;color:var(--soft);font-weight:400}
+  details[open] summary::after{content:"–"}
+  .det-body{padding:0 15px 14px;font-size:14.5px;color:#3C4741;line-height:1.7;border-top:1px solid #EDF0EC;padding-top:12px}
+  .det-body p{margin:7px 0}
+  .det-body b{color:var(--pine)}
+  .det-body ul{margin:7px 0;padding-left:19px}
+  .det-body li{margin:4px 0}
+
+  .rot{display:flex;gap:6px;margin:10px 0 4px;flex-wrap:wrap}
+  .rot span{background:var(--pine-tint);color:var(--pine);font-weight:700;font-size:13px;padding:4px 10px;border-radius:7px;border:1px solid #D2E0D6}
+  .rot span.aero{background:#EDEFF3;color:#4A5568;border-color:#DDE1E8}
+
+  footer{margin-top:26px;font-size:12.5px;color:var(--soft);text-align:center;line-height:1.7}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <p class="kicker">AvenGO · Coach Card</p>
+    <h1>今天练什么</h1>
+    <p class="sub">功能打底 + 负重主菜 · 每周 3 力量 / 2 有氧 / 天天饭后走</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="tabs" id="tabs">
+    <button data-p="today" aria-pressed="true">今天</button>
+    <button data-p="log" aria-pressed="false">记录</button>
+  </div>
+
+  <div id="pageToday">
+
+  <!-- STEP 1 · 今天是什么日子 -->
+  <div class="step">
+    <div class="step-label"><span class="n">1</span>今天是什么日子</div>
+    <div class="switch daytype" id="dayTypeSwitch">
+      <button data-dt="train" aria-pressed="true">训练日</button>
+      <button data-dt="rest" aria-pressed="false">休息日</button>
+      <button data-dt="aero" aria-pressed="false">有氧日</button>
+    </div>
+  </div>
+
+  <!-- 周期感知 -->
+  <div class="cycle-card" id="cycleCard">
+    <button class="period-toggle" id="periodToggle">🩸 今天来月经了</button>
+    <div class="cycle-body" id="cycleBody"></div>
+  </div>
+
+  <!-- 休息 / 有氧日提示 -->
+  <div class="rest-note" id="restNote" hidden></div>
+
+  <!-- 训练日专属 -->
+  <div id="trainOnly">
+    <!-- STEP 2 -->
+    <div class="step">
+      <div class="step-label"><span class="n">2</span>练哪个</div>
+      <div class="switch" id="daySwitch">
+        <button data-d="A" aria-pressed="true"><span class="big">A 日 · 下肢</span>臀腿为主 · 代谢引擎</button>
+        <button data-d="B" aria-pressed="false"><span class="big">B 日 · 上肢+核心</span>推拉 · 肩背养护</button>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step">
+      <div class="step-label"><span class="n">3</span>今天状态(10秒自检)</div>
+      <div class="switch state" id="stateSwitch">
+        <button data-s="green" aria-pressed="true"><span class="dot">🟢</span>还行</button>
+        <button data-s="amber" aria-pressed="false"><span class="dot">🟡</span>一般</button>
+        <button data-s="red" aria-pressed="false"><span class="dot">🔴</span>很差</button>
+      </div>
+      <div id="stateNote"></div>
+    </div>
+
+    <!-- 铁规 -->
+    <div class="rule">
+      <b>铁规,无例外:</b>没吃东西 → 先垫一份小燃料(香蕉 / 全麦面包+鸡蛋 / 无乳糖酸奶),等 30 分钟再练。垫不了 → 今天只散步。
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step">
+      <div class="step-label"><span class="n">4</span>照着做,打勾就行</div>
+      <div class="panel">
+        <div class="panel-head">
+          <h2 id="pTitle"></h2>
+          <p id="pSub"></p>
+        </div>
+        <div id="pBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 5 · 打卡区 -->
+  <div class="step">
+    <div class="step-label"><span class="n">5</span>练完打卡</div>
+    <button class="checkin-btn" id="checkinBtn"></button>
+    <div class="storage-hint" id="storageHint" style="display:none">当前浏览器不支持保存</div>
+    <div class="aero-box">
+      <div class="aero-label">今日有氧 · 做了就记,没做空着</div>
+      <div class="chips" id="aeroType">
+        <button data-t="骑车">骑车</button>
+        <button data-t="快走">快走</button>
+        <button data-t="散步">散步</button>
+        <button data-t="游泳">游泳</button>
+        <button data-t="其他">其他</button>
+      </div>
+      <div class="aero-min">
+        <input type="number" id="aeroMin" min="0" max="600" inputmode="numeric" placeholder="分钟">
+        <button class="qmin" data-m="15">15</button>
+        <button class="qmin" data-m="30">30</button>
+        <button class="qmin" data-m="40">40</button>
+      </div>
+      <input type="text" id="noteInput" class="note-input" placeholder="备注(可选,例:深蹲加到 12lb)">
+    </div>
+    <div class="grid14" id="grid14"></div>
+    <div class="streak" id="streakNote"></div>
+    <p class="tiny-note">勾选动作会自动保存 · ✓=当天达标 · 🔴天散步或休息也算达标</p>
+  </div>
+
+  <!-- 折叠区 -->
+  <details>
+    <summary>怎么排一周 · 不用钉死星期几</summary>
+    <div class="det-body">
+      <p>力量之间<b>隔一天</b>,顺序轮着来,下肢多一点:</p>
+      <div class="rot"><span>A</span><span class="aero">有氧</span><span>B</span><span class="aero">有氧</span><span>A</span></div>
+      <div class="rot"><span>B</span><span class="aero">有氧</span><span>A</span><span class="aero">有氧</span><span>B</span></div>
+      <p>下一周首字母接着换,长期就是 A 比 B 略多——这是故意的,臀腿是最大的血糖处置器官。</p>
+      <p><b>有氧日:</b>湖滨快走或 Bike Share 骑行 30–40 分钟,心率 ~120(能说话但不能唱歌)。热浪/雷雨 → PATH 快走或室内泳池。</p>
+      <p><b>每天:</b>饭后走 10–15 分钟。这条性价比最高,门槛几乎为零。</p>
+      <p><b>最低完成线:</b>任何一天,做到以下之一就算达标——一次力量、一次20分钟骑行、或三次饭后散步。</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>什么时候加量 · 怎么加</summary>
+    <div class="det-body">
+      <p><b>升级信号:</b>3 组都做到次数上限,且最后一组还剩 2–3 下没用尽 → 下次可以加。<b>不用每周硬加</b>,身体准备好了再加。</p>
+      <p><b>加的顺序(从易到难):</b></p>
+      <ul>
+        <li>加重量 +2–5lb(哑铃到顶 20lb 前优先这条)</li>
+        <li>加次数 → 加组数</li>
+        <li>放慢离心:下放用 3–4 秒(几乎不加重就显著变难,对血糖处理特别有效)</li>
+        <li>顶峰停顿 2 秒(臀桥尤其)</li>
+        <li><b>减少支撑面:双腿 → 单腿</b>(哑铃 20lb 到顶后的主要出路)</li>
+      </ul>
+      <p><b>降级信号:</b>动作变形(脚跟翘、膝内扣、弓背、塌腰)→ 立刻退回上一档。宁可轻一点做对。</p>
+      <p><b>出现尖锐疼痛</b>(不是肌肉酸胀)→ 停下,记下来告诉我。这类信号不要忍。</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>器械替换 · 你家里没有的那些</summary>
+    <div class="det-body">
+      <ul>
+        <li><b>壶铃硬拉</b> → 双手各持哑铃做罗马尼亚硬拉,发力模式一样</li>
+        <li><b>坐姿器械划船</b> → 拉力带坐姿划船(脚蹬带子)</li>
+        <li><b>楔形板</b> → 平地做就行,不影响效果;想要斜面可用瑜伽砖或一本厚书垫脚跟</li>
+        <li><b>跪姿俯卧撑</b> → 优先<b>上斜俯卧撑</b>(手扶桌沿/台面),更容易保持核心不塌腰</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>追踪什么 · 别每天称体重</summary>
+    <div class="det-body">
+      <ul>
+        <li><b>每 2 周</b>同条件称重(晨起空腹如厕后)——看趋势不看单点</li>
+        <li><b>每 4–6 周</b>量腰围——比体重更能反映内脏脂肪</li>
+        <li><b>每天</b>打个勾就行:吃了吗 / 动了吗 / 餐后犯困吗</li>
+        <li><b>3 个月</b>复测 InBody + 空腹胰岛素 / HOMA-IR / 甘油三酯</li>
+      </ul>
+      <p>预期:体重降 5% 左右,HOMA-IR 通常就能看到明显改善,甘油三酯降得更快。<b>不用瘦很多才能看到代谢好转。</b></p>
+    </div>
+  </details>
+
+  </div><!-- /pageToday -->
+
+  <div id="pageLog" hidden>
+    <div class="cal-head">
+      <button class="cal-nav" id="calPrev">◀</button>
+      <div class="cal-title" id="calTitle"></div>
+      <button class="cal-nav" id="calNext">▶</button>
+    </div>
+    <div class="cal-dow"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="day-detail" id="dayDetail" hidden></div>
+    <div class="stats" id="calStats"></div>
+    <div class="cycle-info" id="cycleInfo" hidden></div>
+    <button class="report-btn" id="reportBtn">复制汇报(最近14天)</button>
+    <textarea class="report-fallback" id="reportFallback" hidden readonly></textarea>
+    <p class="tiny-note">点有颜色的格子看当天详情 · ✓=达标 · ~=有氧 · 蓝灰=休息日 · 这是记录,不是考核</p>
+
+    <div class="trend">
+      <h3>力量趋势 · 渐进负荷的证据</h3>
+      <select class="trend-sel" id="trendMove"></select>
+      <div class="chart-box" id="trendChart"></div>
+      <div class="trend-summary" id="trendSummary"></div>
+      <div class="bars-cap">每周力量次数 · 我一直在出现</div>
+      <div class="chart-box" id="weekBars"></div>
+    </div>
+
+    <details class="backup">
+      <summary>备份 · 导出 / 导入</summary>
+      <div class="det-body">
+        <p>数据只存在这台设备的浏览器里。换设备、清缓存、或换浏览器前先<b>导出备份</b>;需要时再<b>导入恢复</b>。导入是合并:同一天以导入的为准,其它天保留。</p>
+        <div class="backup-btns">
+          <button id="exportCopy">复制备份</button>
+          <button id="exportFile" class="ghost">下载备份文件</button>
+        </div>
+        <textarea id="importBox" placeholder="把备份文本粘贴到这里,或用下面的按钮选文件…"></textarea>
+        <div class="backup-btns">
+          <button id="importText">导入粘贴的文本</button>
+          <label class="file-label">选择备份文件<input type="file" id="importFile" accept="application/json,.json" hidden></label>
+        </div>
+        <div id="backupMsg" class="backup-msg"></div>
+      </div>
+    </details>
+  </div>
+
+  <footer>
+    热身用「训练卡」查动作要领 · 这张卡管「今天练多少」<br>
+    练完跟我说一句:哪个吃力 / 太轻还是太累 / 有没有不对劲 → 我调下一轮
+  </footer>
+
+</div>
+
+<script>
+const PLAN = {
+  A: {
+    title: "A 日 · 下肢",
+    sub: "臀腿是最大的血糖处置器官 — 这天最重要",
+    blocks: [
+      { name: "热身 · 5–8分钟", items: [
+        { nm:"青蛙趴髋内旋 + 直膝蛙式", dose:{g:"各 15–20 次",a:"各 10 次",r:"各 10 次"}, why:"打开髋,深蹲才蹲得稳",
+          detail:{
+            prep:"四点跪撑,双膝分开、小腿朝外呈青蛙状。",
+            move:"①青蛙趴:臀部缓慢往后坐向脚跟方向,再回来。②直角腿变式:一侧小腿转向外侧再回正。③直膝蛙式:膝盖伸直些,重复后坐。全程慢。",
+            good:"臀部外侧、髋部深处有拉伸/发力感,骨盆稳定不晃。",
+            bad:"靠腰去带、骨盆乱转、图快甩着做。用臀去找拉伸感,腰保持稳定。"
+          } },
+        { nm:"足踝迷你套", dose:{g:"足底放松 / 分趾 / 背屈 / 旋内 / 压大脚趾 · 各 15",a:"挑 2 个 · 各 10",r:"挑 2 个 · 各 10"}, why:"脚站得住,膝盖才不内扣",
+          detail:{
+            subs:[
+              { t:"足底放松", d:"筋膜球踩脚底,脚跟滚到脚掌前,遇酸点停3秒深呼吸再走。", good:"滚完脚底发热、脚掌摊平贴地更多。", bad:"压到疼得皱眉憋气,力度到“舒服的酸”就够。" },
+              { t:"分趾", d:"坐姿,只压下大脚趾、四趾不动;再只翘大脚趾、四趾不动。", good:"大脚趾能和四趾分开用力,足弓被撑起一点。", bad:"整只脚一起抓地、脚背抽筋——放松,别让小腿使劲。" },
+              { t:"足背屈", d:"面墙站,脚跟踩死,慢慢屈膝让膝盖往前压,再回来。这个直接决定深蹲深度。", good:"脚踝前侧有拉紧感、脚跟稳稳贴地。", bad:"膝盖一往前脚跟就翘——翘了就退回,幅度小一点。" },
+              { t:"足旋内", d:"坐姿,脚掌慢慢往内翻(脚底朝内)再回正,可套弹力带加阻力。", good:"脚踝在主动、可控地转。", bad:"甩着做靠惯性。" },
+              { t:"压大脚趾", d:"坐姿,大脚趾往下压实地面(或压弹力带),其余脚趾放松。", good:"找到“大脚球踩实地面”的感觉。", bad:"五个脚趾一起抠地。" }
+            ]
+          } },
+        { nm:"360° 腹式呼吸", dose:{g:"8 次",a:"8 次",r:"8 次"}, why:"先收紧核心,力才不漏到腰",
+          detail:{
+            prep:"仰卧屈膝或坐直,双手掌轻放下肋两侧(腰的位置)。",
+            move:"鼻子吸气,把气送到腰两侧和后背,让两侧的手被顶开,肋骨不往上、往前顶;嘴缓慢吐光,肚子一圈微微收紧,像穿了一圈紧身腰带。",
+            good:"后腰两侧、后背鼓起顶到手;呼气末核心一圈是“硬”的;肩膀始终放松。",
+            bad:"只有胸口和肩膀在起伏;吸气时耸肩、肋骨往前翘(肋骨外翻)。"
+          } }
+      ]},
+      { name: "主菜 · 负重", items: [
+        { nm:"高脚杯深蹲", dose:{g:"3 组 × 10 · 10lb 起",a:"2 组 × 10 · 减轻",r:"—"}, plan:{w:10,s:3,r:10},
+          detail:{
+            prep:"哑铃竖起,双手捧住上头贴紧胸口锁骨下方,手肘朝下。双脚略比肩宽,脚尖微微朝外。",
+            move:"吸气建立腹压,脚像螺丝钉往地里拧、脚趾抓地;屁股向后向下坐(像身后有椅子),膝盖朝脚尖方向往外撑住;蹲到大腿接近平行;呼气蹬地、绷紧屁股站起。",
+            good:"臀腿发力为主,脚跟全程踩实,膝盖和脚尖同方向,背直、哑铃贴胸。",
+            bad:"脚跟翘起、膝盖内夹、含胸驼背、哑铃离胸前掉——出现任何一个就退回轻一档重量。"
+          } },
+        { nm:"哑铃罗马尼亚硬拉", swap:"替壶铃", dose:{g:"3 组 × 12 · 各 8lb 起",a:"2 组 × 10 · 减轻",r:"—"}, plan:{w:8,s:3,r:12},
+          detail:{
+            prep:"双手各持哑铃放大腿前,双脚与髋同宽,膝盖微弯(不是深蹲那种弯)。",
+            move:"吸气,屁股向后推(像用臀去关身后的抽屉),哑铃贴着大腿往下滑,背保持挺直;大腿后侧拉到最紧;呼气用臀把身体带回站直,顶端夹臀。",
+            good:"大腿后侧有明显牵拉/发力感,背全程是平的,动作来自“髋部折叠”。",
+            bad:"弓背含胸(最危险,别做);靠弯腰而不是推髋;哑铃离开大腿往前飘。"
+          } },
+        { nm:"臀桥 / 单腿臀桥", dose:{g:"3 组 × 15",a:"2 组 × 12 · 徒手",r:"—"}, plan:{w:0,s:3,r:15},
+          detail:{
+            prep:"仰卧屈膝,脚跟离臀一拳半,膝盖朝向和脚尖对齐,下巴微收。",
+            move:"先收紧核心;呼气用臀部把髋顶起,到肩-髋-膝一条斜线;顶端夹臀停1–2秒;吸气慢落。不往上“窜”、不塌腰。进阶:髋部横放哑铃(垫毛巾)→ 哑铃到顶换单腿(一腿抬起)。",
+            good:"顶端是屁股在酸、在夹紧;腰部没有明显感觉。",
+            bad:"下背在酸=用腰挺、没先收核心——降低幅度,先收紧肚子再用臀顶髋。"
+          } },
+        { nm:"阻力圈蚌式开合", dose:{g:"3 组 × 20",a:"2 组 × 15",r:"—"}, plan:{w:0,s:3,r:20},
+          detail:{
+            prep:"侧卧,阻力圈套在膝盖上方,双膝弯约90°叠放,脚跟并拢,头枕手臂,骨盆垂直于地面。",
+            move:"脚跟不分开,呼气把上侧膝盖像贝壳开口一样向上打开到最大,停1秒;吸气有控制地合上,别让阻力圈把腿弹回去。",
+            good:"臀部外侧(裤子口袋位置)酸胀发力,骨盆全程不向后翻。",
+            bad:"骨盆跟着往后倒、用腰拧着开——幅度宁小,骨盆钉住不动。"
+          } },
+        { nm:"单腿平衡站立", swap:"免楔形板", dose:{g:"各 30 秒 × 2",a:"各 30 秒 × 1",r:"—"},
+          detail:{
+            prep:"赤脚,单腿站,支撑脚“三点踩实”(大脚球、小脚球、脚跟),微屈膝。",
+            move:"另一腿抬离地面,保持30秒;晃是正常的,让脚底自己微调。进阶:对侧腿向外展、或闭眼数10秒。",
+            good:"脚底在忙碌地微调,膝盖对准脚尖,骨盆水平不掉。",
+            bad:"膝盖锁死伸直、髋歪向一边、脚趾死抠地面。站不稳先扶墙一指。"
+          } }
+      ]},
+      { name: "收尾核心", items: [
+        { nm:"死虫式(屈膝点地)", dose:{g:"2 组 × 12",a:"跳过",r:"—"},
+          detail:{
+            prep:"仰卧,双臂指向天花板,大腿抬起、大小腿90°(桌面腿),腰贴地不留缝。",
+            move:"第一口气吸满再吐满;之后吸气不过半、呼气不到底,保持腹腔“充气+刚性”。缓慢放下一条腿用脚尖轻点地(和对侧手臂同伸),收回换边。",
+            good:"肚子一圈始终紧绷,腰全程贴地,呼吸不断。",
+            bad:"腰拱起离地、憋气、动作快靠甩——慢下来,腰一离地就缩小幅度。"
+          } }
+      ]}
+    ]
+  },
+  B: {
+    title: "B 日 · 上肢 + 核心",
+    sub: "推拉平衡 + 肩背养护 — 保住肌肉,护好关节",
+    blocks: [
+      { name: "热身 · 5分钟", items: [
+        { nm:"腕功能迷你套", dose:{g:"腕屈伸 / 桡偏 / 前臂旋 · 各 8",a:"各 8",r:"各 8"}, why:"握哑铃前先激活手腕",
+          detail:{
+            subs:[
+              { t:"腕屈伸", d:"手臂前伸,手背往上勾、往下压,各8次。" },
+              { t:"桡偏", d:"手掌立起,手腕向拇指侧、小指侧摆动。" },
+              { t:"前臂旋转", d:"手肘贴身弯90°,手心朝上↔朝下翻转。" },
+              { t:"五指画圈", d:"五指张开,手腕顺时针、逆时针各画圈。" }
+            ],
+            good:"手腕转起来顺滑不卡,握哑铃时腕能保持中立不软。",
+            bad:"跳过直接上重量,负重时手腕往后折。"
+          } },
+        { nm:"阻力绳肩环绕", dose:{g:"10–12 次",a:"10 次",r:"10 次"}, why:"打开肩,推举前必做",
+          detail:{
+            prep:"双手宽握阻力绳/弹力带两端(比肩宽很多),手臂伸直。",
+            move:"保持双臂伸直,把带子从体前缓慢绕过头顶到体后,再绕回来。太紧就握宽一点。",
+            good:"肩膀前后侧被温和拉开,全程无痛,越绕越顺。",
+            bad:"握太窄硬掰、耸肩、弯手肘借力。"
+          } },
+        { nm:"伟大伸展 / 猫式伸展", dose:{g:"各 5 次",a:"各 5 次",r:"各 5 次"},
+          detail:{
+            subs:[
+              { t:"伟大伸展", d:"弓步俯身,双手撑地,前腿侧的手离地→肘向地面沉→再向天花板旋转打开,眼随手走。", good:"髋前侧+胸椎都有打开感。", bad:"后腿膝盖着地塌腰。" },
+              { t:"猫式", d:"四点跪撑,呼气低头拱背到最圆,吸气抬头塌腰到最展,缓慢交替5次。", good:"一节一节脊柱在动。", bad:"只动脖子不动背。" }
+            ]
+          } }
+      ]},
+      { name: "主菜 · 推 + 拉", items: [
+        { nm:"拉力带坐姿划船", swap:"替器械", dose:{g:"3 组 × 12",a:"2 组 × 12 · 减阻力",r:"—"}, plan:{w:0,s:3,r:12},
+          detail:{
+            prep:"坐直,腿伸前,拉力带绕过脚掌,双手握两端,手臂略低于肩。脚蹬住带子,腰以下稳定。",
+            move:"吸气,先用两块肩胛骨向后向下“夹”,再让手肘拉到身体两侧(手臂只是传力);呼气回放,先让背舒展再把手往前送。",
+            good:"后背中间(肩胛之间)发力收紧,胸打开,坐姿挺直。",
+            bad:"耸肩、靠手臂猛拉、身体前后晃借力。动作起点是肩胛骨,不是手。"
+          } },
+        { nm:"上斜俯卧撑(扶桌沿)", swap:"替跪姿", dose:{g:"2–3 组 × 8–12",a:"2 组 × 8 · 抬高手位",r:"—"}, plan:{w:0,s:3,r:10},
+          detail:{
+            prep:"双手撑稳固桌沿/台面,比肩略宽,身体从头到脚跟一条斜直线,核心收紧。",
+            move:"大臂与身体约70–80°夹角(手肘别完全外张),吸气身体下沉到胸接近桌沿,呼气推起。全程身体像一块板。",
+            good:"胸和手臂发力,身体整体升降,腰不塌不翘。",
+            bad:"塌腰翘臀、只低头不下沉、手肘完全外开(伤肩)。太难→手撑更高的台面;太容易→换更低的台面。"
+          } },
+        { nm:"哑铃肩推", dose:{g:"3 组 × 10 · 5–8lb 起",a:"2 组 × 10 · 减轻",r:"—"}, plan:{w:5,s:3,r:10},
+          detail:{
+            prep:"坐直或站直,双手持铃举到肩高,手肘略在身前,手腕中立不后折。",
+            move:"先收紧核心、肋骨不外翻;呼气推到手臂接近伸直(不锁死),吸气控制放回肩高。",
+            good:"肩膀发力,核心稳,肋骨没往前顶、腰没反弓。",
+            bad:"为推起而挺腰、肋骨外翻;耸肩;手腕后折。收紧肚子能解决大半。"
+          } },
+        { nm:"泡沫轴推墙上回旋(前锯)", dose:{g:"2 组 × 10",a:"2 组 × 8",r:"—"}, plan:{w:0,s:2,r:10},
+          detail:{
+            prep:"面墙,双手把泡沫轴按在墙上,手臂与肩同高伸直,身体微前倾。",
+            move:"核心准备好;呼气把泡沫轴沿墙向上滚,同时上背向前推(肩胛骨分开、上回旋),想着“腋下发力、小拇指去够”;吸气滚回原位。",
+            good:"腋下和肩胛外侧有发力感,肩没耸向耳朵。",
+            bad:"耸肩代偿、塌腰前顶、手臂弯曲去抬。"
+          } },
+        { nm:"弹力带肩外旋 + 站姿 T 字", dose:{g:"各 2 组 × 15",a:"各 1 组 × 15",r:"—"}, plan:{w:0,s:2,r:15},
+          detail:{
+            subs:[
+              { t:"肩外旋", d:"大臂贴身(隔一拳)、手肘90°;呼气大臂不动、前臂像开门一样水平外转,吸气控制回来。", good:"肩后侧深处细微发力,大臂不外飘(可腋下夹毛巾)。", bad:"大臂离身、整条手臂甩。" },
+              { t:"站姿T字", d:"双手握弹力带于胸前,手臂微直;呼气双臂向两侧水平拉开成“T”,肩胛向后向下夹,吸气回。", good:"肩胛之间收紧、没耸肩。", bad:"手腕折、耸肩、靠腰后仰借力。" }
+            ]
+          } }
+      ]},
+      { name: "收尾核心", items: [
+        { nm:"熊式支撑 · 手脚交叉离地 3 秒", dose:{g:"2 组 × 各 6",a:"跳过",r:"—"},
+          detail:{
+            prep:"四点跪撑,手在肩下、膝在髋下,脚尖踩地,膝盖离地约一拳悬停(熊式)。",
+            move:"核心锁死,呼气缓慢抬起一只手和对侧脚离地2–3厘米,停3秒;吸气放回,换边。躯干像一张桌面,不晃不转。",
+            good:"核心一圈紧绷,骨盆水平,离地的瞬间身体几乎没有重心晃动。",
+            bad:"骨盆翻转、塌腰、憋气、抬太高求幅度。稳比高重要;做不了交叉就先只抬手。"
+          } },
+        { nm:"俯卧 T 字", dose:{g:"2 组 × 12",a:"跳过",r:"—"},
+          detail:{
+            prep:"脸朝下趴垫上,手臂向两侧打开成“T”,额头轻点地。",
+            move:"吸气腹壁充气,呼气用背和后肩把手臂与上胸抬离地面(手臂放松不主动使劲),想“小拇指去够远方”;吸气缓慢放下,每次起来前重新吸半口气。",
+            good:"两侧肩胛之间、后肩在发力,脖子放松、下巴微收。",
+            bad:"用脖子和腰去挺、抬头看前方。是背在抬,不是腰在折。"
+          } }
+      ]}
+    ]
+  }
+};
+
+const NOTES = {
+  green: { bg:"var(--green-tint)", fg:"#204d36",
+    html:"<b>做完整版。</b>该加量的加量 — 看「什么时候加量」那栏的信号。" },
+  amber: { bg:"var(--amber-tint)", fg:"#6b4a0d",
+    html:"<b>降到 2 组、重量减轻、砍掉收尾核心。</b>已经帮你改好了 ↓ 这样也算完整完成,不打折扣。" },
+  red:   { bg:"var(--red-tint)", fg:"#7a3c18",
+    html:"<b>今天只做热身,然后出门走走。</b>或者直接休息 — 「今天出现了」本身就算达标。别硬撑。" }
+};
+
+const KEY = { green:"g", amber:"a", red:"r" };
+const STORAGE_KEY = "workout-log";
+const $ = s => document.querySelector(s);
+
+function testStorage(){
+  try{
+    const k = "__storage_test__";
+    localStorage.setItem(k, "1");
+    localStorage.removeItem(k);
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+const storageAvailable = testStorage();
+if(!storageAvailable) $("#storageHint").style.display = "block";
+
+function loadLog(){
+  if(!storageAvailable) return {};
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  }catch(e){
+    return {};
+  }
+}
+function saveLog(){
+  if(!storageAvailable) return;
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(log));
+  }catch(e){
+    // 保存失败时不影响使用,只是不持久化
+  }
+}
+
+function dateKey(d){
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,"0");
+  const dd = String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${dd}`;
+}
+
+const log = loadLog();
+// 一次性补录:7/17 记录丢失,按用户口述恢复(🟡 A 日完整完成,无有氧)。已有记录则不覆盖。
+if(!log["2026-07-17"]){
+  log["2026-07-17"] = {
+    day:"A", state:"amber", completed:true,
+    doneA:["青蛙趴髋内旋 + 直膝蛙式","足踝迷你套","360° 腹式呼吸","高脚杯深蹲","哑铃罗马尼亚硬拉","臀桥 / 单腿臀桥","阻力圈蚌式开合","单腿平衡站立"],
+    doneB:[]
+  };
+  saveLog();
+}
+const todayKey = dateKey(new Date());
+if(!log[todayKey]){
+  log[todayKey] = { day:"A", state:"green", completed:false, doneA:[], doneB:[] };
+}
+const today = log[todayKey];
+
+let dayType = today.dayType || "train";  // 旧记录无 dayType → 视为训练日
+let day = today.day || "A";
+let state = today.state || "green";
+
+function isAchieved(entry){
+  if(!entry) return false;
+  if(entry.dayType === "rest") return true;  // 计划中的休息 = 出现了,算达标
+  return entry.completed === true ||
+    (entry.doneA && entry.doneA.length > 0) ||
+    (entry.doneB && entry.doneB.length > 0) ||
+    !!entry.aerobic;
+}
+
+// 从 PLAN 找某动作的计划值 / 上次实际值 / 智能默认值
+function planFor(nm){
+  for(const dk of ["A","B"]) for(const blk of PLAN[dk].blocks) for(const it of blk.items)
+    if(it.nm === nm && it.plan) return it.plan;
+  return null;
+}
+function lastActual(nm){
+  const keys = Object.keys(log).filter(k => k < todayKey && log[k].actuals && log[k].actuals[nm]).sort();
+  return keys.length ? log[keys[keys.length-1]].actuals[nm] : null;
+}
+function defaultActual(nm, plan){
+  const la = lastActual(nm);
+  if(la) return { weight: la.weight != null ? la.weight : plan.w, sets: la.sets != null ? la.sets : plan.s, reps: la.reps != null ? la.reps : plan.r };
+  return { weight: plan.w, sets: plan.s, reps: plan.r };
+}
+
+function bind(id, attr, fn){
+  document.querySelectorAll(`#${id} button`).forEach(b=>{
+    b.onclick = () => {
+      document.querySelectorAll(`#${id} button`).forEach(x=>x.setAttribute("aria-pressed","false"));
+      b.setAttribute("aria-pressed","true");
+      fn(b.dataset[attr]);
+      renderPlan();
+      renderCheckin();
+    };
+  });
+}
+document.querySelectorAll(`#daySwitch button`).forEach(b=>{
+  b.setAttribute("aria-pressed", b.dataset.d === day ? "true" : "false");
+});
+document.querySelectorAll(`#stateSwitch button`).forEach(b=>{
+  b.setAttribute("aria-pressed", b.dataset.s === state ? "true" : "false");
+});
+bind("daySwitch","d", v => { day = v; today.day = v; saveLog(); });
+bind("stateSwitch","s", v => { state = v; today.state = v; saveLog(); });
+
+// ---- 第一层:今天是什么日子 ----
+const REST_NOTE = {
+  rest: `<b>休息日 · 计划的一部分。</b>肌肉在你休息时长大,血糖敏感性在恢复日改善。今天来这儿给身体放个假,就算达标。想动就饭后走 10–15 分钟,不想动也完全 OK。`,
+  aero: `<b>有氧日。</b>湖滨快走或骑行 30–40 分钟,心率 ~120(能说话不能唱歌)。在下面「今日有氧」记一笔就好——没门槛、没进度条,做了就算。`
+};
+document.querySelectorAll("#dayTypeSwitch button").forEach(b=>{
+  b.setAttribute("aria-pressed", b.dataset.dt === dayType ? "true" : "false");
+  b.onclick = () => {
+    document.querySelectorAll("#dayTypeSwitch button").forEach(x=>x.setAttribute("aria-pressed","false"));
+    b.setAttribute("aria-pressed","true");
+    dayType = b.dataset.dt;
+    today.dayType = dayType;
+    saveLog();
+    renderDayType();
+    renderCheckin();
+  };
+});
+function renderDayType(){
+  const rn = $("#restNote");
+  if(dayType === "train"){
+    $("#trainOnly").hidden = false;
+    rn.hidden = true;
+    rn.classList.remove("aero");
+    renderPlan();
+  }else{
+    $("#trainOnly").hidden = true;
+    rn.hidden = false;
+    rn.classList.toggle("aero", dayType === "aero");
+    rn.innerHTML = REST_NOTE[dayType];
+  }
+}
+
+function detailHTML(dt){
+  let h = "";
+  if(dt.prep) h += `<p><b>预备:</b>${dt.prep}</p>`;
+  if(dt.move) h += `<p><b>怎么动:</b>${dt.move}</p>`;
+  if(dt.subs) dt.subs.forEach(s => {
+    h += `<p><b>${s.t}:</b>${s.d}</p>`;
+    if(s.good) h += `<div class="hint ok">对=${s.good}</div>`;
+    if(s.bad) h += `<div class="hint no">错=${s.bad}</div>`;
+  });
+  if(dt.good) h += `<div class="hint ok">对:${dt.good}</div>`;
+  if(dt.bad) h += `<div class="hint no">错:${dt.bad}</div>`;
+  return h;
+}
+
+function renderPlan(){
+  const p = PLAN[day], n = NOTES[state], k = KEY[state];
+  const note = $("#stateNote");
+  note.style.background = n.bg; note.style.color = n.fg; note.innerHTML = n.html;
+
+  $("#pTitle").textContent = p.title;
+  $("#pSub").textContent = p.sub;
+
+  const doneList = day === "A" ? today.doneA : today.doneB;
+
+  let html = "";
+  p.blocks.forEach(blk => {
+    const items = blk.items.filter(it => it.dose[k] !== "—");
+    if(!items.length) return;
+    html += `<div class="block-title">${blk.name}</div><ul class="moves">`;
+    items.forEach(it => {
+      const d = it.dose[k];
+      const skip = d === "跳过";
+      const done = doneList.indexOf(it.nm) !== -1;
+      html += `<li${skip?' style="opacity:.45"':''}${done?' class="done"':''}>
+        <div class="tick">✓</div>
+        <div class="mv">
+          <div class="nm">${it.nm}${it.swap?`<span class="swap">${it.swap}</span>`:""}${it.detail?'<span class="caret">▸</span>':""}</div>
+          <div class="dose"><b>${d}</b></div>
+          ${it.plan?actualHTML(it.nm, it.plan):""}
+          ${it.why?`<div class="why">${it.why}</div>`:""}
+          ${it.detail?`<div class="exp"><div class="exp-in">${detailHTML(it.detail)}</div></div>`:""}
+        </div></li>`;
+    });
+    html += `</ul>`;
+  });
+  $("#pBody").innerHTML = html;
+
+  document.querySelectorAll("#pBody .mv").forEach(m => {
+    m.onclick = (e) => {
+      if(e.target.closest(".exp") || e.target.closest(".act")) return;
+      const li = m.closest("li");
+      if(!li.querySelector(".exp")) return;
+      li.classList.toggle("open");
+    };
+  });
+
+  // 实际值:输入即存;分组/合并切换
+  document.querySelectorAll("#pBody .act").forEach(actEl=>{
+    actEl.querySelectorAll("input").forEach(inp=>{ inp.oninput = () => readActualRow(actEl); });
+    const tg = actEl.querySelector(".a-toggle");
+    if(tg){
+      tg.onclick = (e) => {
+        e.stopPropagation();
+        const nm = actEl.dataset.nm, plan = planFor(nm);
+        const cur = (today.actuals && today.actuals[nm]) || defaultActual(nm, plan);
+        const sets = Math.max(1, Number(actEl.querySelector(".a-s").value) || cur.sets || 1);
+        const wI = actEl.querySelector(".a-w");
+        const obj = { sets };
+        if(plan.w > 0) obj.weight = wI ? (Math.max(0, Number(wI.value)||0)) : (cur.weight||0);
+        if(tg.dataset.act === "expand"){
+          const single = Number(actEl.querySelector(".a-r").value) || (Array.isArray(cur.reps)?cur.reps[0]:cur.reps) || 0;
+          obj.reps = Array.from({length:sets}, ()=>single);
+        }else{
+          const rIs = [...actEl.querySelectorAll(".a-r")].map(x=>Number(x.value)||0);
+          obj.reps = rIs.length ? rIs[0] : (Array.isArray(cur.reps)?cur.reps[0]:cur.reps);
+        }
+        if(!today.actuals) today.actuals = {};
+        today.actuals[nm] = obj;
+        saveLog();
+        renderPlan();
+      };
+    }
+  });
+
+  document.querySelectorAll("#pBody .tick").forEach(t=>{
+    t.onclick = () => {
+      const li = t.closest("li");
+      const nm = li.querySelector(".nm").firstChild.textContent.trim();
+      const list = day === "A" ? today.doneA : today.doneB;
+      const idx = list.indexOf(nm);
+      if(idx === -1){
+        list.push(nm);
+        li.classList.add("done");
+        // 打勾即快照当前实际值(默认=上次值/计划值),让趋势图有数据
+        const pl = planFor(nm);
+        if(pl && !(today.actuals && today.actuals[nm])){
+          if(!today.actuals) today.actuals = {};
+          today.actuals[nm] = defaultActual(nm, pl);
+        }
+      }else{
+        list.splice(idx,1);
+        li.classList.remove("done");
+      }
+      saveLog();
+      renderCheckin();
+    };
+  });
+}
+
+function actualHTML(nm, plan){
+  const cur = (today.actuals && today.actuals[nm]) || defaultActual(nm, plan);
+  const reps = cur.reps;
+  const multi = Array.isArray(reps);
+  const wF = plan.w > 0 ? `<span class="fld">重量<input class="a-w" type="number" inputmode="decimal" min="0" step="0.5" value="${cur.weight}">lb</span>` : "";
+  const sF = `<span class="fld">组<input class="a-s" type="number" inputmode="numeric" min="1" value="${cur.sets}"></span>`;
+  let rF;
+  if(multi){
+    rF = `<span class="repwrap"><span class="fld reps-multi">次${reps.map((r,i)=>`<input class="a-r" data-i="${i}" type="number" inputmode="numeric" min="0" value="${r}">`).join("")}</span></span><button class="a-toggle" data-act="collapse">合并</button>`;
+  }else{
+    rF = `<span class="fld">每组次<input class="a-r" type="number" inputmode="numeric" min="0" value="${reps}"></span><button class="a-toggle" data-act="expand">分组</button>`;
+  }
+  return `<div class="act" data-nm="${nm}">${wF}${sF}${rF}</div>`;
+}
+function readActualRow(actEl){
+  const nm = actEl.dataset.nm;
+  const wI = actEl.querySelector(".a-w");
+  const sI = actEl.querySelector(".a-s");
+  const rIs = [...actEl.querySelectorAll(".a-r")];
+  const obj = { sets: Math.max(1, Number(sI.value)||1) };
+  if(rIs.length > 1) obj.reps = rIs.map(x=>Math.max(0, Number(x.value)||0));
+  else obj.reps = Math.max(0, Number(rIs[0].value)||0);
+  if(wI) obj.weight = Math.max(0, Number(wI.value)||0);
+  if(!today.actuals) today.actuals = {};
+  today.actuals[nm] = obj;
+  saveLog();
+}
+
+function renderCheckin(){
+  const btn = $("#checkinBtn");
+  if(dayType === "rest"){
+    btn.textContent = "今天休息 · 已记录 ✓";
+  }else if(dayType === "aero"){
+    btn.textContent = today.completed ? "今天有氧完成 ✓" : "标记今天已完成 ✓";
+  }else if(state === "red"){
+    btn.textContent = "今天散步/休息了 · 也算达标 ✓";
+  }else{
+    btn.textContent = today.completed ? "今天已达标 ✓" : "完成今日打卡 ✓";
+  }
+  btn.classList.toggle("done", dayType === "rest" ? true : !!today.completed);
+  btn.onclick = () => {
+    if(dayType === "rest") return;  // 休息日自动记录,无需打卡
+    today.completed = !today.completed;
+    saveLog();
+    renderCheckin();
+  };
+
+  // 最近14天格子
+  const grid = $("#grid14");
+  let cells = "";
+  for(let i = 13; i >= 0; i--){
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const key = dateKey(d);
+    const entry = log[key];
+    const hit = isAchieved(entry);
+    const mark = entry && entry.completed ? "✓" : (hit ? "·" : "");
+    const isToday = key === todayKey;
+    cells += `<div class="cell${hit?' hit':''}${isToday?' today':''}">
+      <div class="d">${d.getMonth()+1}/${d.getDate()}</div>
+      <div class="m">${mark}</div>
+    </div>`;
+  }
+  grid.innerHTML = cells;
+
+  // 连续达标天数
+  let cursor = new Date();
+  if(!isAchieved(log[todayKey])){
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  let streak = 0;
+  while(isAchieved(log[dateKey(cursor)])){
+    streak++;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  $("#streakNote").textContent = `已连续达标 ${streak} 天`;
+}
+
+// ---- 今日有氧 + 备注 ----
+function syncAeroUI(){
+  const a = today.aerobic || {};
+  document.querySelectorAll("#aeroType button").forEach(b=>{
+    b.setAttribute("aria-pressed", a.type === b.dataset.t ? "true" : "false");
+  });
+  $("#aeroMin").value = a.minutes || "";
+  $("#noteInput").value = today.note || "";
+}
+function saveAero(type, minutes){
+  if(type || minutes > 0){
+    today.aerobic = {};
+    if(type) today.aerobic.type = type;
+    if(minutes > 0) today.aerobic.minutes = minutes;
+  }else{
+    delete today.aerobic;
+  }
+  saveLog();
+  renderCheckin();
+}
+document.querySelectorAll("#aeroType button").forEach(b=>{
+  b.onclick = () => {
+    const cur = today.aerobic && today.aerobic.type;
+    const next = cur === b.dataset.t ? null : b.dataset.t;
+    saveAero(next, Math.max(0, Number($("#aeroMin").value) || 0));
+    syncAeroUI();
+  };
+});
+$("#aeroMin").oninput = () => {
+  const cur = (today.aerobic && today.aerobic.type) || null;
+  saveAero(cur, Math.max(0, Number($("#aeroMin").value) || 0));
+};
+document.querySelectorAll(".qmin").forEach(b=>{
+  b.onclick = () => { $("#aeroMin").value = b.dataset.m; $("#aeroMin").oninput(); };
+});
+$("#noteInput").oninput = () => {
+  const v = $("#noteInput").value.trim();
+  if(v) today.note = v; else delete today.note;
+  saveLog();
+};
+
+// ---- 周期感知(Stacy Sims 周期化,仅推荐不锁死)----
+const PHASE = {
+  follicular: { name:"卵泡期", sugg:"🟢", suggWord:"适合冲一冲",
+    train:"雌激素主导,是你的黄金发力窗口。今天适合冲重量、加量、挑战 PR。身体最扛造、恢复快。",
+    nutri:"这段对碳水利用好、胰岛素敏感性也在高点——训练前后碳水可以给足,是你冲代谢目标的最佳时机。" },
+  ovulation: { name:"排卵期前后", sugg:"🟢", suggWord:"维持高位",
+    train:"仍在高能量期,可继续保持较高强度,注意热身充分(此阶段关节相对松弛,别急着冲极限单次)。",
+    nutri:"这段对碳水利用好、胰岛素敏感性也在高点——训练前后碳水可以给足,是你冲代谢目标的最佳时机。" },
+  luteal: { name:"黄体期", sugg:"🟡", suggWord:"维持不猛冲",
+    train:"孕酮升高,身体进入高消耗模式,更容易累。强度可以维持,但别猛冲 PR,更重视恢复和动作质量。",
+    nutri:"蛋白质需求上升,务必吃够 100–120g(帮对抗这阶段的蛋白质分解)。对碳水利用变差,选低 GI。" },
+  premenstrual: { name:"经前期", sugg:"🟡", suggWord:"放松优先,想休息就休息",
+    train:"经前身体最需要照顾。想练就轻重量、想休息就休息,都不是失败。别硬扛。",
+    nutri:"经前对盐和血糖波动更敏感,留意水肿和情绪性进食。蛋白质继续守住,规律吃别让自己饿太久。" },
+  menstrual: { name:"经期", sugg:"", suggWord:"看今天身体怎么说",
+    train:"激素处于低谷,状态因人而异。能动就动,痛经/量大就降到轻重量或改休息;不必强迫躺平,也不必硬撑。",
+    nutri:"这几天铁流失,记得多补红肉配维C(你本就铁蛋白偏低,尤其重要)。" }
+};
+const DISCLAIMER = "基于经期记录的推算,仅供参考——身体的实际感受永远优先于算法。今天累就降,状态好就上。";
+
+function parseKey(k){ const p = k.split("-").map(Number); return new Date(p[0], p[1]-1, p[2]); }
+function daysBetweenKeys(k1, k2){ return Math.round((parseKey(k2) - parseKey(k1)) / 86400000); }
+function periodStarts(){
+  const days = Object.keys(log).filter(k => log[k] && log[k].period).sort();
+  const starts = [];
+  days.forEach(k=>{
+    const prev = parseKey(k); prev.setDate(prev.getDate()-1);
+    if(!(log[dateKey(prev)] && log[dateKey(prev)].period)) starts.push(k);
+  });
+  return starts;
+}
+function runLength(startKey){
+  let n = 0; const d = parseKey(startKey);
+  while(log[dateKey(d)] && log[dateKey(d)].period){ n++; d.setDate(d.getDate()+1); }
+  return n;
+}
+function computeCycle(){
+  const starts = periodStarts();
+  if(!starts.length) return { available:false };
+  const lastStart = starts[starts.length-1];
+  let L = 28, isDefaultL = true;
+  if(starts.length >= 2){
+    const intervals = [];
+    for(let i = 1; i < starts.length; i++) intervals.push(daysBetweenKeys(starts[i-1], starts[i]));
+    const use = intervals.slice(-3);
+    L = Math.round(use.reduce((a,b)=>a+b,0) / use.length);
+    L = Math.min(45, Math.max(20, L));  // 合理边界
+    isDefaultL = false;
+  }
+  const c = daysBetweenKeys(lastStart, todayKey) + 1;
+  const rlen = runLength(lastStart);
+  const mid = Math.round(L/2);
+  let phase;
+  if(c <= rlen) phase = "menstrual";
+  else if(c >= L-4) phase = "premenstrual";
+  else if(c >= mid-1 && c <= mid+2) phase = "ovulation";
+  else if(c <= mid) phase = "follicular";
+  else phase = "luteal";
+  const nextD = parseKey(lastStart); nextD.setDate(nextD.getDate() + L);
+  return { available:true, cycleDay:c, L, isDefaultL, phase, overdue: c > L + 7, lastStart, nextExpected: dateKey(nextD) };
+}
+
+function syncPeriodUI(){
+  $("#periodToggle").setAttribute("aria-pressed", today.period ? "true" : "false");
+}
+$("#periodToggle").onclick = () => {
+  if(today.period) delete today.period; else today.period = true;
+  saveLog();
+  syncPeriodUI();
+  renderCycle();
+};
+function renderCycle(){
+  const el = $("#cycleBody");
+  const cy = computeCycle();
+  if(!cy.available){
+    el.innerHTML = `<div class="cycle-empty">还没有经期记录。来月经那天点一下上面的按钮,我就能按你的周期给训练 / 营养建议了。</div>`;
+    return;
+  }
+  const p = PHASE[cy.phase];
+  const lenNote = cy.isDefaultL ? "(周期数据积累中,暂用通用估算)" : "";
+  const suggPart = p.sugg ? `建议今天 ${p.sugg} ${p.suggWord}` : p.suggWord;
+  let html = `<div class="cycle-hint">📅 周期提示:你大约在<span class="ph">${p.name}</span>(周期第 ${cy.cycleDay} 天 / 约 ${cy.L} 天${lenNote}),${suggPart}。</div>`;
+  html += `<div class="cycle-advice"><p><b>训练:</b>${p.train}</p><p><b>营养:</b>${p.nutri}</p></div>`;
+  if(cy.overdue) html += `<div class="cycle-overdue">本次周期偏长(已第 ${cy.cycleDay} 天,超过平均 ${cy.L} 天),可能只是正常波动。若持续异常,建议记录后咨询医生。</div>`;
+  html += `<div class="cycle-disc">${DISCLAIMER}</div>`;
+  el.innerHTML = html;
+}
+function renderCycleInfo(){
+  const el = $("#cycleInfo");
+  const cy = computeCycle();
+  if(!cy.available){ el.hidden = true; return; }
+  el.hidden = false;
+  const md = k => { const p = k.split("-"); return `${Number(p[1])}/${Number(p[2])}`; };
+  el.innerHTML =
+    `平均周期 <b>约 ${cy.L} 天</b> · 上次来潮 <b>${md(cy.lastStart)}</b> · 预计下次 <b>约 ${md(cy.nextExpected)}</b>` +
+    (cy.isDefaultL ? `<span class="muted">周期数据积累中,暂用通用估算(记满 2 次来潮后换成你的个人均值)。</span>` : `<span class="muted">纯信息呈现,供复诊参考;App 不做医疗判断。</span>`);
+}
+
+// ---- 页签 ----
+let calY, calM;
+document.querySelectorAll("#tabs button").forEach(b=>{
+  b.onclick = () => {
+    document.querySelectorAll("#tabs button").forEach(x=>x.setAttribute("aria-pressed","false"));
+    b.setAttribute("aria-pressed","true");
+    const isLog = b.dataset.p === "log";
+    $("#pageToday").hidden = isLog;
+    $("#pageLog").hidden = !isLog;
+    if(isLog){
+      if(calY === undefined){ const now = new Date(); calY = now.getFullYear(); calM = now.getMonth(); }
+      renderCalendar();
+      renderCycleInfo();
+      initTrendSelect();
+      renderTrend();
+      renderWeekBars();
+    }
+  };
+});
+
+// ---- 记录页:月历 ----
+const STATE_TXT = { green:"🟢 还行", amber:"🟡 一般", red:"🔴 很差" };
+function renderCalendar(){
+  $("#calTitle").textContent = `${calY}年${calM+1}月`;
+  const first = new Date(calY, calM, 1);
+  const daysInMonth = new Date(calY, calM+1, 0).getDate();
+  const lead = (first.getDay() + 6) % 7;
+  let cells = "";
+  for(let i = 0; i < lead; i++) cells += `<div class="cal-cell empty"></div>`;
+  for(let d = 1; d <= daysInMonth; d++){
+    const key = dateKey(new Date(calY, calM, d));
+    const e = log[key];
+    const active = isAchieved(e);
+    const dt = e && e.dayType || "train";
+    let stCls = "";
+    if(e){
+      if(dt === "rest") stCls = " st-rest";
+      else if(dt === "aero") stCls = active ? " st-aero" : "";
+      else if(active && e.state) stCls = ` st-${e.state}`;
+    }
+    const mark = dt === "rest" ? "休" : (e && e.completed ? "✓" : (active ? "·" : ""));
+    const aero = e && e.aerobic ? '<span class="aero-ico">~</span>' : "";
+    const pdot = e && e.period ? '<span class="period-dot"></span>' : "";
+    const clickable = key <= todayKey;  // 今天及以前都可点(可补标经期)
+    cells += `<div class="cal-cell${stCls}${key===todayKey?' today':''}${clickable?' has':''}" data-key="${key}">
+      ${pdot}<span class="dnum">${d}</span><span class="dmark">${mark}${aero}</span></div>`;
+  }
+  $("#calGrid").innerHTML = cells;
+  document.querySelectorAll("#calGrid .cal-cell.has").forEach(c=>{
+    c.onclick = () => showDayDetail(c.dataset.key);
+  });
+  renderStats();
+}
+function showDayDetail(key){
+  const dd = $("#dayDetail");
+  if(dd.dataset.key === key && !dd.hidden){ dd.hidden = true; dd.dataset.key = ""; return; }
+  dd.dataset.key = key;
+  renderDayDetail(key);
+}
+function setAeroRec(rec, type, minutes){
+  if(type || minutes > 0){ rec.aerobic = {}; if(type) rec.aerobic.type = type; if(minutes > 0) rec.aerobic.minutes = minutes; }
+  else delete rec.aerobic;
+}
+function cleanupDay(key){
+  if(log[key] && key !== todayKey && Object.keys(log[key]).length === 0) delete log[key];
+}
+function renderDayDetail(key){
+  const dd = $("#dayDetail");
+  const e = log[key];
+  const parts = key.split("-");
+  const dstr = `${Number(parts[1])}/${Number(parts[2])}`;
+  const rows = [];
+
+  // ---- 只读摘要 ----
+  if(!e){
+    rows.push(`<div><b>${dstr}</b> · 这天还没有记录</div>`);
+  }else{
+    const dt = e.dayType || "train";
+    const trainActivity = (e.doneA && e.doneA.length) || (e.doneB && e.doneB.length) || e.completed;
+    if(dt === "rest"){
+      rows.push(`<div><b>${dstr}</b> · 休息日 · 已记录 ✓</div>`);
+    }else if(!trainActivity && !e.aerobic && e.period){
+      rows.push(`<div><b>${dstr}</b> · 🩸 来月经</div>`);
+    }else{
+      const head = dt === "aero" ? "有氧日" : `${e.day||"—"} 日 · ${STATE_TXT[e.state]||""}`;
+      rows.push(`<div><b>${dstr}</b> · ${head} · ${isAchieved(e)?"已达标 ✓":"未达标"}</div>`);
+      const moves = [...(e.doneA||[]).map(n=>"A·"+n), ...(e.doneB||[]).map(n=>"B·"+n)];
+      if(moves.length) rows.push(`<div><b>完成动作:</b>${moves.join("、")}</div>`);
+      if(e.actuals){
+        const p2 = Object.keys(e.actuals).map(nm=>{
+          const a = e.actuals[nm]; const reps = Array.isArray(a.reps) ? a.reps.join("/") : a.reps; const wp = a.weight ? `${a.weight}lb×` : "";
+          return `${nm} ${wp}${a.sets}×${reps}`;
+        });
+        if(p2.length) rows.push(`<div><b>实际:</b>${p2.join(";")}</div>`);
+      }
+    }
+    if(e.aerobic) rows.push(`<div><b>有氧:</b>${e.aerobic.type||"其他"}${e.aerobic.minutes?` ${e.aerobic.minutes} 分钟`:""}</div>`);
+    if(e.note) rows.push(`<div><b>备注:</b>${e.note}</div>`);
+    if(e.period && ((e.doneA&&e.doneA.length)||(e.doneB&&e.doneB.length)||e.completed||e.aerobic||e.dayType==="rest"||e.dayType==="aero")) rows.push(`<div>🩸 这天来月经了</div>`);
+  }
+
+  // ---- 补录编辑器(过去的日子;今天在「今天」页操作)----
+  if(key === todayKey){
+    rows.push(`<div class="dd-hint">今天的记录请在「今天」页操作。</div>`);
+  }else{
+    const dt = e ? (e.dayType||"train") : null;
+    let typeSel = null;
+    if(e){
+      if(dt==="rest") typeSel = "rest";
+      else if(dt==="aero") typeSel = "aero";
+      else if(e.day==="B" || (e.doneB&&e.doneB.length)) typeSel = "B";
+      else if(e.day==="A" || (e.doneA&&e.doneA.length) || e.completed) typeSel = "A";
+    }
+    const isTrain = typeSel==="A" || typeSel==="B";
+    const aeroOn = !!(e && e.aerobic) || typeSel==="aero";
+    const curState = (e&&e.state) || "green";
+    const aeroType = (e&&e.aerobic&&e.aerobic.type) || "";
+    const aeroMin = (e&&e.aerobic&&e.aerobic.minutes) || "";
+    const note = (e&&e.note) || "";
+    const marked = !!(e && e.period);
+    let h = `<div class="dd-edit">`;
+    h += `<div class="dd-row"><span class="dd-lbl">补记为</span><div class="dd-chips" id="ddType">
+      <button data-set="A" aria-pressed="${typeSel==="A"}">训练A</button>
+      <button data-set="B" aria-pressed="${typeSel==="B"}">训练B</button>
+      <button data-set="rest" aria-pressed="${typeSel==="rest"}">休息</button>
+      <button data-set="aero" aria-pressed="${typeSel==="aero"}">有氧</button>
+    </div></div>`;
+    if(isTrain){
+      h += `<div class="dd-row"><span class="dd-lbl">状态</span><div class="dd-chips st" id="ddState">
+        <button data-s="green" aria-pressed="${curState==='green'}">🟢</button>
+        <button data-s="amber" aria-pressed="${curState==='amber'}">🟡</button>
+        <button data-s="red" aria-pressed="${curState==='red'}">🔴</button>
+      </div></div>`;
+    }
+    if(aeroOn){
+      h += `<div class="dd-row"><span class="dd-lbl">有氧</span><div class="dd-chips" id="ddAeroType">
+        ${["骑车","快走","散步","游泳","其他"].map(t=>`<button data-t="${t}" aria-pressed="${aeroType===t}">${t}</button>`).join("")}
+      </div><input class="dd-min" id="ddAeroMin" type="number" inputmode="numeric" min="0" placeholder="分钟" value="${aeroMin}"></div>`;
+    }
+    h += `<div class="dd-row"><span class="dd-lbl">🩸经期</span><button class="day-period-btn" id="ddPeriod" data-on="${marked}">${marked?"已标记 · 点取消":"点击标记"}</button></div>`;
+    h += `<div class="dd-row"><input class="dd-note" id="ddNote" type="text" placeholder="备注(可选)" value="${String(note).replace(/"/g,'&quot;')}"></div>`;
+    if(e) h += `<button class="dd-clear" id="ddClear">清除这天记录</button>`;
+    h += `</div>`;
+    rows.push(h);
+  }
+
+  dd.innerHTML = rows.join("");
+  dd.hidden = false;
+
+  // ---- 绑定编辑器(仅过去的日子)----
+  if(key !== todayKey){
+    const ensure = () => { if(!log[key]) log[key] = {}; return log[key]; };
+    const structural = () => { cleanupDay(key); saveLog(); renderCalendar(); renderCycleInfo(); syncPeriodUI(); renderCycle(); renderDayDetail(key); };
+    const light = () => { saveLog(); renderCalendar(); renderCycleInfo(); };  // 文本输入,保持焦点不重建
+
+    document.querySelectorAll("#ddType button").forEach(b=>{
+      b.onclick = () => {
+        const rec = ensure(), set = b.dataset.set;
+        if(set==="A" || set==="B"){ rec.dayType="train"; rec.day=set; rec.state=rec.state||"green"; rec.completed=true; rec.doneA=rec.doneA||[]; rec.doneB=rec.doneB||[]; }
+        else if(set==="rest"){ rec.dayType="rest"; delete rec.day; delete rec.state; delete rec.completed; delete rec.doneA; delete rec.doneB; delete rec.actuals; }
+        else if(set==="aero"){ rec.dayType="aero"; delete rec.day; delete rec.state; delete rec.completed; delete rec.doneA; delete rec.doneB; delete rec.actuals; rec.aerobic=rec.aerobic||{}; }
+        structural();
+      };
+    });
+    const stEl = $("#ddState");
+    if(stEl) stEl.querySelectorAll("button").forEach(b=>{ b.onclick = () => { ensure().state = b.dataset.s; structural(); }; });
+    const atEl = $("#ddAeroType");
+    if(atEl){
+      atEl.querySelectorAll("button").forEach(b=>{
+        b.onclick = () => { const rec=ensure(); const cur=rec.aerobic&&rec.aerobic.type; setAeroRec(rec, cur===b.dataset.t?null:b.dataset.t, Number($("#ddAeroMin").value)||0); structural(); };
+      });
+      $("#ddAeroMin").oninput = () => { const rec=ensure(); const cur=rec.aerobic&&rec.aerobic.type; setAeroRec(rec, cur||null, Number($("#ddAeroMin").value)||0); light(); };
+    }
+    $("#ddPeriod").onclick = () => { const rec=ensure(); if(rec.period) delete rec.period; else rec.period=true; structural(); };
+    $("#ddNote").oninput = () => { const rec=ensure(); const v=$("#ddNote").value.trim(); if(v) rec.note=v; else delete rec.note; light(); };
+    const clr = $("#ddClear");
+    if(clr) clr.onclick = () => { delete log[key]; saveLog(); renderCalendar(); renderCycleInfo(); syncPeriodUI(); renderCycle(); renderDayDetail(key); };
+  }
+}
+function renderStats(){
+  const daysInMonth = new Date(calY, calM+1, 0).getDate();
+  let sa=0, sb=0, an=0, am=0, ach=0, rest=0;
+  for(let d = 1; d <= daysInMonth; d++){
+    const e = log[dateKey(new Date(calY, calM, d))];
+    if(!e) continue;
+    if(e.doneA && e.doneA.length) sa++;
+    if(e.doneB && e.doneB.length) sb++;
+    if(e.aerobic){ an++; am += e.aerobic.minutes || 0; }
+    if(e.dayType === "rest") rest++;
+    if(isAchieved(e)) ach++;
+  }
+  let cursor = new Date();
+  if(!isAchieved(log[todayKey])) cursor.setDate(cursor.getDate() - 1);
+  let streak = 0;
+  while(isAchieved(log[dateKey(cursor)])){ streak++; cursor.setDate(cursor.getDate() - 1); }
+  $("#calStats").innerHTML =
+    `<span>力量 <b>${sa+sb}</b> 次(A×${sa} B×${sb})</span>` +
+    `<span>有氧 <b>${an}</b> 次 · <b>${am}</b> 分钟</span>` +
+    `<span>休息 <b>${rest}</b> 天</span>` +
+    `<span>达标 <b>${ach}</b> 天</span>` +
+    `<span>连续达标 <b>${streak}</b> 天</span>`;
+}
+function closeDayDetail(){ const dd = $("#dayDetail"); dd.hidden = true; dd.dataset.key = ""; }
+$("#calPrev").onclick = () => { calM--; if(calM < 0){ calM = 11; calY--; } closeDayDetail(); renderCalendar(); };
+$("#calNext").onclick = () => { calM++; if(calM > 11){ calM = 0; calY++; } closeDayDetail(); renderCalendar(); };
+
+// ---- 复制汇报 ----
+function buildReport(){
+  const days = [];
+  for(let i = 13; i >= 0; i--){ const d = new Date(); d.setDate(d.getDate() - i); days.push(d); }
+  const fmt = d => `${d.getMonth()+1}/${d.getDate()}`;
+  let sa=0, sb=0, an=0, am=0, act=0;
+  const types = {}, states = {green:0, amber:0, red:0}, notes = [];
+  days.forEach(d=>{
+    const e = log[dateKey(d)];
+    if(!e) return;
+    if(e.doneA && e.doneA.length) sa++;
+    if(e.doneB && e.doneB.length) sb++;
+    if(e.aerobic){ an++; am += e.aerobic.minutes || 0; const t = e.aerobic.type || "其他"; types[t] = (types[t]||0)+1; }
+    if(isAchieved(e)){ act++; const dt = e.dayType || "train"; if(dt === "train" && states[e.state] !== undefined) states[e.state]++; }
+    if(e.note) notes.push(`${fmt(d)} ${e.note}`);
+  });
+  const lines = [];
+  lines.push(`训练汇报 ${fmt(days[0])}–${fmt(days[13])}`);
+  lines.push(`力量:${sa+sb}次(A×${sa} B×${sb})`);
+  const tstr = Object.keys(types).map(t=>`${t}×${types[t]}`).join(" ");
+  lines.push(an ? `有氧:${an}次共${am}分钟(${tstr})` : "有氧:0次");
+  lines.push(`活动天数:${act}/14`);
+  lines.push(`状态:🟢×${states.green} 🟡×${states.amber} 🔴×${states.red}`);
+  if(notes.length) lines.push(`备注:${notes.join(";")}`);
+  return lines.join("\n");
+}
+$("#reportBtn").onclick = () => {
+  const txt = buildReport();
+  const btn = $("#reportBtn");
+  const flash = () => { btn.textContent = "已复制 ✓"; setTimeout(()=>{ btn.textContent = "复制汇报(最近14天)"; }, 1500); };
+  const fallback = () => {
+    const fb = $("#reportFallback");
+    fb.value = txt; fb.hidden = false; fb.focus(); fb.select();
+    try{ if(document.execCommand("copy")) flash(); }catch(err){}
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(flash, fallback);
+  }else{
+    fallback();
+  }
+};
+
+// ---- 备份:导出 / 导入 ----
+function setBackupMsg(m, cls){ const el = $("#backupMsg"); el.textContent = m; el.className = "backup-msg " + (cls||""); }
+$("#exportCopy").onclick = () => {
+  const txt = JSON.stringify(log);
+  const toBox = () => { $("#importBox").value = txt; setBackupMsg("已把备份填到下面文本框,请长按全选复制。", "ok"); };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(()=>setBackupMsg("已复制备份到剪贴板 ✓ 粘到备忘录/邮件里存好。", "ok"), toBox);
+  }else{ toBox(); }
+};
+$("#exportFile").onclick = () => {
+  try{
+    const blob = new Blob([JSON.stringify(log)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = `教练卡备份-${todayKey}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 1000);
+    setBackupMsg("已生成备份文件 ✓", "ok");
+  }catch(e){ setBackupMsg("这个浏览器不支持下载,请改用「复制备份」。", "err"); }
+};
+function doImport(txt){
+  let data;
+  try{ data = JSON.parse(txt); }catch(e){ setBackupMsg("导入失败:不是有效的备份文本。", "err"); return; }
+  if(!data || typeof data !== "object" || Array.isArray(data)){ setBackupMsg("导入失败:备份格式不对。", "err"); return; }
+  const keys = Object.keys(data).filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k));
+  if(!keys.length){ setBackupMsg("导入失败:没找到任何日期记录。", "err"); return; }
+  const added = keys.filter(k => !log[k]).length;
+  const over = keys.length - added;
+  keys.forEach(k => { log[k] = data[k]; });
+  saveLog();
+  setBackupMsg(`导入成功:新增 ${added} 天,更新 ${over} 天。正在刷新…`, "ok");
+  setTimeout(()=>location.reload(), 800);
+}
+$("#importText").onclick = () => { const t = $("#importBox").value.trim(); if(!t){ setBackupMsg("请先粘贴备份文本。", "err"); return; } doImport(t); };
+$("#importFile").onchange = (e) => {
+  const f = e.target.files[0]; if(!f) return;
+  const rd = new FileReader();
+  rd.onload = () => doImport(String(rd.result));
+  rd.onerror = () => setBackupMsg("读取文件失败。", "err");
+  rd.readAsText(f);
+};
+
+// ---- 力量趋势 ----
+function allWeightedMoves(){
+  const out = [];
+  ["A","B"].forEach(dk=>PLAN[dk].blocks.forEach(blk=>blk.items.forEach(it=>{
+    if(it.plan && it.plan.w > 0 && !out.includes(it.nm)) out.push(it.nm);
+  })));
+  return out;
+}
+function initTrendSelect(){
+  const sel = $("#trendMove");
+  if(sel.dataset.init) return;
+  sel.innerHTML = allWeightedMoves().map(nm=>`<option value="${nm}">${nm}</option>`).join("");
+  sel.dataset.init = "1";
+  sel.onchange = renderTrend;
+}
+function moveSeries(nm){
+  return Object.keys(log)
+    .filter(k => log[k].actuals && log[k].actuals[nm] && log[k].actuals[nm].weight > 0)
+    .sort()
+    .map(k => ({ key:k, w: log[k].actuals[nm].weight }));
+}
+function fmtMD(k){ const p = k.split("-"); return `${Number(p[1])}/${Number(p[2])}`; }
+function weeksBetween(k1, k2){ return Math.max(1, Math.round((new Date(k2) - new Date(k1)) / (7*864e5))); }
+
+function lineChartSVG(data){
+  if(!data.length) return `<div style="font-size:13px;color:var(--soft);padding:16px 6px;line-height:1.6">还没有实际重量记录。练一次、在动作行填上实际重量,这里就会长出你的进步曲线。</div>`;
+  const W=300, H=150, padL=30, padR=14, padT=16, padB=26;
+  const ws = data.map(d=>d.w);
+  let mn = Math.min(...ws), mx = Math.max(...ws);
+  if(mn === mx){ mn -= 2; mx += 2; }
+  const n = data.length;
+  const x = i => n === 1 ? (padL + (W-padL-padR)/2) : padL + (W-padL-padR)*i/(n-1);
+  const y = w => padT + (H-padT-padB)*(1 - (w-mn)/(mx-mn));
+  let g = "";
+  [mx, mn].forEach(v=>{ const yy = y(v); g += `<line x1="${padL}" y1="${yy.toFixed(1)}" x2="${W-padR}" y2="${yy.toFixed(1)}" stroke="var(--line)" stroke-width="1"/><text x="4" y="${(yy+4).toFixed(1)}" font-size="10" fill="var(--soft)">${v}</text>`; });
+  const pts = data.map((d,i)=>`${x(i).toFixed(1)},${y(d.w).toFixed(1)}`).join(" ");
+  const line = n > 1 ? `<polyline points="${pts}" fill="none" stroke="var(--pine)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>` : "";
+  const dots = data.map((d,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(d.w).toFixed(1)}" r="3.5" fill="var(--gold)"/>`).join("");
+  let labels = "";
+  data.forEach((d,i)=>{ if(n <= 6 || i === 0 || i === n-1) labels += `<text x="${x(i).toFixed(1)}" y="${H-8}" font-size="9.5" fill="var(--soft)" text-anchor="middle">${fmtMD(d.key)}</text>`; });
+  const last = data[n-1];
+  const endLbl = `<text x="${x(n-1).toFixed(1)}" y="${(y(last.w)-8).toFixed(1)}" font-size="11" font-weight="700" fill="var(--pine)" text-anchor="middle">${last.w}lb</text>`;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="重量趋势图">${g}${line}${dots}${endLbl}${labels}</svg>`;
+}
+function trendText(nm, data){
+  if(!data.length) return `选一个动作,记录几次实际重量后,这里会告诉你是在<b>进步</b>、<b>卡住</b>还是<b>稳定期</b>。`;
+  if(data.length === 1) return `<b>${nm}</b>:第一笔 ${data[0].w}lb 已记下。之后每次填一下实际重量,趋势就出来了。`;
+  const first = data[0], last = data[data.length-1];
+  const wk = weeksBetween(first.key, last.key);
+  const last3 = data.slice(-3).map(d=>d.w);
+  const stuck = last3.length === 3 && last3.every(w=>w === last3[0]);
+  if(last.w > first.w){
+    let s = `<b>${nm}</b>:${wk} 周从 ${first.w}lb → ${last.w}lb ↑ 渐进负荷正在发生,继续。`;
+    if(stuck) s += ` 不过近 3 次停在 ${last.w}lb——下次可以试加 2–5lb,或多做 1–2 次再冲。`;
+    return s;
+  }
+  if(stuck) return `<b>${nm}</b>:近 3 次卡在 ${last.w}lb。身体大概适应了——试试加半磅到 2lb、多做 1–2 次、或把下放放慢到 3–4 秒,给它个新刺激。`;
+  if(last.w < first.w) return `<b>${nm}</b>:最近这次 ${last.w}lb,比起点 ${first.w}lb 轻了点。累了或换了节奏都正常,先稳住状态再往上走。`;
+  return `<b>${nm}</b>:稳定在 ${last.w}lb。稳也是进展——想突破就从加重、加次、放慢离心里挑一个试。`;
+}
+function renderTrend(){
+  const nm = $("#trendMove").value;
+  const data = moveSeries(nm);
+  $("#trendChart").innerHTML = lineChartSVG(data);
+  $("#trendSummary").innerHTML = trendText(nm, data);
+}
+function renderWeekBars(){
+  const base = new Date();
+  base.setDate(base.getDate() - ((base.getDay()+6)%7));  // 本周一
+  const weeks = [];
+  for(let i = 7; i >= 0; i--){ const s = new Date(base); s.setDate(s.getDate() - i*7); weeks.push(s); }
+  const counts = weeks.map(ws=>{
+    let c = 0;
+    for(let dd = 0; dd < 7; dd++){ const d = new Date(ws); d.setDate(d.getDate()+dd); const e = log[dateKey(d)]; if(e && ((e.doneA&&e.doneA.length) || (e.doneB&&e.doneB.length))) c++; }
+    return { ws, c };
+  });
+  const W=300, H=92, padB=18, padT=10, padL=6, padR=6, n = counts.length;
+  const maxC = Math.max(3, ...counts.map(c=>c.c));
+  const gap = (W-padL-padR)/n, bw = gap*0.6;
+  let bars = "";
+  counts.forEach((c,i)=>{
+    const h = (H-padT-padB) * c.c/maxC;
+    const bx = padL + gap*i + (gap-bw)/2, by = H-padB-h;
+    bars += `<rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(0,h).toFixed(1)}" rx="2" fill="${c.c?'var(--pine)':'var(--line)'}"/>`;
+    if(c.c) bars += `<text x="${(bx+bw/2).toFixed(1)}" y="${(by-3).toFixed(1)}" font-size="10" fill="var(--soft)" text-anchor="middle">${c.c}</text>`;
+    bars += `<text x="${(bx+bw/2).toFixed(1)}" y="${H-6}" font-size="8.5" fill="var(--soft)" text-anchor="middle">${c.ws.getMonth()+1}/${c.ws.getDate()}</text>`;
+  });
+  $("#weekBars").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="每周力量次数">${bars}</svg>`;
+}
+
+renderDayType();
+renderCheckin();
+syncAeroUI();
+syncPeriodUI();
+renderCycle();
+</script>
+</body>
+</html>
