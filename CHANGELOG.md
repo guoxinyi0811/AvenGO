@@ -1,5 +1,26 @@
 # Changelog
 
+## 2026-08-11 — v1.1.0 movement-pattern iteration
+
+### Training architecture
+
+- Replaced the A/B-only picker with a movement-pattern ledger for Squat, Hinge, Push, and Pull.
+- Added Full Body A / B, Push, Pull, Lower Squat, Lower Hinge, Accessory / Conditioning, and free-combination choices; every choice remains available.
+- Added 10-day frequency guidance, priority-pattern suggestions, and a soft long-absence reminder for horizontal / vertical push and pull.
+- Added `pattern` / `subPattern` movement metadata and read-time mapping for legacy A/B records without migration.
+
+### Recording and progression
+
+- Added `templateId`, `selectedExercises`, and `doneExercises` as optional log fields.
+- Added RIR quick choices and neutral progressive-overload hints based on recent repetitions, load, and available reps.
+- Extended past-date editing, monthly summaries, 14-day reports, CSV exports, trends, and weekly bars to understand the new template model.
+- Bumped the lossless JSON backup envelope to version 3 while continuing to accept v2 and raw legacy logs.
+
+### Documentation
+
+- Updated README with the new prototype flow, mobile installation, local serving, privacy, and License sections.
+- Updated HANDOFF with v1.1 data fields, compatibility rules, logic, UI limitations, and regression coverage.
+
 ## 2026-08-11 — Quiet minimal visual reset
 
 ### UI-only changes

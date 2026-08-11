@@ -460,6 +460,43 @@
   .backup-msg{font-size:12px}
   footer{padding-top:18px;border-top:1px solid var(--line);font-size:11.5px;text-align:left}
 
+  .ledger-card{margin-top:18px;padding:16px;background:var(--card);border:1px solid var(--line);border-radius:16px}
+  .ledger-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:11px}
+  .ledger-head h2{font-family:var(--serif);font-size:18px;font-weight:600;margin:0;color:var(--ink)}
+  .ledger-head span{font-size:11px;color:var(--soft)}
+  .ledger-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  .ledger-item{min-width:0;padding:10px 7px;border-radius:10px;background:var(--paper);text-align:center}
+  .ledger-item b{display:block;font-size:12px;color:var(--ink);font-weight:650}
+  .ledger-item span{display:block;margin-top:2px;font-size:11px;color:var(--soft);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .ledger-item.priority{background:var(--accent-tint)}
+  .ledger-note{margin-top:10px;font-size:12px;line-height:1.65;color:var(--soft)}
+  .recommendation{margin-top:10px;padding:12px 13px;border-radius:12px;background:var(--pine-tint);font-size:13px;line-height:1.65;color:var(--ink)}
+  .recommendation b{font-weight:650}
+
+  .template-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .template-grid button{min-height:60px;padding:10px 11px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+  .template-grid button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#F8F7F2}
+  .template-grid button b{display:block;font-size:14px;font-weight:650}
+  .template-grid button small{display:block;margin-top:3px;font-size:10.5px;line-height:1.35;color:var(--soft)}
+  .template-grid button[aria-pressed="true"] small{color:#D8D9D2}
+  .template-grid .template-custom{grid-column:1/-1;text-align:center;min-height:48px}
+  .custom-picker{margin-top:10px;padding:12px;background:var(--card);border:1px solid var(--line);border-radius:12px}
+  .custom-picker-title{font-size:12px;color:var(--soft);margin-bottom:8px}
+  .exercise-picker{display:flex;flex-wrap:wrap;gap:6px}
+  .exercise-picker button{min-height:44px;padding:8px 11px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--ink);font:inherit;font-size:12px;cursor:pointer}
+  .exercise-picker button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+  .picker-group{margin-top:12px}
+  .picker-group:first-of-type{margin-top:0}
+  .picker-group-label{font-size:10.5px;color:var(--soft);margin-bottom:6px;letter-spacing:.04em}
+  .pattern-tag{display:inline-block;margin-left:6px;padding:2px 6px;border-radius:999px;background:var(--paper-deep);color:var(--soft);font-size:9.5px;font-weight:600;vertical-align:1px}
+
+  .rir-quick{display:flex;align-items:center;gap:5px;min-height:44px}
+  .rir-quick>span{font-size:10.5px;color:var(--soft);margin-right:1px}
+  .rir-quick button{min-height:36px;padding:5px 8px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--soft);font:inherit;font-size:10.5px;cursor:pointer}
+  .rir-quick button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+  .progression-hint{margin-top:7px;padding:8px 10px;border-radius:9px;background:var(--accent-tint);font-size:11.5px;line-height:1.55;color:var(--level-full-ink)}
+  .dd-template{width:100%;min-height:44px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);font:inherit;padding:8px 10px}
+
   @media (max-width:390px){
     .wrap{padding-left:calc(16px + env(safe-area-inset-left));padding-right:calc(16px + env(safe-area-inset-right))}
     header{padding-top:calc(24px + env(safe-area-inset-top))}
@@ -472,6 +509,11 @@
     .act .fld input{width:36px}
     .grid14,.cal-grid{gap:3px}
     .cal-cell{padding:4px;min-height:44px}
+    .ledger-card{padding:14px 12px}
+    .ledger-grid{gap:4px}
+    .ledger-item{padding:9px 3px}
+    .template-grid{gap:6px}
+    .template-grid button{padding:9px;min-height:58px}
   }
   @media (min-width:720px){
     header{padding-top:calc(36px + env(safe-area-inset-top));padding-bottom:22px}
@@ -526,13 +568,18 @@
 
   <!-- 训练日专属 -->
   <div id="trainOnly">
+    <section class="ledger-card" aria-labelledby="ledgerTitle">
+      <div class="ledger-head"><h2 id="ledgerTitle">动作账本</h2><span>距上次记录</span></div>
+      <div class="ledger-grid" id="patternLedger"></div>
+      <div class="ledger-note" id="subPatternNote"></div>
+    </section>
+    <div class="recommendation" id="recommendation"></div>
+
     <!-- STEP 2 -->
     <div class="step">
-      <div class="step-label"><span class="n">2</span>练哪个</div>
-      <div class="switch" id="daySwitch">
-        <button data-d="A" aria-pressed="true"><span class="big">A 日 · 下肢</span>蹲 · 髋伸 · 单腿稳定</button>
-        <button data-d="B" aria-pressed="false"><span class="big">B 日 · 上肢+核心</span>推拉 · 肩背养护</button>
-      </div>
+      <div class="step-label"><span class="n">2</span>选一个模板，或自己组合</div>
+      <div class="template-grid" id="templateSwitch"></div>
+      <div class="custom-picker" id="customPicker" hidden></div>
     </div>
 
     <!-- STEP 3 -->
@@ -553,7 +600,7 @@
 
     <!-- STEP 4 -->
     <div class="step">
-      <div class="step-label"><span class="n">4</span>照着做,打勾就行</div>
+      <div class="step-label"><span class="n">4</span>按今天的组合记录</div>
       <div class="panel">
         <div class="panel-head">
           <h2 id="pTitle"></h2>
@@ -593,10 +640,10 @@
 
   <!-- 折叠区 -->
   <details>
-    <summary>怎么排一周 · 不用钉死星期几</summary>
+    <summary>怎么安排 · 先运行，再按账本调整</summary>
     <div class="det-body">
-      <p>力量训练之间可以留出恢复时间，A / B 顺序轮换即可；不需要钉死星期几。</p>
-      <div class="rot"><span>A</span><span>恢复</span><span>B</span><span>恢复</span><span>A</span></div>
+      <p>不需要先把整周钉死。训练时先选合适的模板；下次再看动作账本，把间隔较久的蹲、髋铰链、推或拉带回来。</p>
+      <div class="rot"><span>选模板</span><span>训练</span><span>看账本</span><span>再调整</span></div>
       <p><b>有氧可以独立安排，也可以接在力量之后。</b>常见组合是力量 30–40 分钟后，再做 15–25 分钟中等强度有氧；也可以只散步、骑车或休息。</p>
       <p>这些只是排法参考，实际选择始终以当天体感和时间为准。</p>
     </div>
@@ -1011,7 +1058,7 @@ const NOTES = {
   amber: { bg:"var(--level-compact-tint)", fg:"var(--level-compact-ink)",
     html:"<b>精简。</b>主动作改为 2 组并减轻负重，收尾项目可略过。" },
   red:   { bg:"var(--level-light-tint)", fg:"var(--level-light-ink)",
-    html:"<b>轻量。</b>保留热身；之后可以结束，也可以另记散步或其它有氧。" }
+    html:"<b>轻量。</b>只显示适合轻量安排的动作；清单为空时也可以直接结束，或另记散步和其它有氧。" }
 };
 
 const KEY = { green:"g", amber:"a", red:"r" };
@@ -1074,7 +1121,7 @@ const log = loadLog();
 const profile = loadProfile();
 const todayKey = dateKey(new Date());
 if(!log[todayKey]){
-  log[todayKey] = { day:"A", state:"green", completed:false, doneA:[], doneB:[] };
+  log[todayKey] = { templateId:"fullA", state:"green", completed:false, selectedExercises:[], doneExercises:[] };
 }
 const today = log[todayKey];
 
@@ -1093,6 +1140,7 @@ $("#profileName").oninput = () => {
 
 function hasStrengthActivity(entry){
   return !!(entry && (entry.completed === true ||
+    (Array.isArray(entry.doneExercises) && entry.doneExercises.length) ||
     (Array.isArray(entry.doneA) && entry.doneA.length) ||
     (Array.isArray(entry.doneB) && entry.doneB.length) ||
     (entry.actuals && typeof entry.actuals === "object" && Object.keys(entry.actuals).length)));
@@ -1101,7 +1149,7 @@ function entryMode(entry){
   if(!entry) return "none";
   if(entry.dayType === "rest") return "rest";
   if(entry.strength === false) return "none";
-  if(entry.dayType === "train" || entry.strength === true || entry.day || entry.state || Array.isArray(entry.doneA) || Array.isArray(entry.doneB)) return "train";
+  if(entry.dayType === "train" || entry.strength === true || entry.day || entry.state || entry.templateId || Array.isArray(entry.selectedExercises) || Array.isArray(entry.doneExercises) || Array.isArray(entry.doneA) || Array.isArray(entry.doneB)) return "train";
   // 历史 dayType:"aero" 读取为“不安排力量”，但原字段在用户编辑前保持不变。
   return "none";
 }
@@ -1111,11 +1159,52 @@ function hasActivity(entry){
 }
 
 let dayType = entryMode(today);
-let day = today.day || "A";
 let state = today.state || "green";
+function templateIdForEntry(entry){
+  if(entry && entry.templateId === "custom") return "custom";
+  if(entry && entry.templateId && TEMPLATES[entry.templateId]) return entry.templateId;
+  if(entry && (entry.day === "B" || (Array.isArray(entry.doneB) && entry.doneB.length))) return "legacyB";
+  if(entry && (entry.day === "A" || (Array.isArray(entry.doneA) && entry.doneA.length))) return "legacyA";
+  return "fullA";
+}
+let templateId = today.templateId || (today.day === "B" ? "legacyB" : (today.day === "A" ? "legacyA" : "fullA"));
 
-// 从 PLAN 找某动作的计划值 / 上次实际值 / 智能默认值
+function planItems(plan){ return plan && Array.isArray(plan.blocks) ? plan.blocks.flatMap(blk=>Array.isArray(blk.items)?blk.items:[]) : []; }
+function selectedNamesForEntry(entry){
+  if(!entry) return [];
+  const id = templateIdForEntry(entry);
+  if(id === "custom") return Array.isArray(entry.selectedExercises) ? entry.selectedExercises.filter(nm=>LIBRARY_ITEMS[nm]) : [];
+  return planItems(TEMPLATES[id]).map(it=>it.nm);
+}
+function completedNames(entry){
+  if(!entry) return [];
+  const names = [
+    ...(Array.isArray(entry.doneExercises)?entry.doneExercises:[]),
+    ...(Array.isArray(entry.doneA)?entry.doneA:[]),
+    ...(Array.isArray(entry.doneB)?entry.doneB:[]),
+    ...Object.keys(entry.actuals && typeof entry.actuals === "object" ? entry.actuals : {})
+  ];
+  const unique = [...new Set(names.filter(nm=>MOVEMENT_META[nm] || LIBRARY_ITEMS[nm]))];
+  if(!unique.length && entry.completed === true){
+    return selectedNamesForEntry(entry).filter(nm=>["squat","hinge","push","pull"].includes(movementMeta(nm).pattern));
+  }
+  return unique;
+}
+function currentPlan(){
+  if(templateId !== "custom") return TEMPLATES[templateId] || TEMPLATES.fullA;
+  const names = Array.isArray(today.selectedExercises) ? today.selectedExercises : [];
+  return {title:"自由组合",sub:names.length?`${names.length} 个动作 · 可继续增减`:"先从下面选择今天想做的动作",blocks:[{name:"自选动作",items:names.map(nm=>LIBRARY_ITEMS[nm]).filter(Boolean)}]};
+}
+function doneListForEntry(entry){
+  const id = templateIdForEntry(entry);
+  if(id === "legacyA") return entry.doneA = Array.isArray(entry.doneA)?entry.doneA:[];
+  if(id === "legacyB") return entry.doneB = Array.isArray(entry.doneB)?entry.doneB:[];
+  return entry.doneExercises = Array.isArray(entry.doneExercises)?entry.doneExercises:[];
+}
+
+// 从动作库 / 旧计划找计划值与智能默认值
 function planFor(nm){
+  if(LIBRARY_ITEMS[nm] && LIBRARY_ITEMS[nm].plan) return LIBRARY_ITEMS[nm].plan;
   for(const dk of ["A","B"]) for(const blk of PLAN[dk].blocks) for(const it of blk.items)
     if(it.nm === nm && it.plan) return it.plan;
   return null;
@@ -1141,14 +1230,41 @@ function bind(id, attr, fn){
     };
   });
 }
-document.querySelectorAll(`#daySwitch button`).forEach(b=>{
-  b.setAttribute("aria-pressed", b.dataset.d === day ? "true" : "false");
-});
 document.querySelectorAll(`#stateSwitch button`).forEach(b=>{
   b.setAttribute("aria-pressed", b.dataset.s === state ? "true" : "false");
 });
-bind("daySwitch","d", v => { day = v; today.day = v; saveLog(); });
 bind("stateSwitch","s", v => { state = v; today.state = v; saveLog(); });
+
+function renderTemplateControls(){
+  const wrap = $("#templateSwitch");
+  const visibleTemplates = [...new Set([...(templateId.startsWith("legacy") ? [templateId] : []), ...TEMPLATE_ORDER])];
+  wrap.innerHTML = visibleTemplates.map(id=>{
+    const t=TEMPLATES[id];
+    return `<button data-template="${id}" aria-pressed="${templateId===id}"><b>${t.short}</b><small>${t.sub}</small></button>`;
+  }).join("") + `<button class="template-custom" data-template="custom" aria-pressed="${templateId==="custom"}"><b>自由组合</b><small>不选模板，直接挑动作</small></button>`;
+  wrap.querySelectorAll("button").forEach(b=>{ b.onclick=()=>{
+    templateId=b.dataset.template;
+    today.templateId=templateId;
+    today.dayType="train"; today.strength=true; today.state=today.state||state;
+    if(templateId==="custom") today.selectedExercises=Array.isArray(today.selectedExercises)?today.selectedExercises:[];
+    today.doneExercises=Array.isArray(today.doneExercises)?today.doneExercises:[];
+    saveLog(); renderTemplateControls(); renderPlan(); renderRecommendation(); renderCheckin();
+  }; });
+
+  const picker=$("#customPicker");
+  picker.hidden=templateId!=="custom";
+  if(picker.hidden) return;
+  const selected=Array.isArray(today.selectedExercises)?today.selectedExercises:[];
+  picker.innerHTML=`<div class="custom-picker-title">点动作加入或移出今天的组合。模式会自动计入账本。</div>` + PICKER_ORDER.map(pattern=>{
+    const names=Object.keys(LIBRARY_ITEMS).filter(nm=>movementMeta(nm).pattern===pattern);
+    return `<div class="picker-group"><div class="picker-group-label">${PATTERN_META[pattern].label} · ${PATTERN_META[pattern].zh}</div><div class="exercise-picker">${names.map(nm=>`<button data-nm="${escapeAttr(nm)}" aria-pressed="${selected.includes(nm)}">${nm}</button>`).join("")}</div></div>`;
+  }).join("");
+  picker.querySelectorAll("button").forEach(b=>{ b.onclick=()=>{
+    const list=today.selectedExercises=Array.isArray(today.selectedExercises)?today.selectedExercises:[];
+    const i=list.indexOf(b.dataset.nm); if(i<0) list.push(b.dataset.nm); else list.splice(i,1);
+    saveLog(); renderTemplateControls(); renderPlan(); renderRecommendation();
+  }; });
+}
 
 // ---- 第一层:今天是什么日子 ----
 const REST_NOTE = {
@@ -1164,10 +1280,11 @@ document.querySelectorAll("#dayTypeSwitch button").forEach(b=>{
     if(dayType === "train"){
       today.dayType = "train";
       today.strength = true;
-      today.day = today.day || day;
+      if(!today.templateId && !today.day) today.templateId = templateId;
       today.state = today.state || state;
       today.doneA = Array.isArray(today.doneA) ? today.doneA : [];
       today.doneB = Array.isArray(today.doneB) ? today.doneB : [];
+      today.doneExercises = Array.isArray(today.doneExercises) ? today.doneExercises : [];
     }else if(dayType === "rest"){
       today.dayType = "rest";
       today.strength = false;
@@ -1186,6 +1303,9 @@ function renderDayType(){
     $("#trainOnly").hidden = false;
     rn.hidden = true;
     rn.classList.remove("aero");
+    renderPatternLedger();
+    renderRecommendation();
+    renderTemplateControls();
     renderPlan();
   }else{
     $("#trainOnly").hidden = true;
@@ -1206,17 +1326,106 @@ function detailHTML(dt){
   return one(dt);
 }
 
+const MAIN_PATTERNS=["squat","hinge","push","pull"];
+function keyToLocalDate(key){ const [y,m,d]=key.split("-").map(Number); return new Date(y,m-1,d); }
+function daysSinceKey(key, endKey=todayKey){ return Math.max(0,Math.round((keyToLocalDate(endKey)-keyToLocalDate(key))/864e5)); }
+function strengthHistoryKeys(endKey=todayKey){
+  return Object.keys(log).filter(k=>/^\d{4}-\d{2}-\d{2}$/.test(k)&&k<=endKey&&hasStrengthActivity(log[k])).sort();
+}
+function patternLedger(endKey=todayKey){
+  const out={}; MAIN_PATTERNS.forEach(p=>out[p]={last:null,days:null});
+  strengthHistoryKeys(endKey).forEach(key=>completedNames(log[key]).forEach(nm=>{
+    const p=movementMeta(nm).pattern; if(out[p]) out[p].last=key;
+  }));
+  MAIN_PATTERNS.forEach(p=>{ if(out[p].last) out[p].days=daysSinceKey(out[p].last,endKey); });
+  return out;
+}
+function priorityPattern(ledger){
+  const history=strengthHistoryKeys();
+  if(!history.length) return null;
+  return MAIN_PATTERNS.reduce((best,p)=>{
+    const score=ledger[p].days==null?Number.POSITIVE_INFINITY:ledger[p].days;
+    return !best||score>best.score?{pattern:p,score}:best;
+  },null)?.pattern||null;
+}
+function renderPatternLedger(){
+  const ledger=patternLedger(), priority=priorityPattern(ledger);
+  $("#patternLedger").innerHTML=MAIN_PATTERNS.map(p=>{
+    const v=ledger[p], txt=v.days==null?"尚未记录":(v.days===0?"今天":`${v.days} 天`);
+    return `<div class="ledger-item${priority===p?' priority':''}"><b>${PATTERN_META[p].label}</b><span>${txt}</span></div>`;
+  }).join("");
+  $("#subPatternNote").textContent=subPatternReminder();
+}
+function subPatternReminder(){
+  const keys=strengthHistoryKeys(); if(!keys.length||daysSinceKey(keys[0])<14) return "账本只用于回看间隔，不是需要完成的指标。";
+  const last={"push:horizontal":null,"push:vertical":null,"pull:horizontal":null,"pull:vertical":null};
+  keys.forEach(key=>completedNames(log[key]).forEach(nm=>{ const m=movementMeta(nm), id=`${m.pattern}:${m.subPattern}`; if(id in last) last[id]=key; }));
+  const names={"push:horizontal":"水平推","push:vertical":"垂直推","pull:horizontal":"水平拉","pull:vertical":"垂直拉"};
+  const stale=Object.keys(last).map(id=>({id,days:last[id]?daysSinceKey(last[id]):Number.POSITIVE_INFINITY})).filter(x=>x.days>=14).sort((a,b)=>b.days-a.days)[0];
+  if(!stale) return "账本只用于回看间隔，不是需要完成的指标。";
+  const action=stale.id==="pull:vertical"?"拉力带下拉":stale.id==="pull:horizontal"?"划船":stale.id==="push:vertical"?"哑铃肩推":"俯卧撑";
+  return last[stale.id] ? `${names[stale.id]}约 ${stale.days} 天没出现；方便时可以把${action}放进一次训练。` : `近一段记录里还没见到${names[stale.id]}；方便时可以把${action}放进一次训练。`;
+}
+function recentStrengthCount(days=10){
+  const start=new Date(); start.setHours(0,0,0,0); start.setDate(start.getDate()-(days-1));
+  const startKey=dateKey(start); return strengthHistoryKeys().filter(k=>k>=startKey).length;
+}
+function renderRecommendation(){
+  const count=recentStrengthCount(10), ledger=patternLedger(), focus=priorityPattern(ledger);
+  let base;
+  if(count<=1) base="最近 10 天的力量窗口较少，可以优先考虑一次全身模板";
+  else if(count===2) base="最近 10 天记录了 2 次力量，Full Body A / B 交替会更容易覆盖主要模式";
+  else if(count===3) base="最近 10 天记录了 3 次力量，可以继续在 Full Body A / B 间轮换";
+  else base="最近 10 天力量记录较多，全身或分化模板都可以按时间选择";
+  let focusText="";
+  if(focus){
+    const v=ledger[focus], gap=v.days==null?"还没有记录":`约 ${v.days} 天没记录`;
+    const split={squat:"Lower Squat 日",hinge:"Lower Hinge 日",push:"Push 日",pull:"Pull 日"}[focus];
+    focusText=`；${PATTERN_META[focus].label} ${gap}${count>=4?`，可看看 Full Body 或 ${split}`:"，可在下一次 Full Body 里优先保留它"}`;
+  }
+  $("#recommendation").innerHTML=`<b>今天的参考：</b>${base}${focusText}。这只是建议，所有模板和自由组合始终可选。`;
+}
+
+const WEIGHT_STEPS=[3,9,13,19];
+function actualHistory(nm,beforeKey=todayKey){
+  return Object.keys(log).filter(k=>k<beforeKey&&log[k]&&log[k].actuals&&log[k].actuals[nm]).sort().map(k=>({key:k,...log[k].actuals[nm]}));
+}
+function repsReach(value,target){
+  if(Array.isArray(value)) return value.length>0&&value.every(v=>Number(v)>=target);
+  return Number(value)>=target;
+}
+function nextWeightStep(weight){ return WEIGHT_STEPS.find(w=>w>Number(weight)); }
+function progressionHint(nm,beforeKey=todayKey){
+  const hist=actualHistory(nm,beforeKey); if(!hist.length) return "";
+  const plan=planFor(nm)||{w:0,s:1,r:0}, last=hist[hist.length-1];
+  const highRir=Number(last.rir)>=4;
+  const recent=hist.slice(-3), sameLoad=recent.length>=2&&recent.every(a=>Number(a.weight||0)===Number(recent[0].weight||0));
+  const atTop=sameLoad&&recent.every(a=>Number(a.sets||0)>=Number(plan.s||1)&&repsReach(a.reps,Number(plan.r||0)));
+  if(!highRir&&!atTop) return "";
+  const lastReps=repsText(last.reps), load=Number(last.weight||0), lead=load?`上次 ${load}lb × ${lastReps||plan.r}`:`上次 ${lastReps||plan.r} 次`;
+  if(load>0){
+    const next=nextWeightStep(load);
+    if(next&&((next-load)/load)<=.3) return `${lead}，${highRir?"还有较多余力":"已连续完成计划上限"}，下次可以试试 ${next}lb。`;
+    if(next) return `${lead}，${highRir?"还有较多余力":"已连续完成计划上限"}。下一档 ${next}lb 跨度较大，可以先每组加 1–2 次，或把下放放慢到 3–4 秒。`;
+    return `${lead}，${highRir?"还有较多余力":"已连续完成计划上限"}，可以先加次数、放慢下放，或换更难变式。`;
+  }
+  return `${lead}，${highRir?"还有较多余力":"已连续完成计划上限"}，可以加次数、放慢下放，或换更难变式。`;
+}
+function rirBucket(value){ const n=Number(value); return value===""||value==null?null:(n<=1?1:n<=3?3:5); }
+function rirQuickHTML(value, cls="a-rir"){
+  const bucket=rirBucket(value);
+  return `<div class="rir-quick"><span>RIR</span><input class="${cls}" type="hidden" value="${value!=null?escapeAttr(value):""}">${[[1,"0–1"],[3,"2–3"],[5,"4–5"]].map(([v,label])=>`<button type="button" data-rir="${v}" aria-pressed="${bucket===v}">${label}</button>`).join("")}</div>`;
+}
+
 function renderPlan(){
-  const p = PLAN[day], n = NOTES[state], k = KEY[state];
+  const p = currentPlan(), n = NOTES[state], k = KEY[state];
   const note = $("#stateNote");
   note.style.background = n.bg; note.style.color = n.fg; note.innerHTML = n.html;
 
   $("#pTitle").textContent = p.title;
   $("#pSub").textContent = p.sub;
 
-  today.doneA = Array.isArray(today.doneA) ? today.doneA : [];
-  today.doneB = Array.isArray(today.doneB) ? today.doneB : [];
-  const doneList = day === "A" ? today.doneA : today.doneB;
+  const doneList = doneListForEntry(today);
 
   let html = "";
   p.blocks.forEach(blk => {
@@ -1230,9 +1439,10 @@ function renderPlan(){
       html += `<li data-nm="${escapeAttr(it.nm)}"${skip?' style="opacity:.45"':''}${done?' class="done"':''}>
         <button class="tick" type="button" aria-label="${done?'取消记录':'记录'} ${escapeAttr(it.nm)}" aria-pressed="${done}">✓</button>
         <div class="mv">
-          <div class="nm"><button class="move-name" type="button" aria-expanded="false">${it.nm}${it.swap?`<span class="swap">${it.swap}</span>`:""}${it.detail?'<span class="caret">▸</span>':""}</button></div>
+          <div class="nm"><button class="move-name" type="button" aria-expanded="false">${it.nm}${it.swap?`<span class="swap">${it.swap}</span>`:""}${it.detail?'<span class="caret">▸</span>':""}</button><span class="pattern-tag">${PATTERN_META[it.pattern||"accessory"].label}</span></div>
           <div class="dose"><b>${d}</b></div>
           ${it.plan?actualHTML(it.nm, it.plan):""}
+          ${progressionHint(it.nm)?`<div class="progression-hint">${progressionHint(it.nm)}</div>`:""}
           ${it.why?`<div class="why">${it.why}</div>`:""}
           ${it.detail?`<div class="exp"><div class="exp-in">${detailHTML(it.detail)}</div></div>`:""}
         </div></li>`;
@@ -1253,6 +1463,12 @@ function renderPlan(){
   // 实际值:输入即存;分组/合并切换
   document.querySelectorAll("#pBody .act").forEach(actEl=>{
     actEl.querySelectorAll("input").forEach(inp=>{ inp.oninput = () => readActualRow(actEl); });
+    actEl.querySelectorAll(".rir-quick button").forEach(btn=>{ btn.onclick=()=>{
+      const input=actEl.querySelector(".a-rir"), active=btn.getAttribute("aria-pressed")==="true";
+      input.value=active?"":btn.dataset.rir;
+      actEl.querySelectorAll(".rir-quick button").forEach(x=>x.setAttribute("aria-pressed",(!active&&x===btn)?"true":"false"));
+      readActualRow(actEl);
+    }; });
     const tg = actEl.querySelector(".a-toggle");
     if(tg){
       tg.onclick = (e) => {
@@ -1284,7 +1500,7 @@ function renderPlan(){
     t.onclick = () => {
       const li = t.closest("li");
       const nm = li.dataset.nm;
-      const list = day === "A" ? today.doneA : today.doneB;
+      const list = doneListForEntry(today);
       const idx = list.indexOf(nm);
       if(idx === -1){
         list.push(nm);
@@ -1304,6 +1520,8 @@ function renderPlan(){
         t.setAttribute("aria-label",`记录 ${nm}`);
       }
       saveLog();
+      renderPatternLedger();
+      renderRecommendation();
       renderCheckin();
     };
   });
@@ -1321,7 +1539,7 @@ function actualHTML(nm, plan){
   }else{
     rF = `<span class="fld">每组次<input class="a-r" type="number" inputmode="numeric" min="0" value="${reps}"></span><button class="a-toggle" data-act="expand">分组</button>`;
   }
-  const rirF = `<span class="fld">RIR<input class="a-rir" type="number" inputmode="numeric" min="0" max="10" value="${cur.rir != null ? cur.rir : ""}" placeholder="—"></span>`;
+  const rirF = rirQuickHTML(cur.rir != null ? cur.rir : "");
   return `<div class="act" data-nm="${nm}">${wF}${sF}${rF}${rirF}</div>`;
 }
 function readActualRow(actEl){
@@ -1354,6 +1572,8 @@ function renderCheckin(){
     if(dayType !== "train") return;
     today.completed = !today.completed;
     saveLog();
+    renderPatternLedger();
+    renderRecommendation();
     renderCheckin();
   };
 
@@ -1591,7 +1811,15 @@ function parseReps(value){
   const parts = String(value).split(/[\/,，\s]+/).filter(Boolean).map(x=>Math.max(0, Number(x)||0));
   return parts.length > 1 ? parts : (parts.length ? parts[0] : 0);
 }
-function allPlanItems(dk){ return PLAN[dk].blocks.flatMap(blk=>blk.items); }
+function itemsForEntry(entry){
+  const id=templateIdForEntry(entry||{});
+  if(id==="custom") return (Array.isArray(entry&&entry.selectedExercises)?entry.selectedExercises:[]).map(nm=>LIBRARY_ITEMS[nm]).filter(Boolean);
+  return planItems(TEMPLATES[id]||TEMPLATES.fullA);
+}
+function entryTemplateTitle(entry){
+  const id=templateIdForEntry(entry||{});
+  return id==="custom"?"自由组合":((TEMPLATES[id]&&TEMPLATES[id].title)||"力量训练");
+}
 function previousActual(nm, key){
   const keys = Object.keys(log).filter(k => k < key && log[k] && log[k].actuals && log[k].actuals[nm]).sort();
   return keys.length ? log[keys[keys.length-1]].actuals[nm] : null;
@@ -1606,13 +1834,13 @@ function detailActualHTML(nm, key, entry){
     <label>重量 <input class="dd-w" type="number" inputmode="decimal" min="0" step="0.5" value="${escapeAttr(weight)}" placeholder="—"> lb</label>
     <label>组 <input class="dd-s" type="number" inputmode="numeric" min="1" value="${escapeAttr(cur.sets != null ? cur.sets : 1)}"></label>
     <label>次数 <input class="dd-r" type="text" inputmode="numeric" value="${escapeAttr(repsText(cur.reps))}" placeholder="例 10/10/8"></label>
-    <label>RIR <input class="dd-rir" type="number" inputmode="numeric" min="0" max="10" value="${escapeAttr(cur.rir != null ? cur.rir : "")}" placeholder="—"></label>
+    ${rirQuickHTML(cur.rir != null ? cur.rir : "","dd-rir")}
   </div>`;
 }
 function cleanupDay(key){
   if(log[key] && key !== todayKey && Object.keys(log[key]).length === 0) delete log[key];
 }
-function renderDayDetail(key){
+function renderDayDetailLegacy(key){
   const dd = $("#dayDetail");
   const e = log[key];
   const parts = key.split("-");
@@ -1755,20 +1983,228 @@ function renderDayDetail(key){
     if(clr) clr.onclick = () => { delete log[key]; saveLog(); renderCalendar(); renderCycleInfo(); syncPeriodUI(); renderCycle(); renderDayDetail(key); };
   }
 }
+
+// v1.1 editor: strength is independent from cardio and can use any template or a free combination.
+function renderDayDetail(key){
+  const dd = $("#dayDetail");
+  const entry = log[key];
+  const parts = key.split("-");
+  const dstr = `${Number(parts[1])}/${Number(parts[2])}`;
+  const rows = [];
+
+  if(!entry){
+    rows.push(`<div><b>${dstr}</b> · 这天还没有记录</div>`);
+  }else{
+    const mode = entryMode(entry);
+    const strengthRecorded = hasStrengthActivity(entry);
+    if(mode === "rest"){
+      rows.push(`<div><b>${dstr}</b> · 休息记录</div>`);
+    }else if(!strengthRecorded && !entry.aerobic && entry.period){
+      rows.push(`<div><b>${dstr}</b> · 🩸 经期记录</div>`);
+    }else{
+      const head = strengthRecorded
+        ? `${entryTemplateTitle(entry)} · ${LEVEL_TXT[entry.state] || "未选择投入程度"}`
+        : (entry.aerobic ? "有氧记录" : "这天有记录");
+      rows.push(`<div><b>${dstr}</b> · ${head}</div>`);
+      const moves = completedNames(entry);
+      if(moves.length) rows.push(`<div><b>动作：</b>${moves.map(escapeAttr).join("、")}</div>`);
+      if(entry.actuals && typeof entry.actuals === "object"){
+        const actualLines = Object.keys(entry.actuals).map(nm=>{
+          const actual = entry.actuals[nm] || {};
+          const reps = repsText(actual.reps);
+          const weight = actual.weight != null && actual.weight !== "" ? `${actual.weight}lb · ` : "";
+          const rir = actual.rir != null && actual.rir !== "" ? ` · RIR ${actual.rir}` : "";
+          return `${escapeAttr(nm)} ${weight}${actual.sets != null ? `${actual.sets}组` : ""}${reps !== "" ? ` × ${reps}次` : ""}${rir}`;
+        });
+        if(actualLines.length) rows.push(`<div><b>实际：</b>${actualLines.join("；")}</div>`);
+      }
+    }
+    if(entry.aerobic) rows.push(`<div><b>有氧：</b>${escapeAttr(entry.aerobic.type || "其他")}${entry.aerobic.minutes ? ` ${entry.aerobic.minutes} 分钟` : ""}</div>`);
+    if(entry.note) rows.push(`<div><b>备注：</b>${escapeAttr(entry.note)}</div>`);
+    if(entry.period) rows.push(`<div>🩸 这天有经期记录</div>`);
+  }
+
+  if(key === todayKey){
+    rows.push(`<div class="dd-hint">今天的记录请在「今天」页操作。</div>`);
+  }else{
+    const mode = entryMode(entry);
+    const typeSel = !entry ? null : (mode === "rest" ? "rest" : (mode === "train" || hasStrengthActivity(entry) ? "strength" : "none"));
+    const isStrength = typeSel === "strength";
+    const currentState = (entry && entry.state) || "green";
+    const currentTemplate = entry ? templateIdForEntry(entry) : "fullA";
+    const cardioType = (entry && entry.aerobic && entry.aerobic.type) || "";
+    const cardioMinutes = (entry && entry.aerobic && entry.aerobic.minutes) || "";
+    const note = (entry && entry.note) || "";
+    const periodMarked = !!(entry && entry.period);
+    let html = `<div class="dd-edit">`;
+    html += `<div class="dd-row"><span class="dd-lbl">补记为</span><div class="dd-chips" id="ddType">
+      <button data-set="strength" aria-pressed="${typeSel === "strength"}">力量记录</button>
+      <button data-set="rest" aria-pressed="${typeSel === "rest"}">休息记录</button>
+      <button data-set="none" aria-pressed="${typeSel === "none"}">不记力量</button>
+    </div></div>`;
+
+    if(isStrength){
+      const templateIds = [...new Set([...(currentTemplate.startsWith("legacy") ? [currentTemplate] : []), ...TEMPLATE_ORDER, "custom"])];
+      html += `<div class="dd-row"><label class="dd-lbl" for="ddTemplate">组合</label><select id="ddTemplate" class="dd-template">${templateIds.map(id=>{
+        const label = id === "custom" ? "自由组合" : ((TEMPLATES[id] && (TEMPLATES[id].short || TEMPLATES[id].title)) || id);
+        return `<option value="${id}"${id === currentTemplate ? " selected" : ""}>${label}</option>`;
+      }).join("")}</select></div>`;
+
+      if(currentTemplate === "custom"){
+        const chosen = Array.isArray(entry && entry.selectedExercises) ? entry.selectedExercises : [];
+        html += `<div class="dd-row"><span class="dd-lbl">自由选择</span><div class="picker-group"><div class="exercise-picker" id="ddCustomPicker">${PICKER_ORDER.flatMap(pattern=>Object.keys(LIBRARY_ITEMS).filter(nm=>movementMeta(nm).pattern === pattern)).map(nm=>`<button type="button" data-nm="${escapeAttr(nm)}" aria-pressed="${chosen.includes(nm)}">${nm}</button>`).join("")}</div></div></div>`;
+      }
+
+      html += `<div class="dd-row"><span class="dd-lbl">投入</span><div class="dd-chips st" id="ddState">
+        <button data-s="green" aria-pressed="${currentState === "green"}">完整</button>
+        <button data-s="amber" aria-pressed="${currentState === "amber"}">精简</button>
+        <button data-s="red" aria-pressed="${currentState === "red"}">轻量</button>
+      </div></div>`;
+      const done = currentTemplate === "legacyA" ? (entry && entry.doneA || []) : (currentTemplate === "legacyB" ? (entry && entry.doneB || []) : (entry && entry.doneExercises || []));
+      html += `<div class="dd-moves"><span class="dd-lbl">动作</span>${itemsForEntry(entry).map(item=>{
+        const checked = done.includes(item.nm);
+        const meta = movementMeta(item.nm);
+        return `<div class="dd-move${checked ? " selected" : ""}"><button class="dd-move-toggle" data-nm="${escapeAttr(item.nm)}" aria-pressed="${checked}"><span class="dd-box">${checked ? "✓" : ""}</span><span>${item.nm}<small class="pattern-tag">${PATTERN_META[meta.pattern].label}${meta.subPattern ? ` · ${meta.subPattern === "horizontal" ? "水平" : "垂直"}` : ""}</small></span></button>${checked ? detailActualHTML(item.nm,key,entry) : ""}</div>`;
+      }).join("")}</div>`;
+    }
+
+    html += `<div class="dd-row dd-aero-row"><span class="dd-lbl">有氧</span><div class="dd-chips" id="ddAeroType">
+      ${["骑车","快走","散步","游泳","其他"].map(type=>`<button data-t="${type}" aria-pressed="${cardioType === type}">${type}</button>`).join("")}
+    </div><input class="dd-min" id="ddAeroMin" type="number" inputmode="numeric" min="0" max="600" placeholder="分钟" value="${cardioMinutes}"></div>`;
+    html += `<div class="dd-row"><span class="dd-lbl">🩸 经期</span><button class="day-period-btn" id="ddPeriod" data-on="${periodMarked}">${periodMarked ? "已标记 · 点按取消" : "点按标记"}</button></div>`;
+    html += `<div class="dd-row"><input class="dd-note" id="ddNote" type="text" placeholder="备注（可选）" value="${escapeAttr(note)}"></div>`;
+    if(entry) html += `<button class="dd-clear" id="ddClear">清除这天记录</button>`;
+    html += `</div>`;
+    rows.push(html);
+  }
+
+  dd.innerHTML = rows.join("");
+  dd.hidden = false;
+
+  if(key !== todayKey){
+    const ensure = () => { if(!log[key]) log[key] = {}; return log[key]; };
+    const structural = () => { cleanupDay(key); saveLog(); renderCalendar(); renderCycleInfo(); syncPeriodUI(); renderCycle(); renderDayDetail(key); };
+    const light = () => { saveLog(); renderCalendar(); renderCycleInfo(); };
+
+    document.querySelectorAll("#ddType button").forEach(button=>{
+      button.onclick = () => {
+        const rec = ensure();
+        if(button.dataset.set === "strength"){
+          rec.dayType = "train";
+          rec.strength = true;
+          rec.state = rec.state || "green";
+          if(!rec.templateId && !rec.day) rec.templateId = "fullA";
+          rec.doneExercises = Array.isArray(rec.doneExercises) ? rec.doneExercises : [];
+        }else if(button.dataset.set === "rest"){
+          rec.dayType = "rest";
+          rec.strength = false;
+        }else{
+          if(rec.dayType === "rest") delete rec.dayType;
+          rec.strength = false;
+        }
+        structural();
+      };
+    });
+
+    const templateSelect = $("#ddTemplate");
+    if(templateSelect) templateSelect.onchange = () => {
+      const rec = ensure();
+      const priorDone = completedNames(rec);
+      rec.templateId = templateSelect.value;
+      rec.dayType = "train";
+      rec.strength = true;
+      rec.doneExercises = Array.isArray(rec.doneExercises) ? rec.doneExercises : priorDone;
+      if(rec.templateId === "custom") rec.selectedExercises = Array.isArray(rec.selectedExercises) && rec.selectedExercises.length ? rec.selectedExercises : priorDone;
+      structural();
+    };
+
+    const customPicker = $("#ddCustomPicker");
+    if(customPicker) customPicker.querySelectorAll("button").forEach(button=>{
+      button.onclick = () => {
+        const rec = ensure();
+        rec.selectedExercises = Array.isArray(rec.selectedExercises) ? rec.selectedExercises : [];
+        const index = rec.selectedExercises.indexOf(button.dataset.nm);
+        if(index < 0) rec.selectedExercises.push(button.dataset.nm); else rec.selectedExercises.splice(index,1);
+        structural();
+      };
+    });
+
+    const stateEl = $("#ddState");
+    if(stateEl) stateEl.querySelectorAll("button").forEach(button=>{ button.onclick = () => { ensure().state = button.dataset.s; structural(); }; });
+
+    document.querySelectorAll(".dd-move-toggle").forEach(button=>{
+      button.onclick = () => {
+        const rec = ensure();
+        const done = doneListForEntry(rec);
+        const index = done.indexOf(button.dataset.nm);
+        if(index < 0){
+          done.push(button.dataset.nm);
+          if(!rec.actuals || typeof rec.actuals !== "object") rec.actuals = {};
+          if(!rec.actuals[button.dataset.nm]){
+            const plan = planFor(button.dataset.nm) || {w:0,s:1,r:0};
+            const prior = previousActual(button.dataset.nm,key);
+            rec.actuals[button.dataset.nm] = prior ? {...prior} : {sets:plan.s,reps:plan.r,...(plan.w ? {weight:plan.w} : {})};
+          }
+        }else done.splice(index,1);
+        structural();
+      };
+    });
+
+    document.querySelectorAll(".dd-actual").forEach(row=>{
+      const persist = () => {
+        const rec = ensure(), name = row.dataset.nm;
+        if(!rec.actuals || typeof rec.actuals !== "object") rec.actuals = {};
+        const actual = {sets:Math.max(1,Number(row.querySelector(".dd-s").value)||1),reps:parseReps(row.querySelector(".dd-r").value)};
+        const weight = row.querySelector(".dd-w").value;
+        const rir = row.querySelector(".dd-rir").value;
+        if(weight !== "") actual.weight = Math.max(0,Number(weight)||0);
+        if(rir !== "") actual.rir = Math.max(0,Number(rir)||0);
+        rec.actuals[name] = actual;
+        light();
+      };
+      row.querySelectorAll("input").forEach(input=>{ input.oninput = persist; });
+      row.querySelectorAll(".rir-quick button").forEach(button=>{ button.onclick = () => {
+        const hidden = row.querySelector(".dd-rir");
+        const wasActive = button.getAttribute("aria-pressed") === "true";
+        hidden.value = wasActive ? "" : button.dataset.rir;
+        row.querySelectorAll(".rir-quick button").forEach(item=>item.setAttribute("aria-pressed",(!wasActive && item === button) ? "true" : "false"));
+        persist();
+      }; });
+    });
+
+    const cardioEl = $("#ddAeroType");
+    cardioEl.querySelectorAll("button").forEach(button=>{ button.onclick = () => {
+      const rec = ensure();
+      const current = rec.aerobic && rec.aerobic.type;
+      setAeroRec(rec,current === button.dataset.t ? null : button.dataset.t,Number($("#ddAeroMin").value)||0);
+      structural();
+    }; });
+    $("#ddAeroMin").oninput = () => { const rec=ensure(); const current=rec.aerobic&&rec.aerobic.type; setAeroRec(rec,current||null,Number($("#ddAeroMin").value)||0); light(); };
+    $("#ddPeriod").onclick = () => { const rec=ensure(); if(rec.period) delete rec.period; else rec.period=true; structural(); };
+    $("#ddNote").oninput = () => { const rec=ensure(); const value=$("#ddNote").value.trim(); if(value) rec.note=value; else delete rec.note; light(); };
+    const clearButton = $("#ddClear");
+    if(clearButton) clearButton.onclick = () => { delete log[key]; saveLog(); renderCalendar(); renderCycleInfo(); syncPeriodUI(); renderCycle(); renderDayDetail(key); };
+  }
+}
+
 function renderStats(){
   const daysInMonth = new Date(calY, calM+1, 0).getDate();
-  let sa=0, sb=0, an=0, am=0, activity=0, rest=0;
+  let strength=0, an=0, am=0, activity=0, rest=0;
+  const patterns = {squat:0,hinge:0,push:0,pull:0};
   for(let d = 1; d <= daysInMonth; d++){
     const e = log[dateKey(new Date(calY, calM, d))];
     if(!e) continue;
-    if(hasStrengthActivity(e) && (e.day==="A" || (e.doneA&&e.doneA.length))) sa++;
-    if(hasStrengthActivity(e) && (e.day==="B" || (e.doneB&&e.doneB.length))) sb++;
+    if(hasStrengthActivity(e)){
+      strength++;
+      const seen = new Set(completedNames(e).map(nm=>movementMeta(nm).pattern));
+      MAIN_PATTERNS.forEach(pattern=>{ if(seen.has(pattern)) patterns[pattern]++; });
+    }
     if(e.aerobic){ an++; am += e.aerobic.minutes || 0; }
     if(entryMode(e) === "rest") rest++;
     if(hasStrengthActivity(e) || e.aerobic) activity++;
   }
   $("#calStats").innerHTML =
-    `<span>力量 <b>${sa+sb}</b> 次(A×${sa} B×${sb})</span>` +
+    `<span>力量 <b>${strength}</b> 次 · 蹲 ${patterns.squat} / 髋 ${patterns.hinge} / 推 ${patterns.push} / 拉 ${patterns.pull}</span>` +
     `<span>有氧 <b>${an}</b> 次 · <b>${am}</b> 分钟</span>` +
     `<span>休息记录 <b>${rest}</b> 天</span>` +
     `<span>活动天数 <b>${activity}</b> 天</span>`;
@@ -1782,13 +2218,17 @@ function buildReport(){
   const days = [];
   for(let i = 13; i >= 0; i--){ const d = new Date(); d.setDate(d.getDate() - i); days.push(d); }
   const fmt = d => `${d.getMonth()+1}/${d.getDate()}`;
-  let sa=0, sb=0, an=0, am=0, act=0;
+  let strength=0, an=0, am=0, act=0;
+  const patterns = {squat:0,hinge:0,push:0,pull:0};
   const types = {}, states = {green:0, amber:0, red:0}, notes = [];
   days.forEach(d=>{
     const e = log[dateKey(d)];
     if(!e) return;
-    if(e.doneA && e.doneA.length) sa++;
-    if(e.doneB && e.doneB.length) sb++;
+    if(hasStrengthActivity(e)){
+      strength++;
+      const seen = new Set(completedNames(e).map(nm=>movementMeta(nm).pattern));
+      MAIN_PATTERNS.forEach(pattern=>{ if(seen.has(pattern)) patterns[pattern]++; });
+    }
     if(e.aerobic){ an++; am += e.aerobic.minutes || 0; const t = e.aerobic.type || "其他"; types[t] = (types[t]||0)+1; }
     if(hasStrengthActivity(e) || e.aerobic) act++;
     if(hasStrengthActivity(e) && states[e.state] !== undefined) states[e.state]++;
@@ -1796,7 +2236,7 @@ function buildReport(){
   });
   const lines = [];
   lines.push(`训练汇报 ${fmt(days[0])}–${fmt(days[13])}`);
-  lines.push(`力量:${sa+sb}次(A×${sa} B×${sb})`);
+  lines.push(`力量:${strength}次(蹲×${patterns.squat} 髋×${patterns.hinge} 推×${patterns.push} 拉×${patterns.pull})`);
   const tstr = Object.keys(types).map(t=>`${t}×${types[t]}`).join(" ");
   lines.push(an ? `有氧:${an}次共${am}分钟(${tstr})` : "有氧:0次");
   lines.push(`活动天数:${act}`);
@@ -1823,7 +2263,7 @@ $("#reportBtn").onclick = () => {
 // ---- 备份:导出 / 导入 ----
 function setBackupMsg(m, cls){ const el = $("#backupMsg"); el.textContent = m; el.className = "backup-msg " + (cls||""); }
 function backupPayload(){
-  return { format:"avengo-backup", version:2, exportedAt:new Date().toString(), profile:{...profile}, log };
+  return { format:"avengo-backup", version:3, exportedAt:new Date().toString(), profile:{...profile}, log };
 }
 function downloadText(text, filename, mime){
   const blob = new Blob([text], {type:mime});
@@ -1839,17 +2279,21 @@ function safeCsvCell(value){
   return `"${s.replace(/"/g,'""')}"`;
 }
 function buildCSV(){
-  const headers = ["date","strength_mode","legacy_day_type","strength_day","investment_level","strength_recorded","exercise","weight_lb","sets","reps","rir","aerobic_type","aerobic_minutes","period","note","display_name"];
+  const headers = ["date","strength_mode","legacy_day_type","legacy_strength_day","template_id","template_name","selected_exercises","investment_level","strength_recorded","exercise","pattern","sub_pattern","weight_lb","sets","reps","rir","aerobic_type","aerobic_minutes","period","note","display_name"];
   const rows = [headers];
   Object.keys(log).filter(k=>/^\d{4}-\d{2}-\d{2}$/.test(k)).sort().forEach(key=>{
     const e = log[key] && typeof log[key] === "object" ? log[key] : {};
-    const names = [...new Set([...(Array.isArray(e.doneA)?e.doneA:[]), ...(Array.isArray(e.doneB)?e.doneB:[]), ...Object.keys(e.actuals&&typeof e.actuals==="object"?e.actuals:{})])];
-    const common = [key,entryMode(e),e.dayType||"",e.day||"",LEVEL_TXT[e.state]||"",hasStrengthActivity(e)?"true":"false"];
+    const names = completedNames(e);
+    const isStrength = entryMode(e) === "train" || hasStrengthActivity(e);
+    const currentTemplate = isStrength ? templateIdForEntry(e) : "";
+    const selected = isStrength ? selectedNamesForEntry(e) : [];
+    const common = [key,entryMode(e),e.dayType||"",e.day||"",currentTemplate,currentTemplate ? entryTemplateTitle(e) : "",selected.join(" | "),LEVEL_TXT[e.state]||"",hasStrengthActivity(e)?"true":"false"];
     const tail = [e.aerobic&&e.aerobic.type||"",e.aerobic&&e.aerobic.minutes!=null?e.aerobic.minutes:"",e.period===true?"true":"false",e.note||"",profile.displayName||""];
-    if(!names.length) rows.push([...common,"","","","","",...tail]);
+    if(!names.length) rows.push([...common,"","","","","","","",...tail]);
     else names.forEach(nm=>{
       const a=e.actuals&&e.actuals[nm]||{};
-      rows.push([...common,nm,a.weight!=null?a.weight:"",a.sets!=null?a.sets:"",repsText(a.reps),a.rir!=null?a.rir:"",...tail]);
+      const meta=movementMeta(nm);
+      rows.push([...common,nm,meta.pattern||"",meta.subPattern||"",a.weight!=null?a.weight:"",a.sets!=null?a.sets:"",repsText(a.reps),a.rir!=null?a.rir:"",...tail]);
     });
   });
   return "\uFEFF" + rows.map(row=>row.map(safeCsvCell).join(",")).join("\r\n");
@@ -1877,6 +2321,78 @@ $("#exportCsv").onclick = () => {
     else setBackupMsg("这个浏览器无法下载 CSV。","err");
   }
 };
+
+const PATTERN_META = {
+  squat:{label:"Squat", zh:"蹲"}, hinge:{label:"Hinge", zh:"髋铰链"},
+  push:{label:"Push", zh:"推"}, pull:{label:"Pull", zh:"拉"},
+  core:{label:"Core", zh:"核心"}, carry:{label:"Carry", zh:"负重行走"},
+  accessory:{label:"Accessory", zh:"辅助"}
+};
+const MOVEMENT_META = {
+  "高脚杯深蹲":{pattern:"squat"}, "分腿蹲 / 保加利亚分腿蹲":{pattern:"squat"}, "徒手深蹲":{pattern:"squat"},
+  "哑铃罗马尼亚硬拉":{pattern:"hinge"}, "臀桥 / 单腿臀桥":{pattern:"hinge"}, "B-stance RDL":{pattern:"hinge"}, "单腿 RDL":{pattern:"hinge"},
+  "哑铃肩推":{pattern:"push",subPattern:"vertical"}, "上斜俯卧撑(扶桌沿)":{pattern:"push",subPattern:"horizontal"}, "跪姿俯卧撑":{pattern:"push",subPattern:"horizontal"},
+  "单臂哑铃划船":{pattern:"pull",subPattern:"horizontal"}, "拉力带坐姿划船":{pattern:"pull",subPattern:"horizontal"}, "拉力带下拉":{pattern:"pull",subPattern:"vertical"},
+  "死虫式(屈膝点地)":{pattern:"core"}, "鸟狗式":{pattern:"core"}, "平板支撑":{pattern:"core"}, "熊式支撑 · 手脚交叉离地 3 秒":{pattern:"core"}, "侧平板":{pattern:"core"}, "Pallof press":{pattern:"core"},
+  "青蛙趴髋内旋 + 直膝蛙式":{pattern:"accessory"}, "足踝迷你套":{pattern:"accessory"}, "腕功能迷你套":{pattern:"accessory"},
+  "阻力绳肩环绕":{pattern:"accessory"}, "伟大伸展 / 猫式伸展":{pattern:"accessory"}, "泡沫轴推墙上回旋(前锯)":{pattern:"accessory"},
+  "弹力带肩外旋 + 站姿 T 字":{pattern:"accessory"}, "俯卧 T 字":{pattern:"accessory"}, "360° 腹式呼吸":{pattern:"accessory"},
+  "阻力圈蚌式开合":{pattern:"accessory"}, "单腿平衡站立":{pattern:"accessory"}
+};
+
+function movementMeta(nm){ return MOVEMENT_META[nm] || {pattern:"accessory"}; }
+Object.values(PLAN).forEach(p=>p.blocks.forEach(blk=>blk.items.forEach(it=>Object.assign(it,movementMeta(it.nm)))));
+
+const LIBRARY_ITEMS = {
+  "高脚杯深蹲":{nm:"高脚杯深蹲",dose:{g:"3 组 × 8–10",a:"2 组 × 8",r:"—"},plan:{w:10,s:3,r:10}},
+  "分腿蹲 / 保加利亚分腿蹲":{nm:"分腿蹲 / 保加利亚分腿蹲",dose:{g:"各 3 组 × 8–10",a:"各 2 组 × 8",r:"—"},plan:{w:3,s:3,r:8}},
+  "徒手深蹲":{nm:"徒手深蹲",dose:{g:"3 组 × 12–15",a:"2 组 × 10",r:"2 组 × 8"},plan:{w:0,s:3,r:15}},
+  "哑铃罗马尼亚硬拉":{nm:"哑铃罗马尼亚硬拉",dose:{g:"3 组 × 10–12",a:"2 组 × 10",r:"—"},plan:{w:8,s:3,r:12}},
+  "臀桥 / 单腿臀桥":{nm:"臀桥 / 单腿臀桥",dose:{g:"3 组 × 12–15",a:"2 组 × 12",r:"—"},plan:{w:0,s:3,r:15}},
+  "B-stance RDL":{nm:"B-stance RDL",dose:{g:"各 3 组 × 8–10",a:"各 2 组 × 8",r:"—"},plan:{w:3,s:3,r:8}},
+  "单腿 RDL":{nm:"单腿 RDL",dose:{g:"各 2–3 组 × 6–8",a:"各 2 组 × 6",r:"—"},plan:{w:3,s:2,r:8}},
+  "哑铃肩推":{nm:"哑铃肩推",dose:{g:"3 组 × 8–10",a:"2 组 × 8",r:"—"},plan:{w:5,s:3,r:10}},
+  "上斜俯卧撑(扶桌沿)":{nm:"上斜俯卧撑(扶桌沿)",dose:{g:"3 组 × 8–12",a:"2 组 × 8",r:"—"},plan:{w:0,s:3,r:12}},
+  "跪姿俯卧撑":{nm:"跪姿俯卧撑",dose:{g:"3 组 × 8–12",a:"2 组 × 8",r:"—"},plan:{w:0,s:3,r:12}},
+  "单臂哑铃划船":{nm:"单臂哑铃划船",dose:{g:"各 3 组 × 10–12",a:"各 2 组 × 10",r:"—"},plan:{w:8,s:3,r:12}},
+  "拉力带坐姿划船":{nm:"拉力带坐姿划船",dose:{g:"3 组 × 12",a:"2 组 × 10",r:"—"},plan:{w:0,s:3,r:12}},
+  "拉力带下拉":{nm:"拉力带下拉",dose:{g:"3 组 × 10–12",a:"2 组 × 10",r:"—"},plan:{w:0,s:3,r:12}},
+  "死虫式(屈膝点地)":{nm:"死虫式(屈膝点地)",dose:{g:"2 组 × 10–12",a:"2 组 × 8",r:"—"},plan:{w:0,s:2,r:12}},
+  "鸟狗式":{nm:"鸟狗式",dose:{g:"各 2 组 × 8",a:"各 1–2 组 × 6",r:"—"},plan:{w:0,s:2,r:8}},
+  "平板支撑":{nm:"平板支撑",dose:{g:"2 组 × 20–30 秒",a:"2 组 × 15 秒",r:"—"},plan:{w:0,s:2,r:30}},
+  "熊式支撑 · 手脚交叉离地 3 秒":{nm:"熊式支撑 · 手脚交叉离地 3 秒",dose:{g:"各 2 组 × 6",a:"各 1 组 × 6",r:"—"},plan:{w:0,s:2,r:6}},
+  "侧平板":{nm:"侧平板",dose:{g:"各 2 组 × 20 秒",a:"各 1 组 × 15 秒",r:"—"},plan:{w:0,s:2,r:20}},
+  "Pallof press":{nm:"Pallof press",dose:{g:"各 2–3 组 × 10",a:"各 2 组 × 8",r:"—"},plan:{w:0,s:2,r:10}},
+  "泡沫轴推墙上回旋(前锯)":{nm:"泡沫轴推墙上回旋(前锯)",dose:{g:"2 组 × 10",a:"1–2 组 × 8",r:"—"},plan:{w:0,s:2,r:10}},
+  "弹力带肩外旋 + 站姿 T 字":{nm:"弹力带肩外旋 + 站姿 T 字",dose:{g:"各 2 组 × 12–15",a:"各 1 组 × 12",r:"—"},plan:{w:0,s:2,r:15}},
+  "俯卧 T 字":{nm:"俯卧 T 字",dose:{g:"2 组 × 10–12",a:"1–2 组 × 8",r:"—"},plan:{w:0,s:2,r:12}},
+  "阻力圈蚌式开合":{nm:"阻力圈蚌式开合",dose:{g:"各 2–3 组 × 15",a:"各 2 组 × 12",r:"—"},plan:{w:0,s:2,r:15}},
+  "单腿平衡站立":{nm:"单腿平衡站立",dose:{g:"各 2 组 × 30 秒",a:"各 1 组 × 30 秒",r:"—"},plan:{w:0,s:2,r:30}},
+  "足踝迷你套":{nm:"足踝迷你套",dose:{g:"挑 2–3 个 · 各 10",a:"挑 2 个 · 各 8",r:"挑 1–2 个 · 各 8"}},
+  "腕功能迷你套":{nm:"腕功能迷你套",dose:{g:"挑 2–3 个 · 各 8",a:"挑 2 个 · 各 8",r:"挑 1–2 个 · 各 6"}},
+  "阻力绳肩环绕":{nm:"阻力绳肩环绕",dose:{g:"10–12 次",a:"8–10 次",r:"8 次"}},
+  "伟大伸展 / 猫式伸展":{nm:"伟大伸展 / 猫式伸展",dose:{g:"各 5 次",a:"各 4 次",r:"各 3 次"}},
+  "360° 腹式呼吸":{nm:"360° 腹式呼吸",dose:{g:"6–8 次",a:"6 次",r:"6 次"}}
+};
+Object.values(LIBRARY_ITEMS).forEach(it=>Object.assign(it,movementMeta(it.nm),{detail:DETAILS[it.nm]}));
+const pickItems = (...names) => names.map(nm=>LIBRARY_ITEMS[nm]).filter(Boolean);
+const templatePlan = (title, short, sub, names, warmups=[]) => ({title,short,sub,blocks:[
+  ...(warmups.length ? [{name:"热身",items:pickItems(...warmups)}] : []),
+  {name:"今天的动作",items:pickItems(...names)}
+]});
+const TEMPLATES = {
+  fullA:templatePlan("Full Body A","全身 A","蹲 · 垂直推 · 水平拉 · 髋铰链 · 核心",["高脚杯深蹲","哑铃肩推","单臂哑铃划船","臀桥 / 单腿臀桥","死虫式(屈膝点地)"],["360° 腹式呼吸","足踝迷你套","腕功能迷你套"]),
+  fullB:templatePlan("Full Body B","全身 B","髋铰链 · 水平推 · 垂直拉 · 蹲 · 抗旋",["哑铃罗马尼亚硬拉","上斜俯卧撑(扶桌沿)","拉力带下拉","分腿蹲 / 保加利亚分腿蹲","Pallof press"],["360° 腹式呼吸","足踝迷你套","阻力绳肩环绕"]),
+  push:templatePlan("Push 日","Push","垂直推 · 水平推 · 肩胛辅助",["哑铃肩推","上斜俯卧撑(扶桌沿)","泡沫轴推墙上回旋(前锯)","弹力带肩外旋 + 站姿 T 字"],["360° 腹式呼吸","腕功能迷你套","阻力绳肩环绕"]),
+  pull:templatePlan("Pull 日","Pull","水平拉 · 垂直拉 · 上背辅助",["单臂哑铃划船","拉力带下拉","拉力带坐姿划船","俯卧 T 字"],["360° 腹式呼吸","腕功能迷你套","阻力绳肩环绕"]),
+  lowerSquat:templatePlan("Lower Squat 日","Lower · 蹲","蹲为主 · 臀桥 · 核心",["高脚杯深蹲","分腿蹲 / 保加利亚分腿蹲","臀桥 / 单腿臀桥","死虫式(屈膝点地)"],["360° 腹式呼吸","足踝迷你套","伟大伸展 / 猫式伸展"]),
+  lowerHinge:templatePlan("Lower Hinge 日","Lower · 髋","髋铰链为主 · 单腿控制 · 核心",["哑铃罗马尼亚硬拉","B-stance RDL","单腿 RDL","臀桥 / 单腿臀桥","Pallof press"],["360° 腹式呼吸","足踝迷你套","伟大伸展 / 猫式伸展"]),
+  accessory:templatePlan("Accessory / Conditioning","辅助 / 调整","关节准备 · 肩胛 · 髋与平衡",["足踝迷你套","腕功能迷你套","阻力绳肩环绕","阻力圈蚌式开合","单腿平衡站立","俯卧 T 字"]),
+  legacyA:{...PLAN.A,short:"旧版 A",legacy:true},
+  legacyB:{...PLAN.B,short:"旧版 B",legacy:true}
+};
+const TEMPLATE_ORDER = ["fullA","fullB","push","pull","lowerSquat","lowerHinge","accessory"];
+const PICKER_ORDER = ["squat","hinge","push","pull","core","accessory"];
 function doImport(txt){
   let data;
   try{ data = JSON.parse(txt); }catch(e){ setBackupMsg("导入失败:不是有效的备份文本。", "err"); return; }
@@ -1907,11 +2423,7 @@ $("#importFile").onchange = (e) => {
 
 // ---- 力量趋势 ----
 function allWeightedMoves(){
-  const out = [];
-  ["A","B"].forEach(dk=>PLAN[dk].blocks.forEach(blk=>blk.items.forEach(it=>{
-    if(it.plan && it.plan.w > 0 && !out.includes(it.nm)) out.push(it.nm);
-  })));
-  return out;
+  return Object.values(LIBRARY_ITEMS).filter(item=>item.plan && item.plan.w > 0).map(item=>item.nm);
 }
 function initTrendSelect(){
   const sel = $("#trendMove");
@@ -1978,7 +2490,7 @@ function renderWeekBars(){
   for(let i = 7; i >= 0; i--){ const s = new Date(base); s.setDate(s.getDate() - i*7); weeks.push(s); }
   const counts = weeks.map(ws=>{
     let c = 0;
-    for(let dd = 0; dd < 7; dd++){ const d = new Date(ws); d.setDate(d.getDate()+dd); const e = log[dateKey(d)]; if(e && ((e.doneA&&e.doneA.length) || (e.doneB&&e.doneB.length))) c++; }
+    for(let dd = 0; dd < 7; dd++){ const d = new Date(ws); d.setDate(d.getDate()+dd); const e = log[dateKey(d)]; if(hasStrengthActivity(e)) c++; }
     return { ws, c };
   });
   const W=300, H=92, padB=18, padT=10, padL=6, padR=6, n = counts.length;
