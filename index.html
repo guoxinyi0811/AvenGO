@@ -8,30 +8,40 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="AvenGO">
-<meta name="theme-color" content="#234A3C">
+<meta name="theme-color" content="#F2E7D2">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-180.png">
-<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="avengo-mark.png">
+<link rel="icon" type="image/png" href="avengo-mark.png">
 <style>
   :root{
-    --paper:#F3F4F1;
-    --card:#FBFCFA;
-    --ink:#1B211E;
-    --soft:#5C665F;
-    --line:#DDE2DC;
-    --pine:#234A3C;
-    --pine-tint:#E7EFE9;
-    --gold:#B8892B;
-    --green:#2F6B4A;
-    --green-tint:#E6F1E9;
-    --amber:#B07A16;
-    --amber-tint:#F7EEDC;
-    --red:#A65221;
-    --red-tint:#F6EAE1;
-    --rest:#5A6B78;
-    --rest-tint:#E8ECEF;
-    --aero:#3E6D8E;
-    --aero-tint:#E4EEF3;
+    --paper:#F2E7D2;
+    --paper-deep:#E8D9BC;
+    --card:#FBF3E4;
+    --ink:#211E1A;
+    --soft:#6F6659;
+    --line:#C9BBA4;
+    --line-dark:#8A7F70;
+    --accent:#EF1970;
+    --accent-tint:#FBE3ED;
+    --pine:#2E2A24;
+    --pine-tint:#EEE3CF;
+    --gold:#7E7365;
+    --level-full:#506775;
+    --level-full-tint:#DCE4E8;
+    --level-full-ink:#293D48;
+    --level-compact:#758893;
+    --level-compact-tint:#E5EAEC;
+    --level-compact-ink:#3E535D;
+    --level-light:#A4B0B5;
+    --level-light-tint:#EFF1F1;
+    --level-light-ink:#4F5F66;
+    --rest:#67737A;
+    --rest-tint:#E3E7E7;
+    --aero:#647986;
+    --aero-tint:#E4E9EA;
+    --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+    --serif:ui-serif,"Songti SC","STSong","Noto Serif CJK SC",Georgia,serif;
+    --mono:ui-monospace,"SFMono-Regular",Consolas,"Liberation Mono",monospace;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html{-webkit-text-size-adjust:100%}
@@ -65,15 +75,16 @@
   .switch button[aria-pressed="true"]{background:var(--pine);border-color:var(--pine);color:#C9DCCF}
   .switch button[aria-pressed="true"] .big{color:#fff}
 
-  .switch.state button[aria-pressed="true"][data-s="green"]{background:var(--green);border-color:var(--green)}
-  .switch.state button[aria-pressed="true"][data-s="amber"]{background:var(--amber);border-color:var(--amber)}
-  .switch.state button[aria-pressed="true"][data-s="red"]{background:var(--red);border-color:var(--red)}
-  .switch.state .dot{font-size:15px;margin-right:3px}
+  .switch.state button[aria-pressed="true"][data-s="green"]{background:var(--level-full);border-color:var(--level-full)}
+  .switch.state button[aria-pressed="true"][data-s="amber"]{background:var(--level-compact);border-color:var(--level-compact)}
+  .switch.state button[aria-pressed="true"][data-s="red"]{background:var(--level-light);border-color:var(--level-light);color:#25343A}
+  .switch.state button small{display:block;font-size:11px;font-weight:500;margin-top:2px;opacity:.8}
+  .switch.state .level-mark{display:block;font-weight:700}
 
   /* ---- 状态提示条 ---- */
   #stateNote{
     margin-top:10px;border-radius:11px;padding:11px 14px;font-size:14px;line-height:1.55;
-    background:var(--green-tint);color:#204d36;
+    background:var(--level-full-tint);color:var(--level-full-ink);
   }
   #stateNote b{font-weight:700}
 
@@ -94,9 +105,9 @@
   ul.moves li:last-child{border-bottom:none}
   ul.moves .tick{
     flex:0 0 auto;width:21px;height:21px;border:1.5px solid #C6CFC8;border-radius:6px;margin-top:2px;
-    cursor:pointer;display:grid;place-items:center;font-size:13px;color:transparent;transition:.12s;
+    cursor:pointer;display:grid;place-items:center;font-size:13px;color:transparent;transition:.12s;background:transparent;padding:0;
   }
-  ul.moves li.done .tick{background:var(--green);border-color:var(--green);color:#fff}
+  ul.moves li.done .tick{background:var(--level-full);border-color:var(--level-full);color:#fff}
   ul.moves li.done .nm{text-decoration:line-through;color:#98A29B}
   .mv{flex:1;min-width:0}
   .nm{font-size:15.5px;font-weight:600;line-height:1.4}
@@ -104,20 +115,21 @@
   .dose b{color:var(--pine);font-weight:700}
   .why{font-size:12.5px;color:#8A948C;margin-top:1px}
 
-  .swap{font-size:11px;background:var(--amber-tint);color:var(--amber);font-weight:700;padding:1px 6px;border-radius:5px;margin-left:5px;white-space:nowrap}
+  .swap{font-size:11px;background:var(--level-compact-tint);color:var(--level-compact-ink);font-weight:700;padding:1px 6px;border-radius:5px;margin-left:5px;white-space:nowrap}
 
   /* ---- 动作详解 ---- */
-  ul.moves .mv{cursor:pointer}
+  ul.moves .mv{min-width:0}
+  .move-name{display:inline-flex;align-items:center;max-width:100%;border:0;background:transparent;color:inherit;font:inherit;font-weight:inherit;text-align:left;padding:0;cursor:pointer}
   .caret{display:inline-block;margin-left:6px;font-size:11px;color:var(--gold);transition:transform .2s;vertical-align:1px}
   li.open .caret{transform:rotate(90deg)}
   .exp{display:grid;grid-template-rows:0fr;transition:grid-template-rows .25s ease}
   .exp-in{overflow:hidden;min-height:0}
   li.open .exp{grid-template-rows:1fr}
-  .exp-in p{margin:8px 0 0;font-size:13.5px;color:#3C4741;line-height:1.6}
-  .exp-in p b{color:var(--pine);font-weight:700}
-  .exp-in .hint{border-radius:8px;padding:7px 10px;margin-top:7px;font-size:13px;line-height:1.55}
-  .exp-in .hint.ok{background:var(--green-tint);color:#204d36}
-  .exp-in .hint.no{background:var(--amber-tint);color:#6b4a0d}
+  .detail-sub{margin-top:10px;padding-top:8px;border-top:1px dashed var(--line)}
+  .detail-sub h4{margin:0 0 6px;font-size:13.5px;color:var(--pine)}
+  .detail-section{display:grid;grid-template-columns:78px minmax(0,1fr);gap:8px;padding:6px 0;font-size:13px;line-height:1.55;border-top:1px solid #EDF0EC}
+  .detail-section b{color:var(--pine)}
+  .detail-review{margin-top:8px;padding:7px 9px;background:var(--level-light-tint);color:var(--level-light-ink);font-size:12px;border-radius:7px}
 
   /* ---- 铁规 ---- */
   .rule{
@@ -132,8 +144,8 @@
     font:inherit;font-size:16px;font-weight:700;cursor:pointer;transition:.15s;
     background:var(--pine);color:#fff;
   }
-  .checkin-btn.done{background:var(--green)}
-  .storage-hint{font-size:12px;color:var(--red);margin-top:8px}
+  .checkin-btn.done{background:var(--level-full)}
+  .storage-hint{font-size:12px;color:var(--ink);margin-top:8px}
 
   .grid14{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:14px}
   .cell{
@@ -141,9 +153,9 @@
   }
   .cell .d{font-size:11px;color:var(--soft)}
   .cell .m{font-size:15px;font-weight:700;color:var(--ink);margin-top:2px}
-  .cell.hit{background:var(--green-tint);border-color:#BFE0CC}
-  .cell.hit .d{color:#204d36}
-  .cell.hit .m{color:var(--green)}
+  .cell.hit{background:var(--level-compact-tint);border-color:#CBD5DA}
+  .cell.hit .d{color:var(--level-full-ink)}
+  .cell.hit .m{color:var(--level-full)}
   .cell.today{border-color:var(--gold);border-width:2px}
 
   .streak{margin-top:12px;font-size:14.5px;color:var(--pine);font-weight:700}
@@ -175,16 +187,14 @@
   .cal-cell.empty{border:none;background:transparent}
   .cal-cell .dnum{color:var(--soft)}
   .cal-cell .dmark{position:absolute;left:5px;bottom:2px;font-size:12px;font-weight:700}
-  .cal-cell.st-green{background:var(--green-tint);border-color:#BFE0CC}
-  .cal-cell.st-green .dmark{color:var(--green)}
-  .cal-cell.st-amber{background:var(--amber-tint);border-color:#E4D2A8}
-  .cal-cell.st-amber .dmark{color:var(--amber)}
-  .cal-cell.st-red{background:var(--red-tint);border-color:#E8C9B4}
-  .cal-cell.st-red .dmark{color:var(--red)}
+  .cal-cell.st-green{background:var(--level-full-tint);border-color:#C4D0D6}
+  .cal-cell.st-green .dmark{color:var(--level-full-ink)}
+  .cal-cell.st-amber{background:var(--level-compact-tint);border-color:#D2DBDF}
+  .cal-cell.st-amber .dmark{color:var(--level-compact-ink)}
+  .cal-cell.st-red{background:var(--level-light-tint);border-color:#DEE3E5}
+  .cal-cell.st-red .dmark{color:var(--level-light-ink)}
   .cal-cell.st-rest{background:var(--rest-tint);border-color:#CDD6DB}
   .cal-cell.st-rest .dmark{color:var(--rest)}
-  .cal-cell.st-aero{background:var(--aero-tint);border-color:#C4DCE8}
-  .cal-cell.st-aero .dmark{color:var(--aero)}
   .cal-cell.today{border-color:var(--gold);border-width:2px}
   .cal-cell.has{cursor:pointer}
   .aero-ico{margin-left:2px;font-weight:700}
@@ -197,7 +207,6 @@
 
   /* ---- 日期类型(第一层)---- */
   .switch.daytype button[aria-pressed="true"][data-dt="rest"]{background:var(--rest);border-color:var(--rest);color:#fff}
-  .switch.daytype button[aria-pressed="true"][data-dt="aero"]{background:var(--aero);border-color:var(--aero);color:#fff}
   .rest-note{background:var(--rest-tint);color:#33414B;border-radius:13px;padding:16px;margin-top:14px;font-size:14.5px;line-height:1.6;border-left:4px solid var(--rest)}
   .rest-note.aero{background:var(--aero-tint);color:#2A4A5E;border-left-color:var(--aero)}
   .rest-note b{color:inherit;font-weight:700}
@@ -228,8 +237,8 @@
   .file-label{display:inline-block}
   #importBox{width:100%;margin-top:4px;border:1.5px solid var(--line);border-radius:9px;padding:8px;font:inherit;font-size:12.5px;min-height:70px;background:var(--card);resize:vertical}
   .backup-msg{font-size:13px;margin-top:4px;min-height:18px;line-height:1.5}
-  .backup-msg.ok{color:var(--green)}
-  .backup-msg.err{color:var(--red)}
+  .backup-msg.ok{color:var(--pine)}
+  .backup-msg.err{color:var(--ink);font-weight:700}
 
   /* ---- 周期感知 ---- */
   .cycle-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:14px}
@@ -242,7 +251,7 @@
   .cycle-advice p{margin:5px 0}
   .cycle-advice b{color:var(--pine)}
   .cycle-disc{margin-top:9px;font-size:12px;color:var(--soft);line-height:1.55;border-left:3px solid var(--line);padding-left:9px}
-  .cycle-overdue{margin-top:9px;font-size:12.5px;color:var(--amber);line-height:1.55;background:var(--amber-tint);border-radius:8px;padding:8px 10px}
+  .cycle-overdue{margin-top:9px;font-size:12.5px;color:var(--level-compact-ink);line-height:1.55;background:var(--level-compact-tint);border-radius:8px;padding:8px 10px}
   .cycle-empty{font-size:13.5px;color:var(--soft);line-height:1.65;margin-top:4px}
   .cycle-info{background:var(--pine-tint);border-radius:11px;padding:11px 14px;margin-top:12px;font-size:13.5px;color:var(--pine);line-height:1.7}
   .cycle-info b{font-weight:700}
@@ -257,12 +266,22 @@
   .dd-chips{display:flex;gap:6px;flex-wrap:wrap}
   .dd-chips button{border:1.5px solid var(--line);background:var(--paper);color:var(--soft);border-radius:8px;padding:6px 11px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
   .dd-chips button[aria-pressed="true"]{background:var(--pine);border-color:var(--pine);color:#fff}
-  .dd-chips.st button[aria-pressed="true"][data-s="green"]{background:var(--green);border-color:var(--green)}
-  .dd-chips.st button[aria-pressed="true"][data-s="amber"]{background:var(--amber);border-color:var(--amber)}
-  .dd-chips.st button[aria-pressed="true"][data-s="red"]{background:var(--red);border-color:var(--red)}
+  .dd-chips.st button[aria-pressed="true"][data-s="green"]{background:var(--level-full);border-color:var(--level-full)}
+  .dd-chips.st button[aria-pressed="true"][data-s="amber"]{background:var(--level-compact);border-color:var(--level-compact)}
+  .dd-chips.st button[aria-pressed="true"][data-s="red"]{background:var(--level-light);border-color:var(--level-light);color:#25343A}
   .dd-min{width:74px;border:1.5px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;font-size:13px;background:var(--paper)}
   .dd-note{width:100%;border:1.5px solid var(--line);border-radius:8px;padding:6px 9px;font:inherit;font-size:13px;background:var(--paper)}
   .dd-clear{align-self:flex-start;border:1.5px solid var(--line);background:var(--card);color:var(--soft);border-radius:8px;padding:6px 11px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
+  .dd-moves{display:flex;flex-direction:column;gap:7px}
+  .dd-move{border:1px solid var(--line);border-radius:9px;padding:7px;background:var(--paper)}
+  .dd-move-toggle{width:100%;display:flex;align-items:center;gap:8px;border:0;background:transparent;color:var(--ink);font:inherit;font-size:13px;text-align:left;padding:2px;cursor:pointer}
+  .dd-box{width:20px;height:20px;display:grid;place-items:center;border:1.5px solid var(--line);border-radius:5px;flex:0 0 auto}
+  .dd-move.selected .dd-box{background:var(--level-full);border-color:var(--level-full);color:#fff}
+  .dd-actual{display:flex;flex-wrap:wrap;gap:6px;margin:7px 0 1px 28px}
+  .dd-actual label{display:inline-flex;align-items:center;gap:3px;font-size:11.5px;color:var(--soft);border:1px solid var(--line);border-radius:7px;padding:3px 6px;background:var(--card)}
+  .dd-actual input{width:42px;border:0;background:transparent;color:var(--pine);font:inherit;font-size:12px;font-weight:700;padding:0;text-align:center}
+  .dd-actual .dd-r{width:72px}
+  .profile-row{margin-bottom:10px}
 
   /* ---- 折叠 ---- */
   details{background:var(--card);border:1px solid var(--line);border-radius:13px;margin-top:10px;overflow:hidden}
@@ -284,15 +303,199 @@
   .rot span.aero{background:#EDEFF3;color:#4A5568;border-color:#DDE1E8}
 
   footer{margin-top:26px;font-size:12.5px;color:var(--soft);text-align:center;line-height:1.7}
+
+  /* ---- Minimal Zine Coach Card visual layer ---- */
+  html{background:var(--paper)}
+  body{
+    min-width:320px;background-color:var(--paper);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%23776b5b' stroke-opacity='.055' stroke-width='.7'%3E%3Cpath d='M4 18l18 1M58 7l12 2M34 57l24-1M6 83l14-2M72 78l18 1'/%3E%3C/g%3E%3Cg fill='%235e5447' fill-opacity='.045'%3E%3Ccircle cx='12' cy='42' r='.8'/%3E%3Ccircle cx='67' cy='38' r='.7'/%3E%3Ccircle cx='86' cy='64' r='.6'/%3E%3Ccircle cx='42' cy='88' r='.7'/%3E%3C/g%3E%3C/svg%3E");
+    color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.62;padding-bottom:calc(44px + env(safe-area-inset-bottom));
+  }
+  button,input,select,textarea{font-family:inherit}
+  button,[role="button"],input,select,textarea{-webkit-tap-highlight-color:transparent}
+  button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  button:active{transform:translateY(1px)}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  .wrap{max-width:760px;padding-left:calc(17px + env(safe-area-inset-left));padding-right:calc(17px + env(safe-area-inset-right))}
+
+  header{background:transparent;color:var(--ink);padding:calc(15px + env(safe-area-inset-top)) 0 13px;border-bottom:1.5px solid var(--ink)}
+  .brand-lockup{display:flex;align-items:center;gap:13px;min-width:0}
+  .brand-mark{width:62px;height:62px;object-fit:cover;border:1px solid var(--ink);border-radius:3px;flex:0 0 auto;box-shadow:3px 3px 0 rgba(33,30,26,.12)}
+  .brand-copy{min-width:0}
+  .kicker{font-family:var(--mono);font-size:10px;letter-spacing:.19em;color:var(--soft);margin:0 0 2px}
+  header h1{font-family:var(--serif);font-size:25px;line-height:1.2;letter-spacing:.01em;font-weight:700;color:var(--ink);margin:0}
+  header .sub{font-size:12px;color:var(--soft);margin:4px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  .tabs{top:0;padding:8px 0;background:var(--paper);background-image:inherit;border-bottom:1px solid var(--line);gap:0}
+  .tabs button{min-height:46px;border:0;border-bottom:3px solid transparent;border-radius:0;background:transparent;color:var(--soft);font-family:var(--mono);font-size:12px;letter-spacing:.12em}
+  .tabs button[aria-pressed="true"]{background:transparent;border-color:var(--accent);color:var(--ink)}
+
+  .step{margin-top:20px}
+  .step-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--soft);margin-bottom:8px}
+  .step-label .n{width:21px;height:21px;border:1px solid var(--ink);border-radius:1px;background:transparent;color:var(--ink);font-family:var(--mono);font-size:10px}
+
+  .switch{gap:7px}
+  .switch button{min-height:52px;border:1px solid var(--line-dark);border-radius:3px;background:var(--card);color:var(--soft);padding:10px 7px;box-shadow:1px 2px 0 rgba(33,30,26,.08)}
+  .switch button .big{font-size:15px;color:var(--ink)}
+  .switch button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper);box-shadow:inset 0 -3px var(--accent)}
+  .switch button[aria-pressed="true"] .big{color:#fff8eb}
+  .switch.state button{min-height:62px;box-shadow:none}
+  .switch.state button[aria-pressed="true"]{box-shadow:inset 0 -3px rgba(255,255,255,.55)}
+  .switch.state button[aria-pressed="true"][data-s="red"]{color:var(--ink)}
+  .switch.state .level-mark{font-family:var(--serif);font-size:16px}
+  .switch.state button small{font-size:10.5px}
+
+  #stateNote{border:1px solid rgba(80,103,117,.35);border-radius:2px;padding:10px 12px;line-height:1.55}
+  .rule{background:var(--ink);color:#F8EDDA;border:0;border-radius:2px;border-left:4px solid var(--accent);padding:13px 14px;box-shadow:3px 3px 0 rgba(33,30,26,.12)}
+  .rule b{color:#fff8eb}
+
+  .panel,.aero-box,.cycle-card,.day-detail,.chart-box,details{background:var(--card);border:1px solid var(--line-dark);border-radius:3px;box-shadow:2px 3px 0 rgba(33,30,26,.075)}
+  .panel{overflow:visible}
+  .panel-head{background:transparent;padding:14px 14px 12px;border-bottom:1.5px solid var(--ink)}
+  .panel-head h2{font-family:var(--serif);font-size:20px;color:var(--ink)}
+  .panel-head p{font-size:12px;line-height:1.5}
+  .block-title{font-family:var(--mono);font-size:10px;color:var(--soft);letter-spacing:.16em;padding:15px 14px 3px}
+  ul.moves{padding:0 14px 6px}
+  ul.moves li{gap:10px;padding:12px 0;border-color:rgba(138,127,112,.35)}
+  ul.moves .tick{width:44px;height:44px;border:1.6px solid var(--ink);border-radius:2px;margin-top:0;font-family:var(--mono);font-size:16px;transform:rotate(-1deg)}
+  ul.moves li:nth-child(even) .tick{transform:rotate(1deg)}
+  ul.moves li.done .tick{background:transparent;border:2px solid var(--accent);color:var(--ink);box-shadow:inset 0 0 0 1px var(--card)}
+  ul.moves li.done .nm{text-decoration:none;color:var(--ink)}
+  .nm{font-size:15px;line-height:1.35;min-height:44px;display:flex;align-items:center}
+  .move-name{min-height:44px;color:var(--ink)}
+  .dose{font-family:var(--mono);font-size:12.5px;margin-top:3px}
+  .dose b{color:var(--ink)}
+  .why{font-size:12px;color:var(--soft);margin-top:4px}
+  .swap{font-family:var(--mono);font-size:9.5px;border-radius:1px;background:var(--paper-deep);color:var(--ink)}
+  .caret{color:var(--accent);font-size:12px}
+
+  .act{gap:5px;margin-top:8px}
+  .act .fld{min-height:46px;display:inline-flex;align-items:center;gap:4px;background:var(--paper);border:1px solid var(--line);border-radius:2px;padding:4px 7px;font-family:var(--mono);font-size:10px;letter-spacing:.04em}
+  .act .fld input{width:42px;font-family:var(--mono);font-size:18px;color:var(--ink);line-height:1.1}
+  .act .fld.reps-multi input{width:32px;font-size:16px}
+  .act .a-toggle{min-height:44px;color:var(--soft);font-family:var(--mono);font-size:10px;padding:4px 7px}
+
+  .exp{margin-top:2px}
+  .exp-in{padding-right:1px}
+  .detail-sub{margin-top:12px;border-color:var(--line-dark)}
+  .detail-sub h4{font-family:var(--serif);font-size:16px;color:var(--ink);margin:2px 0 7px}
+  .detail-section{grid-template-columns:74px minmax(0,1fr);gap:10px;padding:8px 0;border-color:rgba(138,127,112,.28);font-size:12.5px;line-height:1.65}
+  .detail-section b{font-family:var(--mono);font-size:10.5px;letter-spacing:.03em;color:var(--ink)}
+  .detail-feel{border-left:2px solid var(--accent);padding-left:8px}
+  .detail-errors{border-bottom:1px solid rgba(138,127,112,.28)}
+  .detail-review{border:1px dashed var(--line-dark);border-radius:1px;background:transparent;color:var(--soft)}
+
+  .checkin-btn,.report-btn{min-height:52px;border:1px solid var(--ink);border-radius:2px;background:var(--ink);color:#FFF8EA;box-shadow:3px 3px 0 rgba(33,30,26,.15);font-family:var(--serif);letter-spacing:.02em}
+  .checkin-btn.done{background:var(--ink);box-shadow:inset 0 -3px var(--accent),3px 3px 0 rgba(33,30,26,.15)}
+  .aero-box{padding:13px;margin-top:11px}
+  .aero-label{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--soft)}
+  .chips button,.aero-min .qmin{min-height:44px;border:1px solid var(--line-dark);border-radius:2px;background:var(--paper);color:var(--ink)}
+  .chips button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#FFF8EA;box-shadow:inset 0 -3px var(--accent)}
+  .aero-min{gap:5px}
+  .aero-min input,.note-input,.dd-min,.dd-note,.trend-sel,#importBox,.report-fallback{min-height:44px;border:1px solid var(--line-dark);border-radius:2px;background:var(--paper);color:var(--ink)}
+  .aero-min input{width:82px;font-family:var(--mono);font-size:17px}
+
+  .grid14{gap:4px}
+  .cell{min-width:0;border-radius:1px;background:var(--card);padding:6px 2px}
+  .cell .d{font-family:var(--mono);font-size:9px}
+  .cell.hit{background:var(--level-compact-tint);border-color:var(--level-compact)}
+  .cell.today{border-color:var(--accent);border-width:2px}
+  .streak{font-family:var(--mono);font-size:11px;color:var(--soft);font-weight:600}
+  .tiny-note{font-size:11.5px;color:var(--soft)}
+
+  .rest-note{border-radius:2px;background:var(--rest-tint);border-left:4px solid var(--rest);color:var(--ink);box-shadow:2px 2px 0 rgba(33,30,26,.08)}
+  .cycle-card{padding:13px;border-left:3px solid var(--accent)}
+  .period-toggle{min-height:44px;border-radius:2px;background:var(--paper);color:var(--ink);border-color:var(--line-dark)}
+  .period-toggle[aria-pressed="true"]{background:var(--accent-tint);border-color:var(--accent);color:var(--ink)}
+  .cycle-hint{font-family:var(--serif);color:var(--ink)}
+  .cycle-hint .ph{color:var(--ink);text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:3px}
+  .cycle-advice,.cycle-empty{font-size:12.5px;color:var(--soft)}
+  .cycle-advice b{color:var(--ink)}
+  .period-dot{background:var(--accent);width:5px;height:5px}
+
+  details{overflow:hidden}
+  details summary{min-height:50px;padding:12px 13px;color:var(--ink);font-family:var(--serif);font-size:14.5px}
+  details summary::after{font-family:var(--mono);color:var(--accent)}
+  .det-body{border-color:var(--line);padding:12px 13px 14px;color:var(--soft);font-size:13.5px}
+  .det-body b{color:var(--ink)}
+  .rot span{border-radius:1px;background:var(--paper-deep);border-color:var(--line);color:var(--ink);font-family:var(--mono);font-size:11px}
+
+  .cal-head{margin-top:13px}
+  .cal-title{font-family:var(--serif);font-size:19px;color:var(--ink)}
+  .cal-nav{width:44px;height:44px;border-radius:2px;border-color:var(--line-dark);background:var(--card);color:var(--ink)}
+  .cal-dow{font-family:var(--mono);font-size:9px}
+  .cal-grid{gap:4px}
+  .cal-cell{min-width:0;min-height:46px;border-radius:1px;background:var(--card);padding:4px;font-family:var(--mono)}
+  .cal-cell.today{border-color:var(--accent)}
+  .cal-cell.st-green,.cal-cell.st-amber,.cal-cell.st-red,.cal-cell.st-rest{border-width:1px}
+  .day-detail{padding:12px;font-size:13px}
+  .stats{font-family:var(--mono);font-size:11.5px;gap:7px 12px}
+  .stats b{color:var(--ink)}
+  .cycle-info{border:1px dashed var(--line-dark);border-radius:2px;background:var(--card);color:var(--ink)}
+
+  .dd-edit{border-color:var(--line);gap:10px}
+  .dd-row{align-items:flex-start}
+  .dd-lbl{font-family:var(--mono);font-size:10px;color:var(--soft);padding-top:8px}
+  .dd-chips button,.day-period-btn,.dd-clear{min-height:44px;border-radius:2px;border-color:var(--line-dark);background:var(--paper);color:var(--ink)}
+  .dd-chips button[aria-pressed="true"]{background:var(--ink);color:#FFF8EA;box-shadow:inset 0 -3px var(--accent)}
+  .dd-chips.st button[aria-pressed="true"]{box-shadow:none}
+  .day-period-btn[data-on="true"]{background:var(--accent-tint);border-color:var(--accent);color:var(--ink)}
+  .dd-moves{gap:8px}
+  .dd-move{border-radius:2px;background:var(--paper);padding:8px}
+  .dd-move-toggle{min-height:44px;font-size:13px}
+  .dd-box{width:26px;height:26px;border-radius:1px;border-color:var(--ink)}
+  .dd-move.selected .dd-box{background:transparent;border:2px solid var(--accent);color:var(--ink)}
+  .dd-actual{margin:7px 0 1px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .dd-actual label{min-width:0;min-height:44px;border-radius:2px;background:var(--card);font-family:var(--mono);font-size:9.5px;justify-content:space-between}
+  .dd-actual input{width:54px;font-family:var(--mono);font-size:16px;color:var(--ink)}
+  .dd-actual .dd-r{width:74px}
+  .dd-aero-row{display:grid;grid-template-columns:46px minmax(0,1fr);align-items:start}
+  .dd-aero-row .dd-min{grid-column:2;margin-top:6px;width:100%;font-family:var(--mono);font-size:16px}
+
+  .trend h3{font-family:var(--serif);font-size:17px;color:var(--ink)}
+  .chart-box{overflow:hidden;padding:12px 8px 8px}
+  .trend-summary{border-radius:2px;background:var(--paper-deep);color:var(--ink)}
+  .trend-summary b{color:var(--ink)}
+  .bars-cap{font-family:var(--mono);font-size:10px}
+  .backup-btns button,.file-label{min-height:44px;border-radius:2px;background:var(--ink);border-color:var(--ink);color:#FFF8EA}
+  .backup-btns button.ghost,.file-label{background:var(--paper);color:var(--ink);border-color:var(--line-dark)}
+  .backup-msg{font-family:var(--mono);font-size:11px}
+  footer{padding-top:16px;border-top:1px dashed var(--line-dark);font-family:var(--mono);font-size:10.5px;text-align:left}
+
+  @media (max-width:390px){
+    .wrap{padding-left:calc(13px + env(safe-area-inset-left));padding-right:calc(13px + env(safe-area-inset-right))}
+    .brand-mark{width:56px;height:56px}
+    header h1{font-size:22px}
+    .switch{gap:5px}
+    .switch button{font-size:12.5px;padding:9px 4px}
+    .switch button .big{font-size:13px}
+    .detail-section{grid-template-columns:68px minmax(0,1fr);gap:7px}
+    .act .fld{padding:4px 5px}
+    .act .fld input{width:36px}
+    .grid14,.cal-grid{gap:3px}
+    .cal-cell{padding:3px;min-height:44px}
+  }
+  @media (min-width:720px){
+    .brand-mark{width:68px;height:68px}
+    header{padding-top:calc(18px + env(safe-area-inset-top));padding-bottom:16px}
+    .panel,.aero-box,.cycle-card,.day-detail,.chart-box,details{box-shadow:3px 4px 0 rgba(33,30,26,.07)}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}
+  }
 </style>
 </head>
 <body>
 
 <header>
   <div class="wrap">
-    <p class="kicker">AvenGO · Coach Card</p>
-    <h1>今天练什么</h1>
-    <p class="sub">功能打底 + 负重主菜 · 每周 3 力量 / 2 有氧 / 天天饭后走</p>
+    <div class="brand-lockup">
+      <img class="brand-mark" src="avengo-mark.png" width="62" height="62" alt="AvenGO! 训练卡、勾选框、哑铃和拉力带标记">
+      <div class="brand-copy">
+        <p class="kicker">AvenGO! · Coach Card</p>
+        <h1 id="pageTitle">今天练什么</h1>
+        <p class="sub">一张安静、可调整的家庭训练卡</p>
+      </div>
+    </div>
   </div>
 </header>
 
@@ -305,13 +508,13 @@
 
   <div id="pageToday">
 
-  <!-- STEP 1 · 今天是什么日子 -->
+  <!-- STEP 1 · 今天的力量安排；有氧始终独立记录 -->
   <div class="step">
-    <div class="step-label"><span class="n">1</span>今天是什么日子</div>
+    <div class="step-label"><span class="n">1</span>今天的力量安排</div>
     <div class="switch daytype" id="dayTypeSwitch">
-      <button data-dt="train" aria-pressed="true">训练日</button>
-      <button data-dt="rest" aria-pressed="false">休息日</button>
-      <button data-dt="aero" aria-pressed="false">有氧日</button>
+      <button data-dt="train" aria-pressed="true">做力量</button>
+      <button data-dt="rest" aria-pressed="false">休息</button>
+      <button data-dt="none" aria-pressed="false">暂不安排</button>
     </div>
   </div>
 
@@ -321,7 +524,7 @@
     <div class="cycle-body" id="cycleBody"></div>
   </div>
 
-  <!-- 休息 / 有氧日提示 -->
+  <!-- 休息 / 暂不安排力量提示 -->
   <div class="rest-note" id="restNote" hidden></div>
 
   <!-- 训练日专属 -->
@@ -330,25 +533,25 @@
     <div class="step">
       <div class="step-label"><span class="n">2</span>练哪个</div>
       <div class="switch" id="daySwitch">
-        <button data-d="A" aria-pressed="true"><span class="big">A 日 · 下肢</span>臀腿为主 · 代谢引擎</button>
+        <button data-d="A" aria-pressed="true"><span class="big">A 日 · 下肢</span>蹲 · 髋伸 · 单腿稳定</button>
         <button data-d="B" aria-pressed="false"><span class="big">B 日 · 上肢+核心</span>推拉 · 肩背养护</button>
       </div>
     </div>
 
     <!-- STEP 3 -->
     <div class="step">
-      <div class="step-label"><span class="n">3</span>今天状态(10秒自检)</div>
+      <div class="step-label"><span class="n">3</span>今天的投入程度</div>
       <div class="switch state" id="stateSwitch">
-        <button data-s="green" aria-pressed="true"><span class="dot">🟢</span>还行</button>
-        <button data-s="amber" aria-pressed="false"><span class="dot">🟡</span>一般</button>
-        <button data-s="red" aria-pressed="false"><span class="dot">🔴</span>很差</button>
+        <button data-s="green" aria-pressed="true"><span class="level-mark">完整</span><small>全部计划</small></button>
+        <button data-s="amber" aria-pressed="false"><span class="level-mark">精简</span><small>减少组数</small></button>
+        <button data-s="red" aria-pressed="false"><span class="level-mark">轻量</span><small>只做热身</small></button>
       </div>
       <div id="stateNote"></div>
     </div>
 
     <!-- 铁规 -->
     <div class="rule">
-      <b>铁规,无例外:</b>没吃东西 → 先垫一份小燃料(香蕉 / 全麦面包+鸡蛋 / 无乳糖酸奶),等 30 分钟再练。垫不了 → 今天只散步。
+      <b>训练前提示:</b>如果还没进食，可以先补一份容易消化的小食，再按自己的体感决定何时开始；今天也可以随时调整安排。
     </div>
 
     <!-- STEP 4 -->
@@ -364,13 +567,13 @@
     </div>
   </div>
 
-  <!-- STEP 5 · 打卡区 -->
+  <!-- STEP 5 · 记录区 -->
   <div class="step">
-    <div class="step-label"><span class="n">5</span>练完打卡</div>
+    <div class="step-label"><span class="n">5</span>记录今天</div>
     <button class="checkin-btn" id="checkinBtn"></button>
     <div class="storage-hint" id="storageHint" style="display:none">当前浏览器不支持保存</div>
     <div class="aero-box">
-      <div class="aero-label">今日有氧 · 做了就记,没做空着</div>
+      <div class="aero-label">今日有氧 · 可与力量同一天记录</div>
       <div class="chips" id="aeroType">
         <button data-t="骑车">骑车</button>
         <button data-t="快走">快走</button>
@@ -388,20 +591,17 @@
     </div>
     <div class="grid14" id="grid14"></div>
     <div class="streak" id="streakNote"></div>
-    <p class="tiny-note">勾选动作会自动保存 · ✓=当天达标 · 🔴天散步或休息也算达标</p>
+    <p class="tiny-note">动作、有氧和备注都会自动保存在本机；没有记录的项目会安静地留空。</p>
   </div>
 
   <!-- 折叠区 -->
   <details>
     <summary>怎么排一周 · 不用钉死星期几</summary>
     <div class="det-body">
-      <p>力量之间<b>隔一天</b>,顺序轮着来,下肢多一点:</p>
-      <div class="rot"><span>A</span><span class="aero">有氧</span><span>B</span><span class="aero">有氧</span><span>A</span></div>
-      <div class="rot"><span>B</span><span class="aero">有氧</span><span>A</span><span class="aero">有氧</span><span>B</span></div>
-      <p>下一周首字母接着换,长期就是 A 比 B 略多——这是故意的,臀腿是最大的血糖处置器官。</p>
-      <p><b>有氧日:</b>湖滨快走或 Bike Share 骑行 30–40 分钟,心率 ~120(能说话但不能唱歌)。热浪/雷雨 → PATH 快走或室内泳池。</p>
-      <p><b>每天:</b>饭后走 10–15 分钟。这条性价比最高,门槛几乎为零。</p>
-      <p><b>最低完成线:</b>任何一天,做到以下之一就算达标——一次力量、一次20分钟骑行、或三次饭后散步。</p>
+      <p>力量训练之间可以留出恢复时间，A / B 顺序轮换即可；不需要钉死星期几。</p>
+      <div class="rot"><span>A</span><span>恢复</span><span>B</span><span>恢复</span><span>A</span></div>
+      <p><b>有氧可以独立安排，也可以接在力量之后。</b>常见组合是力量 30–40 分钟后，再做 15–25 分钟中等强度有氧；也可以只散步、骑车或休息。</p>
+      <p>这些只是排法参考，实际选择始终以当天体感和时间为准。</p>
     </div>
   </details>
 
@@ -413,12 +613,12 @@
       <ul>
         <li>加重量 +2–5lb(哑铃到顶 20lb 前优先这条)</li>
         <li>加次数 → 加组数</li>
-        <li>放慢离心:下放用 3–4 秒(几乎不加重就显著变难,对血糖处理特别有效)</li>
+        <li>放慢离心:下放用 3–4 秒(不增加重量也能提高动作控制要求)</li>
         <li>顶峰停顿 2 秒(臀桥尤其)</li>
         <li><b>减少支撑面:双腿 → 单腿</b>(哑铃 20lb 到顶后的主要出路)</li>
       </ul>
-      <p><b>降级信号:</b>动作变形(脚跟翘、膝内扣、弓背、塌腰)→ 立刻退回上一档。宁可轻一点做对。</p>
-      <p><b>出现尖锐疼痛</b>(不是肌肉酸胀)→ 停下,记下来告诉我。这类信号不要忍。</p>
+      <p><b>调整信号:</b>动作变形(脚跟翘、膝内扣、弓背、塌腰)→ 减轻重量或缩小幅度，让动作回到可控范围。</p>
+      <p><b>出现尖锐疼痛</b>(不是肌肉酸胀)→ 停下并在备注里记录；需要时咨询合格的专业人士。</p>
     </div>
   </details>
 
@@ -435,15 +635,15 @@
   </details>
 
   <details>
-    <summary>追踪什么 · 别每天称体重</summary>
+    <summary>追踪什么 · 只留有用的信息</summary>
     <div class="det-body">
       <ul>
-        <li><b>每 2 周</b>同条件称重(晨起空腹如厕后)——看趋势不看单点</li>
-        <li><b>每 4–6 周</b>量腰围——比体重更能反映内脏脂肪</li>
-        <li><b>每天</b>打个勾就行:吃了吗 / 动了吗 / 餐后犯困吗</li>
-        <li><b>3 个月</b>复测 InBody + 空腹胰岛素 / HOMA-IR / 甘油三酯</li>
+        <li><b>力量:</b>记下实际重量、组数、次数和可选 RIR，方便下次快速找到起点。</li>
+        <li><b>有氧:</b>只在做过时记录类型和分钟，不需要补空白。</li>
+        <li><b>体感:</b>有值得回看的变化时写一句备注即可。</li>
+        <li><b>健康指标:</b>若已在专业人士指导下追踪，请沿用原方案；本 App 不做解读。</li>
       </ul>
-      <p>预期:体重降 5% 左右,HOMA-IR 通常就能看到明显改善,甘油三酯降得更快。<b>不用瘦很多才能看到代谢好转。</b></p>
+      <p>记录只为减少下次回忆成本，可以按需填写。</p>
     </div>
   </details>
 
@@ -462,24 +662,26 @@
     <div class="cycle-info" id="cycleInfo" hidden></div>
     <button class="report-btn" id="reportBtn">复制汇报(最近14天)</button>
     <textarea class="report-fallback" id="reportFallback" hidden readonly></textarea>
-    <p class="tiny-note">点有颜色的格子看当天详情 · ✓=达标 · ~=有氧 · 蓝灰=休息日 · 这是记录,不是考核</p>
+    <p class="tiny-note">点格子查看当天详情 · ✓=力量记录 · ~=有氧记录 · 休=休息记录</p>
 
     <div class="trend">
       <h3>力量趋势 · 渐进负荷的证据</h3>
       <select class="trend-sel" id="trendMove"></select>
       <div class="chart-box" id="trendChart"></div>
       <div class="trend-summary" id="trendSummary"></div>
-      <div class="bars-cap">每周力量次数 · 我一直在出现</div>
+      <div class="bars-cap">每周力量记录</div>
       <div class="chart-box" id="weekBars"></div>
     </div>
 
     <details class="backup">
       <summary>备份 · 导出 / 导入</summary>
       <div class="det-body">
-        <p>数据只存在这台设备的浏览器里。换设备、清缓存、或换浏览器前先<b>导出备份</b>;需要时再<b>导入恢复</b>。导入是合并:同一天以导入的为准,其它天保留。</p>
+        <p>数据只存在这台设备的浏览器里。JSON 包含完整记录并可再次导入；CSV 便于查看和分析。导入采用合并语义：同一天以导入内容为准，其它日期保留。</p>
+        <div class="dd-row profile-row"><label class="dd-lbl" for="profileName">本机称呼</label><input class="dd-note" id="profileName" type="text" maxlength="30" placeholder="可选；留空时不显示称呼"></div>
         <div class="backup-btns">
-          <button id="exportCopy">复制备份</button>
-          <button id="exportFile" class="ghost">下载备份文件</button>
+          <button id="exportCopy">复制 JSON</button>
+          <button id="exportFile" class="ghost">下载 JSON</button>
+          <button id="exportCsv" class="ghost">下载 CSV</button>
         </div>
         <textarea id="importBox" placeholder="把备份文本粘贴到这里,或用下面的按钮选文件…"></textarea>
         <div class="backup-btns">
@@ -492,89 +694,286 @@
   </div>
 
   <footer>
-    热身用「训练卡」查动作要领 · 这张卡管「今天练多少」<br>
-    练完跟我说一句:哪个吃力 / 太轻还是太累 / 有没有不对劲 → 我调下一轮
+    数据只保存在本机 · 不上传训练、周期或备注内容
   </footer>
 
 </div>
 
 <script>
+const makeDetail = (start, breath, tempo, sequence, feel, errors, needsReview=false) => ({
+  start, breath, tempo, sequence, feel, errors, ...(needsReview ? {needsReview:true} : {})
+});
+const makeGroup = (...subs) => ({ subs });
+
+// 动作指令资料库。每个原子动作固定为六段；组合动作按子动作分别显示六段。
+const DETAILS = {
+  "高脚杯深蹲": makeDetail(
+    "双脚略比肩宽，脚尖向外约 10–20°，膝盖始终朝第二、三脚趾方向；哑铃竖直贴在胸骨前，双手托住上端，手肘向下；脊柱保持自然中立，视线看前方偏下。",
+    "开始下蹲前用鼻吸气并撑开腰腹；下放时保持这口气，越过最难点后缓慢呼气，站稳后再吸下一口。",
+    "下放 3 秒 → 底部停 0–1 秒确认脚掌贴地 → 约 1 秒站起。",
+    "先让大脚球、小脚球和脚跟三点压地并收紧核心 → 髋与膝同时弯曲 → 脚掌蹬地，由股四头肌和臀肌带动站起。",
+    "脚掌三点始终贴地，膝盖沿脚尖方向移动；大腿前侧和臀部用力，腰背没有挤压感。",
+    "膝盖内扣时把重量减轻并主动让膝盖对准脚尖；脚跟抬起时缩小深度；含胸或哑铃离胸时先把哑铃贴回胸骨并收紧上背。"
+  ),
+  "分腿蹲 / 保加利亚分腿蹲": makeGroup(
+    {t:"分腿蹲", ...makeDetail(
+      "双脚前后站成两条平行轨道，左右间距约与髋同宽，前脚脚尖朝前，前膝对准第二脚趾，后脚以前脚掌着地；双手自然垂放或各握一只哑铃，脊柱直立，视线看前方。",
+      "下放时吸气并保持腹压；前脚推地站起时呼气。",
+      "下放 2–3 秒 → 底部停 1 秒 → 1 秒站起。",
+      "先收紧核心并把重心放在前脚中部 → 两膝同时弯曲垂直下沉 → 前脚蹬地，由前腿臀肌和股四头肌带动站起。",
+      "前腿臀部和大腿前侧发力，前脚全掌稳定；身体上下移动而不是前后冲。",
+      "前膝内扣时减小深度并对准脚尖；站距像走钢丝导致摇晃时把左右间距加宽；后脚蹬得太多时把重心移回前脚。"
+    )},
+    {t:"保加利亚分腿蹲", ...makeDetail(
+      "前脚脚尖朝前、前膝对准第二脚趾，后脚脚背轻放在约膝盖以下高度的稳固支撑面，左右间距约与髋同宽；双手自然垂放或各握哑铃，脊柱中立并轻微前倾，视线看前方偏下。",
+      "垂直下沉时吸气；前脚推地回到起始高度时呼气。",
+      "下放 3 秒 → 底部停 1 秒 → 1–2 秒站起。",
+      "先收紧核心并压稳前脚三点 → 前髋和前膝一起弯曲下沉 → 以前腿臀肌和股四头肌推起，后腿只负责平衡。",
+      "前腿承担大部分负荷，前脚不晃，臀部和大腿前侧有连续张力；后膝没有撞地。",
+      "前脚离凳太近导致膝盖拥挤时向前挪；后脚承重或抽筋时换更低支撑；骨盆扭转时先徒手并缩小幅度。"
+    )}
+  ),
+  "徒手深蹲": makeDetail(
+    "双脚与肩同宽或略宽，脚尖向外约 10–20°，膝盖对准第二、三脚趾；双手在胸前交握或向前伸，脊柱中立，视线看前方偏下。",
+    "下放前吸气撑开腰腹；下蹲时保持腹压，站起越过最难点后呼气。",
+    "下放 3 秒 → 底部停 1 秒 → 1 秒站起。",
+    "先压稳脚掌三点并收紧核心 → 髋膝同时弯曲 → 脚掌蹬地，由臀肌和大腿前侧带动站起。",
+    "脚底稳定、膝盖跟脚尖同向，臀部与大腿前侧发力；能在不塌腰的范围内平稳下蹲。",
+    "脚跟抬起时缩小深度；膝内扣时把膝盖对准脚尖；身体扑向前时把手向前伸并放慢下放。"
+  ),
+  "哑铃罗马尼亚硬拉": makeDetail(
+    "双脚与髋同宽，脚尖朝前，膝盖对准脚尖并保持微屈；双手正握哑铃置于大腿前侧，手腕中立；脊柱保持自然曲线，视线看前方约 2–3 米地面。",
+    "开始推髋前吸气撑开腰腹；下放时保持腹压，髋向前伸并站起时呼气。",
+    "下放 3 秒 → 腘绳肌拉紧处停 1 秒 → 1–2 秒站起。",
+    "先收紧核心和腋下让哑铃贴腿 → 臀部向后移动、髋折叠 → 脚掌压地，由腘绳肌和臀肌把髋拉回正中。",
+    "大腿后侧有均匀拉伸，臀部站起时发力；哑铃始终贴近双腿，腰背感觉稳定。",
+    "弓背时减少下放深度；膝盖越弯越像深蹲时固定微屈角度；哑铃向前飘时收紧腋下并沿腿下滑。"
+  ),
+  "臀桥 / 单腿臀桥": makeGroup(
+    {t:"臀桥", ...makeDetail(
+      "仰卧，双脚与髋同宽、脚尖朝前，膝盖朝第二脚趾；脚跟离臀约一脚长，双手掌心向下放在身体两侧；脊柱中立、下巴微收，视线朝天花板。",
+      "底部吸气撑开腰腹；呼气时顶髋，顶端短暂停留后吸气下放。",
+      "1 秒顶起 → 顶端夹臀停 2 秒 → 3 秒下放。",
+      "先轻收肋骨和核心 → 脚跟压地 → 臀肌发力把髋抬起，顶端保持骨盆不过度前倾。",
+      "臀部最明显发力，腘绳肌可辅助；顶端肩、髋、膝成斜直线，腰部没有夹挤。",
+      "腰酸时先收肋骨并降低高度；膝盖外翻或内扣时对准脚尖；脚太远导致腿后侧抽筋时把脚向臀部移近。"
+    )},
+    {t:"单腿臀桥", ...makeDetail(
+      "仰卧，支撑脚与髋同宽位置、脚尖朝前，支撑膝对准第二脚趾；另一腿屈髋抬起，双手放身体两侧；脊柱中立、骨盆保持水平，视线朝天花板。",
+      "底部吸气；呼气时用支撑腿顶髋，吸气控制下放。",
+      "1–2 秒顶起 → 顶端停 1 秒 → 3 秒下放。",
+      "先收紧核心并让骨盆水平 → 支撑脚跟压地 → 支撑侧臀肌发力抬髋，非支撑腿保持不动。",
+      "支撑侧臀部集中发力，左右髂骨保持同高；腰背没有扭转或夹挤。",
+      "骨盆向一侧掉时改回双腿臀桥；腿后侧抽筋时把支撑脚移近臀部；用腰顶时降低高度并先收肋骨。"
+    )}
+  ),
+  "B-stance RDL": makeDetail(
+    "主力脚脚尖朝前，辅助脚向后半脚长并只以前脚掌轻点地，两脚左右仍与髋同宽，双膝朝各自脚尖；哑铃放在主力腿前侧，脊柱中立，视线看前下方。",
+    "推髋下放前吸气建立腹压；主力侧髋向前伸、身体回正时呼气。",
+    "下放 3 秒 → 拉伸位停 1 秒 → 1–2 秒站起。",
+    "先收紧核心并把约八成重量放在前脚 → 主力侧臀部向后推 → 由主力侧臀肌和腘绳肌把髋拉回。",
+    "主力腿后侧拉伸和臀部发力明显，辅助脚只帮助平衡，骨盆保持朝前。",
+    "辅助脚蹬地太多时减轻其接触；骨盆转开时缩小幅度并让两侧髂骨朝前；腰背圆起时停止继续下放。"
+  ),
+  "单腿 RDL": makeDetail(
+    "支撑脚脚尖朝前，支撑膝对准脚尖并微屈，另一脚离地向后延伸；哑铃握在对侧手或双手，空手可轻扶墙；脊柱中立，视线随躯干看前下方。",
+    "开始折髋前吸气撑开腰腹；支撑脚压地回到站立时呼气。",
+    "下放 3 秒 → 最低可控点停 1 秒 → 2 秒站起。",
+    "先收紧核心并压稳支撑脚三点 → 浮动腿向后伸、支撑侧髋向后推 → 支撑侧臀肌和腘绳肌带动回正。",
+    "支撑腿后侧和臀部发力，躯干与后腿像一块板同步移动，骨盆大致朝地面。",
+    "骨盆翻开时让后脚脚尖朝地；失去平衡时扶墙或改 B-stance；弓背够地时减少下放深度。"
+  ),
+  "哑铃肩推": makeDetail(
+    "站姿时双脚与髋同宽、脚尖和膝盖朝前；坐姿时双脚同宽踩地。双手正握或中立握持铃于肩侧，手肘略在身体前方，手腕叠在手肘上；脊柱中立，视线平视。",
+    "起推前吸气建立腹压；向上推越过最难点时呼气，控制下放时吸气。",
+    "1–2 秒推起 → 顶端不停或停 1 秒 → 3 秒下放。",
+    "先收紧臀部与核心、让肋骨回收 → 肩部和肱三头肌发力推铃 → 顶端让手臂接近伸直但不猛锁肘。",
+    "肩部和手臂发力，躯干保持安静；哑铃轨迹在肩上方，腰部没有后仰挤压。",
+    "挺腰时减轻重量并收肋骨；手腕后折时让拳眼朝上并保持腕肘叠放；耸肩夹颈时缩短顶端高度。"
+  ),
+  "上斜俯卧撑(扶桌沿)": makeDetail(
+    "双脚与髋同宽、脚尖朝前，膝盖自然伸直；双手略比肩宽撑在稳固台面，手指向前并握住边缘或张开压稳；从头到脚跟成直线，视线看手前方。",
+    "下降时吸气；胸部接近台面后，推离台面时呼气。",
+    "下放 3 秒 → 底部停 0–1 秒 → 1 秒推起。",
+    "先收紧臀部和核心 → 肩胛自然后收、手肘向后约 30–45°下放 → 胸肌和肱三头肌发力推回。",
+    "胸部和手臂发力，身体整体升降；肩膀远离耳朵，腰腹没有下坠。",
+    "塌腰时提高台面并收紧臀部；手肘横向张开时转向身体后方；只伸脖子时让胸骨一起接近台面。"
+  ),
+  "跪姿俯卧撑": makeDetail(
+    "双膝与髋同宽落垫，脚背放松；双手略比肩宽、手指朝前，膝盖到头顶成直线；骨盆微收、脊柱中立，视线看双手前方。",
+    "胸部下放时吸气；双手推地回起始位时呼气。",
+    "下放 3 秒 → 底部停 0–1 秒 → 1–2 秒推起。",
+    "先收紧臀部和核心 → 手肘向后约 30–45°下放 → 胸肌和肱三头肌发力推起。",
+    "胸和手臂承担负荷，膝盖到头顶保持一条直线；腰部不下坠。",
+    "髋部留在后方时把骨盆向前移；塌腰时缩小深度；手肘外张时让肘尖朝后。"
+  ),
+  "单臂哑铃划船": makeDetail(
+    "双脚前后或与髋同宽站立，脚尖和膝盖朝前；一手撑稳凳面，另一手中立握哑铃自然垂下；髋向后、脊柱中立，颈部延长，视线看地面。",
+    "手臂伸长时吸气；把哑铃拉向髋部时呼气。",
+    "1–2 秒拉起 → 顶端停 1 秒 → 3 秒下放。",
+    "先收紧核心并把工作侧肩胛向后下方移动 → 手肘沿身体拉向髋部 → 背阔肌和肩胛周围肌群完成动作。",
+    "腋下到背侧、肩胛内侧发力，躯干不旋转；手臂只是连接哑铃。",
+    "耸肩时把肩膀远离耳朵；身体扭转时减轻重量并让胸口朝地；哑铃拉向胸口时改为拉向髋部。"
+  ),
+  "拉力带坐姿划船": makeDetail(
+    "坐在垫上，双腿伸直或微屈，双脚与髋同宽、脚尖朝上、膝盖朝脚尖；拉力带绕过脚掌，双手中立握住两端；脊柱直立，视线平视。",
+    "手臂向前伸时吸气；拉力带靠近身体时呼气。",
+    "1–2 秒拉回 → 末端停 1 秒 → 3 秒送回。",
+    "先收紧核心并把肩胛向后下方移动 → 手肘贴近身体向后拉 → 背阔肌和肩胛之间肌群完成收缩。",
+    "后背中部和腋下发力，胸口自然打开；身体不前后摆动，肩膀不靠近耳朵。",
+    "靠后仰借力时减小阻力；耸肩时先把肩胛下沉；手腕弯曲时保持拳头与前臂成直线。"
+  ),
+  "拉力带下拉": makeDetail(
+    "双脚与髋同宽、脚尖和膝盖朝前，可站或跪在牢固高位固定点下方；双手比肩略宽正握拉力带，手臂举过头顶；脊柱中立、肋骨回收，视线平视。",
+    "手臂上举回位时吸气；把手肘拉向身体两侧时呼气。",
+    "1–2 秒下拉 → 底部停 1 秒 → 3 秒回放。",
+    "先收紧核心并让肩胛下沉 → 手肘向下、向肋骨靠近 → 背阔肌发力把带拉到锁骨附近。",
+    "腋下到背侧有收缩感，肩膀远离耳朵；躯干没有后仰甩动。",
+    "用身体后仰时减小阻力；手腕折弯时保持中立；只用手臂时先做肩胛下沉再弯肘。"
+  ),
+  "死虫式(屈膝点地)": makeDetail(
+    "仰卧，双脚离地，髋膝各约 90°且膝盖与髋同宽、脚尖自然；双手伸向天花板、手掌相对；腰背轻贴垫面，下巴微收，视线朝上。",
+    "起始位吸气撑开腰腹；对侧手脚伸远时缓慢呼气，回到中间时吸气。",
+    "伸出 3 秒 → 最远可控点停 1 秒 → 2 秒收回。",
+    "先呼气收肋骨并让腹部形成张力 → 对侧手脚缓慢远离 → 深层核心抵抗腰椎拱起，再用核心带回。",
+    "腹部一圈持续发力，腰背位置基本不变；髋屈肌不过度紧张，呼吸不中断。",
+    "腰离地时缩短手脚伸出的距离；憋气时减慢并只动一条腿；动作摇摆时先保留双臂不动。"
+  ),
+  "鸟狗式": makeDetail(
+    "四点跪撑，膝盖与髋同宽、脚尖点地或脚背贴垫，膝盖朝后；双手在肩下、手指向前；脊柱中立，视线看双手之间。",
+    "起始位吸气；对侧手脚伸远时呼气，收回时吸气。",
+    "伸出 2 秒 → 末端停 2 秒 → 2 秒收回。",
+    "先收紧核心并压稳支撑手膝 → 对侧手向前、脚向后延伸 → 臀肌和核心抵抗骨盆旋转。",
+    "腹部、支撑侧肩和抬腿侧臀部协同发力；骨盆像桌面一样保持水平。",
+    "抬腿过高导致塌腰时只向后伸；身体左右晃时缩小幅度；耸肩时主动推开地面。"
+  ),
+  "平板支撑": makeDetail(
+    "双脚与髋同宽、脚尖踩地，膝盖伸直并朝地；前臂平行、手肘在肩下，双手自然握拳或掌心向下；头、背、骨盆成直线，视线看两手之间。",
+    "全程用鼻吸、口呼，保持均匀短呼吸；每次呼气时轻收肋骨，不憋气。",
+    "保持静止 10–30 秒；每 3–4 秒完成一次完整吸气和呼气。",
+    "先用前臂推地并收紧核心 → 夹紧臀部、脚跟向后延伸 → 腹部和臀部共同维持躯干。",
+    "腹部、臀部和肩带持续用力，腰部没有下坠或挤压；呼吸可继续。",
+    "塌腰时缩短时间或膝盖落地；臀部过高时让肩、髋、踝重新连线；憋气时立即结束一组并休息。"
+  ),
+  "熊式支撑 · 手脚交叉离地 3 秒": makeDetail(
+    "四点跪撑，双脚与髋同宽、脚尖踩地，膝盖在髋下且朝地；双手在肩下、手指向前；脊柱中立，膝盖悬离地约 2–5 厘米，视线看双手之间。",
+    "悬停时均匀吸气；抬起对侧手脚时缓慢呼气，放回时吸气。",
+    "2 秒抬离 → 悬停 3 秒 → 2 秒放回。",
+    "先双手推地、收紧核心并压稳支撑脚 → 对侧手脚轻离地 → 腹部和髋周肌群抵抗躯干旋转。",
+    "核心一圈和支撑侧肩持续用力，骨盆保持水平；抬离时身体几乎不移动。",
+    "骨盆翻转时先只抬一只手或脚；膝盖抬太高时降到离地几厘米；塌腰时落膝休息后缩短时间。"
+  ),
+  "侧平板": makeDetail(
+    "侧卧，双脚前后错开或上下叠放，脚尖朝前，膝盖伸直；下侧前臂横放，手肘在肩正下方，上手扶髋；头、胸、骨盆和脚成直线，视线平视。",
+    "保持时均匀吸气；每次呼气时轻收下侧腰腹，避免憋气。",
+    "保持 10–30 秒；每 3–4 秒完成一次吸气和呼气。",
+    "先用下侧前臂推地 → 收紧核心和下侧臀部 → 侧腹发力抬起骨盆并维持直线。",
+    "下侧腹部、臀中肌和肩带持续发力；肩膀远离耳朵，骨盆没有向前后翻。",
+    "肩膀挤向耳朵时主动推地；骨盆下沉时改为屈膝侧平板；身体转向地面时让胸骨和髂骨朝正侧方。"
+  ),
+  "Pallof press": makeDetail(
+    "双脚与肩同宽、脚尖和膝盖朝前，身体侧对弹力带固定点；双手叠握把手置于胸前，手腕中立；膝盖微屈、脊柱直立，视线平视。",
+    "把双手推出时呼气；拉回胸前时吸气。",
+    "2 秒推出 → 手臂伸直停 2 秒 → 2 秒收回。",
+    "先压稳双脚并收紧臀部、核心 → 胸骨保持朝前 → 双臂推出，腹斜肌抵抗弹力带带来的旋转。",
+    "靠近固定点一侧的腹部明显工作，骨盆和胸口保持朝正前方；肩膀放松。",
+    "身体被拉转时减小阻力或靠近固定点；手臂推出时耸肩要先下沉肩胛；膝盖内扣时对准脚尖。"
+  ),
+  "足踝迷你套": makeGroup(
+    {t:"足底放松", ...makeDetail("坐在椅子前缘，双脚与髋同宽、脚尖和膝盖朝前；一脚踩筋膜球，双手扶大腿，脊柱直立，视线看前下方。","球经过一般区域时自然吸气；停在紧张点时缓慢呼气，不憋气。","缓慢滚动 2 秒一小段 → 紧张点停 3 秒 → 再继续。","先放松小腿 → 用腿的重量轻压球 → 从脚跟前方滚到前脚掌，足底组织承担主要压力。","足底出现可承受的酸胀和温热，滚完脚掌更容易贴地；没有尖锐痛。","疼到缩脚或憋气时减轻压力；不要滚压脚跟骨和明显刺痛点，出现麻电感立即停止。")},
+    {t:"分趾", ...makeDetail("坐姿，双脚与髋同宽、脚尖和膝盖朝前，脚掌全贴地；双手放大腿，脊柱直立，视线看脚趾。","准备时吸气；分开控制脚趾时呼气，放松时吸气。","2 秒抬或压目标脚趾 → 停 1 秒 → 2 秒回位。","先让脚踝和小腿放松 → 单独压大脚趾或单独压四个小趾 → 足底小肌群完成分离控制。","大脚趾和其余脚趾能分别动作，足弓轻微提起，小腿不过度紧绷。","整脚抓地时减小幅度并用手辅助固定；抽筋时放松数秒后降低次数。")},
+    {t:"足背屈", ...makeDetail("面墙站立，双脚与髋同宽、脚尖和膝盖正对墙；训练脚离墙约一掌，双手扶墙，脊柱直立，视线平视。","膝盖向墙移动时吸气；回到起点时呼气。","2–3 秒向前 → 末端停 1 秒 → 2 秒回位。","先压稳训练脚的大脚球、小脚球和脚跟 → 膝盖沿第二脚趾方向前移 → 小腿前侧控制、踝后侧获得伸展。","脚跟全程贴地，踝前方有可控紧张或小腿后侧拉伸，膝盖方向稳定。","脚跟抬起时把脚靠近墙；足弓塌陷时压住大脚球；膝内扣时让膝盖对准第二脚趾。")},
+    {t:"足旋内", ...makeDetail("坐姿，双脚与髋同宽、膝盖朝前；训练脚脚跟轻放地面，双手扶大腿，脊柱直立，视线看脚踝。","脚掌缓慢转向内侧时呼气；回到中立时吸气。","2 秒转入 → 末端停 1 秒 → 2 秒回正。","先固定膝盖不转动 → 由脚踝带动脚掌向内侧转 → 胫后肌等踝部控制肌群完成动作。","动作只发生在脚踝，幅度小而可控，膝盖和髋部保持不动。","膝盖跟着转时用手轻扶固定；甩动时减小幅度；若动作名称或方向与治疗师给你的版本不一致，以治疗师版本为准。", true)},
+    {t:"压大脚趾", ...makeDetail("坐姿，双脚与髋同宽、脚尖和膝盖朝前，脚跟与前脚掌贴地；双手放大腿，脊柱直立，视线看大脚趾。","准备时吸气；大脚趾向下压时呼气，放松时吸气。","2 秒压下 → 保持 2 秒 → 2 秒放松。","先放松其余脚趾 → 大脚趾球和大脚趾向下压地 → 足底内侧小肌群维持足弓。","大脚趾根部稳定贴地，足弓轻微提起，其余四趾仍放松。","五趾一起蜷曲时减小力度；脚踝内倒时保持脚跟垂直并压住小脚球。")}
+  ),
+  "腕功能迷你套": makeGroup(
+    {t:"腕屈伸", ...makeDetail("坐姿，双脚与髋同宽、脚尖和膝盖朝前；前臂放在大腿或桌面，手掌伸出边缘、手指放松；脊柱直立，视线看手腕。","手掌抬起时呼气，缓慢放下时吸气。","2 秒抬起 → 停 1 秒 → 2 秒回位。","先固定前臂 → 由腕部屈肌或伸肌带动手掌移动 → 手指保持放松。","前臂肌肉轻微发力，手腕平顺移动，没有卡顿或尖锐痛。","用手指攥拳代偿时放松握力；前臂离开支撑时用另一手固定；疼痛时缩小幅度。")},
+    {t:"桡偏 / 尺偏", ...makeDetail("坐姿，双脚与髋同宽、脚尖和膝盖朝前；前臂和小指侧贴桌，拇指朝上，手腕伸出边缘；脊柱直立，视线看手腕。","手腕向拇指侧移动时呼气，向中间和小指侧回移时吸气。","2 秒向一侧 → 停 1 秒 → 2 秒回位。","先固定前臂 → 由前臂两侧肌群带动手腕侧向移动 → 手掌与前臂保持同一平面。","手腕侧向移动顺畅，前臂不滚动，握力保持放松。","前臂旋转时重新贴稳支撑面；动作过大出现夹痛时缩小幅度。")},
+    {t:"前臂旋转", ...makeDetail("坐姿，双脚与髋同宽、脚尖和膝盖朝前；手肘贴身屈曲 90°，手腕中立，手指轻握；脊柱直立，视线看手掌。","掌心转向上时吸气，转向下时呼气。","2 秒转动 → 末端停 1 秒 → 2 秒返回。","先固定上臂和手肘 → 由前臂旋前、旋后肌群转动掌心 → 手腕保持中立。","转动来自前臂，手肘仍贴身，肩膀放松。","手肘离身或肩膀转动时夹一条毛巾固定；手腕弯折时减少握力。")},
+    {t:"五指画圈", ...makeDetail("坐姿，双脚与髋同宽、脚尖和膝盖朝前；前臂伸向前方，五指张开，手腕中立；脊柱直立，视线看手。","画圈时保持自然呼吸，每转半圈缓慢呼气。","一圈约 3 秒 → 换方向前停 1 秒。","先张开五指 → 由手腕带动手掌画小圈 → 前臂肌群控制轨迹，手肘和肩膀保持安静。","手腕各方向都能平顺经过，前臂轻微发热，手指保持张开。","用手肘画圈时固定前臂；出现卡顿时缩小圆圈，不强压疼痛角度。")}
+  ),
+  "青蛙趴髋内旋 + 直膝蛙式": makeGroup(
+    {t:"青蛙趴髋内旋", ...makeDetail("四点跪撑，双膝略宽于肩、膝盖弯曲约 90°，小腿在可控范围内向外展开，脚尖自然；双手或前臂撑地，脊柱中立，视线看地面。","臀部向后移动时吸气；回到起点时呼气。","3 秒后坐 → 末端停 1 秒 → 2 秒回位。","先收紧下腹保持骨盆中立 → 髋部向后移动 → 髋内侧和深层旋转肌在可控范围内活动。","髋内侧有温和拉伸，腰背和骨盆保持稳定，没有膝内侧尖锐痛。","骨盆左右转动时缩小幅度；腰塌时收肋骨；膝部不适时在膝下加垫并停止追求更大角度。", true)},
+    {t:"直膝蛙式", ...makeDetail("俯身或四点支撑，将双腿在舒适范围内向两侧展开，膝盖朝前或略朝上、脚尖自然，膝盖不过度锁死；双手或前臂支撑，脊柱中立，视线看地面。","进入拉伸位置时吸气；退出时呼气。","3 秒进入 → 停 1–2 秒 → 3 秒退出。","先用手臂支撑并收紧核心 → 髋部缓慢向后移动 → 大腿内侧组织获得温和拉伸。","大腿内侧有对称、可控拉伸，腰背没有挤压，膝盖没有不适。","弹震或强压时立即减小幅度；腰椎代偿时收肋骨；若你的原训练卡定义不同，以原教练示范为准。", true)}
+  ),
+  "阻力绳肩环绕": makeDetail(
+    "双脚与髋同宽、脚尖和膝盖朝前；双手正握弹力带且明显宽于肩，手臂伸直置于大腿前；脊柱直立、肋骨回收，视线平视。",
+    "手臂向上绕过头顶时吸气；带子到身后并返回前方时缓慢呼气。",
+    "3 秒从前绕到后 → 停 1 秒 → 3 秒绕回。",
+    "先收紧核心并让肩膀下沉 → 双手向两侧拉开带子保持张力 → 肩关节和肩胛共同完成环绕。",
+    "肩前后侧有温和活动感，手肘保持伸直，肋骨和腰背不跟着移动。",
+    "手肘弯曲或耸肩时把握距加宽；腰向后仰时收肋骨；出现夹痛时停止绕到该角度。"
+  ),
+  "伟大伸展 / 猫式伸展": makeGroup(
+    {t:"伟大伸展", ...makeDetail("从高平板起步，双脚与髋同宽、脚尖朝地，前膝随后对准同侧脚尖；双手在肩下，脊柱中立，视线看地面。","前脚迈到手外时吸气；胸椎旋转、手臂打开时呼气，手落地时吸气。","2 秒进入弓步 → 2 秒旋转打开 → 2 秒回位。","先收紧核心并把前脚踩稳 → 同侧手肘靠近地面 → 胸椎带动手臂向上旋转，髋屈肌和上背获得活动。","前侧髋和后腿髋前侧有拉伸，上背旋转顺畅；腰部不承担扭转。","前膝内扣时对准脚尖；腰部塌陷时后膝落地并收紧核心；手够不到地时垫瑜伽砖。")},
+    {t:"猫式伸展", ...makeDetail("四点跪撑，双膝与髋同宽、膝盖朝地、脚背贴垫；双手在肩下、手指向前；脊柱从中立开始，视线看双手之间。","呼气时从骨盆开始逐节拱背；吸气时从骨盆开始回到轻微伸展。","3 秒拱起 → 停 1 秒 → 3 秒回到伸展。","先用双手推地 → 呼气收腹并让骨盆后倾，脊柱逐节拱起 → 吸气让骨盆前倾并逐节展开。","整条脊柱像波浪一样移动，肩胛随动作滑动，颈部没有挤压。","只甩头时把注意力放回骨盆；过度塌腰时减小伸展；手腕不适时改用拳撑或前臂。")}
+  ),
+  "泡沫轴推墙上回旋(前锯)": makeDetail(
+    "双脚与髋同宽、脚尖和膝盖朝前，身体距墙约一臂；双前臂把泡沫轴压在墙上，手肘约与肩同高；脊柱中立、肋骨回收，视线平视。",
+    "泡沫轴向上滚时呼气；控制滚回时吸气。",
+    "2–3 秒上滚 → 顶端停 1 秒 → 3 秒回位。",
+    "先收紧核心并用前臂推墙 → 肩胛向外、向上旋转 → 前锯肌从腋下区域带动手臂上举。",
+    "腋下和肩胛外侧发力，上背略向前推；肩膀远离耳朵，腰部不前顶。",
+    "耸肩时降低上滚高度；塌腰时收肋骨并离墙稍远；手臂弯曲借力时保持前臂持续压轴。"
+  ),
+  "弹力带肩外旋 + 站姿 T 字": makeGroup(
+    {t:"弹力带肩外旋", ...makeDetail("双脚与髋同宽、脚尖和膝盖朝前；双手掌心向上或拇指朝上握带，手肘弯 90°并贴近身体，手腕中立；脊柱直立，视线平视。","前臂向外打开时呼气；控制回到中间时吸气。","2 秒打开 → 末端停 1 秒 → 3 秒回位。","先收紧核心并让肩胛轻微后下沉 → 上臂保持不动 → 肩袖外旋肌带动前臂打开。","肩后侧深处有轻微发力，颈部放松，手肘仍贴近身体。","手肘外飘时在腋下夹毛巾；耸肩时减小阻力；手腕折弯时保持拳头与前臂成直线。")},
+    {t:"站姿 T 字", ...makeDetail("双脚与髋同宽、脚尖和膝盖朝前；双手在胸前略宽于肩握带，手臂抬至肩高并微屈；脊柱直立、肋骨回收，视线平视。","双臂拉开时呼气；控制合回时吸气。","2 秒拉开 → T 字位停 1 秒 → 3 秒回位。","先收紧核心并让肩膀下沉 → 双臂向两侧展开 → 后肩和肩胛之间肌群带动拉力带张开。","后肩和肩胛之间发力，胸口自然打开，腰背不后仰。","耸肩时降低手臂高度；身体后仰时减小阻力；手腕弯曲时保持中立。")}
+  ),
+  "俯卧 T 字": makeDetail(
+    "俯卧，双脚与髋同宽、脚尖朝后，膝盖朝地并自然伸直；双臂向两侧展开成 T 字、拇指朝上，额头垫毛巾；脊柱中立，视线朝地。",
+    "手臂抬离地面时呼气；控制放下时吸气。",
+    "2 秒抬起 → 顶端停 1 秒 → 3 秒放下。",
+    "先轻收核心让骨盆贴垫 → 肩胛向后下方移动 → 后肩和上背带动双臂抬起。",
+    "肩胛之间和后肩发力，颈部放松；手臂抬起幅度不大但控制清楚。",
+    "抬头或挺腰时让额头继续贴垫并降低高度；耸肩时把肩膀远离耳朵；用手甩起时放慢动作。"
+  ),
+  "360° 腹式呼吸": makeDetail(
+    "仰卧时双脚与髋同宽、脚尖和膝盖朝前并屈膝；双手分别放在下肋两侧，手指放松；脊柱自然贴垫，下巴微收，视线朝上。",
+    "用鼻吸气，让下肋、侧腰和后腰同时向外扩张；用嘴缓慢呼气，让肋骨回落并轻收下腹。",
+    "吸气 3–4 秒 → 停 1 秒 → 呼气 4–6 秒。",
+    "先放松肩颈 → 横膈膜下降把气送向腰腹四周 → 呼气时腹壁由外向内轻收，建立均匀腹压。",
+    "双手都能感到下肋向侧后方扩张，肩膀不抬；呼气末腹部一圈有温和张力。",
+    "只有胸口起伏时把手移到侧腰；耸肩时缩小吸气量；用力吸到头晕时恢复自然呼吸。"
+  ),
+  "阻力圈蚌式开合": makeDetail(
+    "侧卧，双脚叠放、脚尖朝前，双膝弯约 90°并朝身体前方；阻力圈套在膝盖上方，一手垫头、一手扶髋；脊柱中立、骨盆上下叠放，视线平视。",
+    "上侧膝盖打开时呼气；控制合回时吸气。",
+    "2 秒打开 → 顶端停 1–2 秒 → 3 秒合回。",
+    "先收紧核心固定骨盆 → 脚跟保持接触 → 上侧臀中肌带动膝盖向上打开。",
+    "上侧臀部外侧发力，骨盆保持垂直；腰部和大腿前侧不过度紧张。",
+    "骨盆向后滚时缩小开合幅度；脚跟分开时重新叠齐；髋前侧发力多时把膝盖稍向后收。"
+  ),
+  "单腿平衡站立": makeDetail(
+    "赤脚站立，支撑脚脚尖朝前、膝盖对准第二脚趾并微屈，另一脚离地；双手扶髋或轻触墙，脊柱直立、骨盆水平，视线看前方固定点。",
+    "全程自然吸气和呼气，每次呼气时轻收核心，不憋气。",
+    "稳定保持 20–30 秒；失去平衡后先站稳再继续，不快速反复点地。",
+    "先压稳支撑脚大脚球、小脚球和脚跟 → 收紧核心和支撑侧臀部 → 足底小肌群持续微调平衡。",
+    "脚底和支撑侧臀部持续工作，膝盖方向稳定，骨盆大致水平。",
+    "膝盖锁死时保持微屈；脚趾抓地时降低难度并轻扶墙；骨盆掉向一侧时缩短时间。"
+  )
+};
+
 const PLAN = {
   A: {
     title: "A 日 · 下肢",
-    sub: "臀腿是最大的血糖处置器官 — 这天最重要",
+    sub: "下肢蹲、髋伸与单腿稳定",
     blocks: [
       { name: "热身 · 5–8分钟", items: [
-        { nm:"青蛙趴髋内旋 + 直膝蛙式", dose:{g:"各 15–20 次",a:"各 10 次",r:"各 10 次"}, why:"打开髋,深蹲才蹲得稳",
-          detail:{
-            prep:"四点跪撑,双膝分开、小腿朝外呈青蛙状。",
-            move:"①青蛙趴:臀部缓慢往后坐向脚跟方向,再回来。②直角腿变式:一侧小腿转向外侧再回正。③直膝蛙式:膝盖伸直些,重复后坐。全程慢。",
-            good:"臀部外侧、髋部深处有拉伸/发力感,骨盆稳定不晃。",
-            bad:"靠腰去带、骨盆乱转、图快甩着做。用臀去找拉伸感,腰保持稳定。"
-          } },
-        { nm:"足踝迷你套", dose:{g:"足底放松 / 分趾 / 背屈 / 旋内 / 压大脚趾 · 各 15",a:"挑 2 个 · 各 10",r:"挑 2 个 · 各 10"}, why:"脚站得住,膝盖才不内扣",
-          detail:{
-            subs:[
-              { t:"足底放松", d:"筋膜球踩脚底,脚跟滚到脚掌前,遇酸点停3秒深呼吸再走。", good:"滚完脚底发热、脚掌摊平贴地更多。", bad:"压到疼得皱眉憋气,力度到“舒服的酸”就够。" },
-              { t:"分趾", d:"坐姿,只压下大脚趾、四趾不动;再只翘大脚趾、四趾不动。", good:"大脚趾能和四趾分开用力,足弓被撑起一点。", bad:"整只脚一起抓地、脚背抽筋——放松,别让小腿使劲。" },
-              { t:"足背屈", d:"面墙站,脚跟踩死,慢慢屈膝让膝盖往前压,再回来。这个直接决定深蹲深度。", good:"脚踝前侧有拉紧感、脚跟稳稳贴地。", bad:"膝盖一往前脚跟就翘——翘了就退回,幅度小一点。" },
-              { t:"足旋内", d:"坐姿,脚掌慢慢往内翻(脚底朝内)再回正,可套弹力带加阻力。", good:"脚踝在主动、可控地转。", bad:"甩着做靠惯性。" },
-              { t:"压大脚趾", d:"坐姿,大脚趾往下压实地面(或压弹力带),其余脚趾放松。", good:"找到“大脚球踩实地面”的感觉。", bad:"五个脚趾一起抠地。" }
-            ]
-          } },
-        { nm:"360° 腹式呼吸", dose:{g:"8 次",a:"8 次",r:"8 次"}, why:"先收紧核心,力才不漏到腰",
-          detail:{
-            prep:"仰卧屈膝或坐直,双手掌轻放下肋两侧(腰的位置)。",
-            move:"鼻子吸气,把气送到腰两侧和后背,让两侧的手被顶开,肋骨不往上、往前顶;嘴缓慢吐光,肚子一圈微微收紧,像穿了一圈紧身腰带。",
-            good:"后腰两侧、后背鼓起顶到手;呼气末核心一圈是“硬”的;肩膀始终放松。",
-            bad:"只有胸口和肩膀在起伏;吸气时耸肩、肋骨往前翘(肋骨外翻)。"
-          } }
+        { nm:"青蛙趴髋内旋 + 直膝蛙式", dose:{g:"各 15–20 次",a:"各 10 次",r:"各 10 次"}, why:"活动髋部，为后续下肢动作做准备", detail:DETAILS["青蛙趴髋内旋 + 直膝蛙式"] },
+        { nm:"足踝迷你套", dose:{g:"足底放松 / 分趾 / 背屈 / 旋内 / 压大脚趾 · 各 15",a:"挑 2 个 · 各 10",r:"挑 2 个 · 各 10"}, why:"建立脚掌与膝盖的稳定方向", detail:DETAILS["足踝迷你套"] },
+        { nm:"360° 腹式呼吸", dose:{g:"8 次",a:"8 次",r:"8 次"}, why:"先找到均匀腹压", detail:DETAILS["360° 腹式呼吸"] }
       ]},
       { name: "主菜 · 负重", items: [
-        { nm:"高脚杯深蹲", dose:{g:"3 组 × 10 · 10lb 起",a:"2 组 × 10 · 减轻",r:"—"}, plan:{w:10,s:3,r:10},
-          detail:{
-            prep:"哑铃竖起,双手捧住上头贴紧胸口锁骨下方,手肘朝下。双脚略比肩宽,脚尖微微朝外。",
-            move:"吸气建立腹压,脚像螺丝钉往地里拧、脚趾抓地;屁股向后向下坐(像身后有椅子),膝盖朝脚尖方向往外撑住;蹲到大腿接近平行;呼气蹬地、绷紧屁股站起。",
-            good:"臀腿发力为主,脚跟全程踩实,膝盖和脚尖同方向,背直、哑铃贴胸。",
-            bad:"脚跟翘起、膝盖内夹、含胸驼背、哑铃离胸前掉——出现任何一个就退回轻一档重量。"
-          } },
-        { nm:"哑铃罗马尼亚硬拉", swap:"替壶铃", dose:{g:"3 组 × 12 · 各 8lb 起",a:"2 组 × 10 · 减轻",r:"—"}, plan:{w:8,s:3,r:12},
-          detail:{
-            prep:"双手各持哑铃放大腿前,双脚与髋同宽,膝盖微弯(不是深蹲那种弯)。",
-            move:"吸气,屁股向后推(像用臀去关身后的抽屉),哑铃贴着大腿往下滑,背保持挺直;大腿后侧拉到最紧;呼气用臀把身体带回站直,顶端夹臀。",
-            good:"大腿后侧有明显牵拉/发力感,背全程是平的,动作来自“髋部折叠”。",
-            bad:"弓背含胸(最危险,别做);靠弯腰而不是推髋;哑铃离开大腿往前飘。"
-          } },
-        { nm:"臀桥 / 单腿臀桥", dose:{g:"3 组 × 15",a:"2 组 × 12 · 徒手",r:"—"}, plan:{w:0,s:3,r:15},
-          detail:{
-            prep:"仰卧屈膝,脚跟离臀一拳半,膝盖朝向和脚尖对齐,下巴微收。",
-            move:"先收紧核心;呼气用臀部把髋顶起,到肩-髋-膝一条斜线;顶端夹臀停1–2秒;吸气慢落。不往上“窜”、不塌腰。进阶:髋部横放哑铃(垫毛巾)→ 哑铃到顶换单腿(一腿抬起)。",
-            good:"顶端是屁股在酸、在夹紧;腰部没有明显感觉。",
-            bad:"下背在酸=用腰挺、没先收核心——降低幅度,先收紧肚子再用臀顶髋。"
-          } },
-        { nm:"阻力圈蚌式开合", dose:{g:"3 组 × 20",a:"2 组 × 15",r:"—"}, plan:{w:0,s:3,r:20},
-          detail:{
-            prep:"侧卧,阻力圈套在膝盖上方,双膝弯约90°叠放,脚跟并拢,头枕手臂,骨盆垂直于地面。",
-            move:"脚跟不分开,呼气把上侧膝盖像贝壳开口一样向上打开到最大,停1秒;吸气有控制地合上,别让阻力圈把腿弹回去。",
-            good:"臀部外侧(裤子口袋位置)酸胀发力,骨盆全程不向后翻。",
-            bad:"骨盆跟着往后倒、用腰拧着开——幅度宁小,骨盆钉住不动。"
-          } },
+        { nm:"高脚杯深蹲", dose:{g:"3 组 × 10 · 10lb 起",a:"2 组 × 10 · 减轻",r:"—"}, plan:{w:10,s:3,r:10}, detail:DETAILS["高脚杯深蹲"] },
+        { nm:"哑铃罗马尼亚硬拉", swap:"替壶铃", dose:{g:"3 组 × 12 · 各 8lb 起",a:"2 组 × 10 · 减轻",r:"—"}, plan:{w:8,s:3,r:12}, detail:DETAILS["哑铃罗马尼亚硬拉"] },
+        { nm:"臀桥 / 单腿臀桥", dose:{g:"3 组 × 15",a:"2 组 × 12 · 徒手",r:"—"}, plan:{w:0,s:3,r:15}, detail:DETAILS["臀桥 / 单腿臀桥"] },
+        { nm:"阻力圈蚌式开合", dose:{g:"3 组 × 20",a:"2 组 × 15",r:"—"}, plan:{w:0,s:3,r:20}, detail:DETAILS["阻力圈蚌式开合"] },
         { nm:"单腿平衡站立", swap:"免楔形板", dose:{g:"各 30 秒 × 2",a:"各 30 秒 × 1",r:"—"},
-          detail:{
-            prep:"赤脚,单腿站,支撑脚“三点踩实”(大脚球、小脚球、脚跟),微屈膝。",
-            move:"另一腿抬离地面,保持30秒;晃是正常的,让脚底自己微调。进阶:对侧腿向外展、或闭眼数10秒。",
-            good:"脚底在忙碌地微调,膝盖对准脚尖,骨盆水平不掉。",
-            bad:"膝盖锁死伸直、髋歪向一边、脚趾死抠地面。站不稳先扶墙一指。"
-          } }
+          detail:DETAILS["单腿平衡站立"] }
       ]},
       { name: "收尾核心", items: [
-        { nm:"死虫式(屈膝点地)", dose:{g:"2 组 × 12",a:"跳过",r:"—"},
-          detail:{
-            prep:"仰卧,双臂指向天花板,大腿抬起、大小腿90°(桌面腿),腰贴地不留缝。",
-            move:"第一口气吸满再吐满;之后吸气不过半、呼气不到底,保持腹腔“充气+刚性”。缓慢放下一条腿用脚尖轻点地(和对侧手臂同伸),收回换边。",
-            good:"肚子一圈始终紧绷,腰全程贴地,呼吸不断。",
-            bad:"腰拱起离地、憋气、动作快靠甩——慢下来,腰一离地就缩小幅度。"
-          } }
+        { nm:"死虫式(屈膝点地)", dose:{g:"2 组 × 12",a:"跳过",r:"—"}, detail:DETAILS["死虫式(屈膝点地)"] }
       ]}
     ]
   },
@@ -583,100 +982,44 @@ const PLAN = {
     sub: "推拉平衡 + 肩背养护 — 保住肌肉,护好关节",
     blocks: [
       { name: "热身 · 5分钟", items: [
-        { nm:"腕功能迷你套", dose:{g:"腕屈伸 / 桡偏 / 前臂旋 · 各 8",a:"各 8",r:"各 8"}, why:"握哑铃前先激活手腕",
-          detail:{
-            subs:[
-              { t:"腕屈伸", d:"手臂前伸,手背往上勾、往下压,各8次。" },
-              { t:"桡偏", d:"手掌立起,手腕向拇指侧、小指侧摆动。" },
-              { t:"前臂旋转", d:"手肘贴身弯90°,手心朝上↔朝下翻转。" },
-              { t:"五指画圈", d:"五指张开,手腕顺时针、逆时针各画圈。" }
-            ],
-            good:"手腕转起来顺滑不卡,握哑铃时腕能保持中立不软。",
-            bad:"跳过直接上重量,负重时手腕往后折。"
-          } },
-        { nm:"阻力绳肩环绕", dose:{g:"10–12 次",a:"10 次",r:"10 次"}, why:"打开肩,推举前必做",
-          detail:{
-            prep:"双手宽握阻力绳/弹力带两端(比肩宽很多),手臂伸直。",
-            move:"保持双臂伸直,把带子从体前缓慢绕过头顶到体后,再绕回来。太紧就握宽一点。",
-            good:"肩膀前后侧被温和拉开,全程无痛,越绕越顺。",
-            bad:"握太窄硬掰、耸肩、弯手肘借力。"
-          } },
-        { nm:"伟大伸展 / 猫式伸展", dose:{g:"各 5 次",a:"各 5 次",r:"各 5 次"},
-          detail:{
-            subs:[
-              { t:"伟大伸展", d:"弓步俯身,双手撑地,前腿侧的手离地→肘向地面沉→再向天花板旋转打开,眼随手走。", good:"髋前侧+胸椎都有打开感。", bad:"后腿膝盖着地塌腰。" },
-              { t:"猫式", d:"四点跪撑,呼气低头拱背到最圆,吸气抬头塌腰到最展,缓慢交替5次。", good:"一节一节脊柱在动。", bad:"只动脖子不动背。" }
-            ]
-          } }
+        { nm:"腕功能迷你套", dose:{g:"腕屈伸 / 桡偏 / 前臂旋 · 各 8",a:"各 8",r:"各 8"}, why:"负重前活动手腕", detail:DETAILS["腕功能迷你套"] },
+        { nm:"阻力绳肩环绕", dose:{g:"10–12 次",a:"10 次",r:"10 次"}, why:"推举前活动肩部", detail:DETAILS["阻力绳肩环绕"] },
+        { nm:"伟大伸展 / 猫式伸展", dose:{g:"各 5 次",a:"各 5 次",r:"各 5 次"}, detail:DETAILS["伟大伸展 / 猫式伸展"] }
       ]},
       { name: "主菜 · 推 + 拉", items: [
         { nm:"拉力带坐姿划船", swap:"替器械", dose:{g:"3 组 × 12",a:"2 组 × 12 · 减阻力",r:"—"}, plan:{w:0,s:3,r:12},
-          detail:{
-            prep:"坐直,腿伸前,拉力带绕过脚掌,双手握两端,手臂略低于肩。脚蹬住带子,腰以下稳定。",
-            move:"吸气,先用两块肩胛骨向后向下“夹”,再让手肘拉到身体两侧(手臂只是传力);呼气回放,先让背舒展再把手往前送。",
-            good:"后背中间(肩胛之间)发力收紧,胸打开,坐姿挺直。",
-            bad:"耸肩、靠手臂猛拉、身体前后晃借力。动作起点是肩胛骨,不是手。"
-          } },
+          detail:DETAILS["拉力带坐姿划船"] },
         { nm:"上斜俯卧撑(扶桌沿)", swap:"替跪姿", dose:{g:"2–3 组 × 8–12",a:"2 组 × 8 · 抬高手位",r:"—"}, plan:{w:0,s:3,r:10},
-          detail:{
-            prep:"双手撑稳固桌沿/台面,比肩略宽,身体从头到脚跟一条斜直线,核心收紧。",
-            move:"大臂与身体约70–80°夹角(手肘别完全外张),吸气身体下沉到胸接近桌沿,呼气推起。全程身体像一块板。",
-            good:"胸和手臂发力,身体整体升降,腰不塌不翘。",
-            bad:"塌腰翘臀、只低头不下沉、手肘完全外开(伤肩)。太难→手撑更高的台面;太容易→换更低的台面。"
-          } },
+          detail:DETAILS["上斜俯卧撑(扶桌沿)"] },
         { nm:"哑铃肩推", dose:{g:"3 组 × 10 · 5–8lb 起",a:"2 组 × 10 · 减轻",r:"—"}, plan:{w:5,s:3,r:10},
-          detail:{
-            prep:"坐直或站直,双手持铃举到肩高,手肘略在身前,手腕中立不后折。",
-            move:"先收紧核心、肋骨不外翻;呼气推到手臂接近伸直(不锁死),吸气控制放回肩高。",
-            good:"肩膀发力,核心稳,肋骨没往前顶、腰没反弓。",
-            bad:"为推起而挺腰、肋骨外翻;耸肩;手腕后折。收紧肚子能解决大半。"
-          } },
+          detail:DETAILS["哑铃肩推"] },
         { nm:"泡沫轴推墙上回旋(前锯)", dose:{g:"2 组 × 10",a:"2 组 × 8",r:"—"}, plan:{w:0,s:2,r:10},
-          detail:{
-            prep:"面墙,双手把泡沫轴按在墙上,手臂与肩同高伸直,身体微前倾。",
-            move:"核心准备好;呼气把泡沫轴沿墙向上滚,同时上背向前推(肩胛骨分开、上回旋),想着“腋下发力、小拇指去够”;吸气滚回原位。",
-            good:"腋下和肩胛外侧有发力感,肩没耸向耳朵。",
-            bad:"耸肩代偿、塌腰前顶、手臂弯曲去抬。"
-          } },
+          detail:DETAILS["泡沫轴推墙上回旋(前锯)"] },
         { nm:"弹力带肩外旋 + 站姿 T 字", dose:{g:"各 2 组 × 15",a:"各 1 组 × 15",r:"—"}, plan:{w:0,s:2,r:15},
-          detail:{
-            subs:[
-              { t:"肩外旋", d:"大臂贴身(隔一拳)、手肘90°;呼气大臂不动、前臂像开门一样水平外转,吸气控制回来。", good:"肩后侧深处细微发力,大臂不外飘(可腋下夹毛巾)。", bad:"大臂离身、整条手臂甩。" },
-              { t:"站姿T字", d:"双手握弹力带于胸前,手臂微直;呼气双臂向两侧水平拉开成“T”,肩胛向后向下夹,吸气回。", good:"肩胛之间收紧、没耸肩。", bad:"手腕折、耸肩、靠腰后仰借力。" }
-            ]
-          } }
+          detail:DETAILS["弹力带肩外旋 + 站姿 T 字"] }
       ]},
       { name: "收尾核心", items: [
         { nm:"熊式支撑 · 手脚交叉离地 3 秒", dose:{g:"2 组 × 各 6",a:"跳过",r:"—"},
-          detail:{
-            prep:"四点跪撑,手在肩下、膝在髋下,脚尖踩地,膝盖离地约一拳悬停(熊式)。",
-            move:"核心锁死,呼气缓慢抬起一只手和对侧脚离地2–3厘米,停3秒;吸气放回,换边。躯干像一张桌面,不晃不转。",
-            good:"核心一圈紧绷,骨盆水平,离地的瞬间身体几乎没有重心晃动。",
-            bad:"骨盆翻转、塌腰、憋气、抬太高求幅度。稳比高重要;做不了交叉就先只抬手。"
-          } },
+          detail:DETAILS["熊式支撑 · 手脚交叉离地 3 秒"] },
         { nm:"俯卧 T 字", dose:{g:"2 组 × 12",a:"跳过",r:"—"},
-          detail:{
-            prep:"脸朝下趴垫上,手臂向两侧打开成“T”,额头轻点地。",
-            move:"吸气腹壁充气,呼气用背和后肩把手臂与上胸抬离地面(手臂放松不主动使劲),想“小拇指去够远方”;吸气缓慢放下,每次起来前重新吸半口气。",
-            good:"两侧肩胛之间、后肩在发力,脖子放松、下巴微收。",
-            bad:"用脖子和腰去挺、抬头看前方。是背在抬,不是腰在折。"
-          } }
+          detail:DETAILS["俯卧 T 字"] }
       ]}
     ]
   }
 };
 
 const NOTES = {
-  green: { bg:"var(--green-tint)", fg:"#204d36",
-    html:"<b>做完整版。</b>该加量的加量 — 看「什么时候加量」那栏的信号。" },
-  amber: { bg:"var(--amber-tint)", fg:"#6b4a0d",
-    html:"<b>降到 2 组、重量减轻、砍掉收尾核心。</b>已经帮你改好了 ↓ 这样也算完整完成,不打折扣。" },
-  red:   { bg:"var(--red-tint)", fg:"#7a3c18",
-    html:"<b>今天只做热身,然后出门走走。</b>或者直接休息 — 「今天出现了」本身就算达标。别硬撑。" }
+  green: { bg:"var(--level-full-tint)", fg:"var(--level-full-ink)",
+    html:"<b>完整。</b>显示全部计划内容；每项仍可按当时体感调整。" },
+  amber: { bg:"var(--level-compact-tint)", fg:"var(--level-compact-ink)",
+    html:"<b>精简。</b>主动作改为 2 组并减轻负重，收尾项目可略过。" },
+  red:   { bg:"var(--level-light-tint)", fg:"var(--level-light-ink)",
+    html:"<b>轻量。</b>保留热身；之后可以结束，也可以另记散步或其它有氧。" }
 };
 
 const KEY = { green:"g", amber:"a", red:"r" };
 const STORAGE_KEY = "workout-log";
+const PROFILE_KEY = "coach-card-profile";
 const $ = s => document.querySelector(s);
 
 function testStorage(){
@@ -710,6 +1053,19 @@ function saveLog(){
   }
 }
 
+function loadProfile(){
+  if(!storageAvailable) return {};
+  try{
+    const raw = localStorage.getItem(PROFILE_KEY);
+    const value = raw ? JSON.parse(raw) : {};
+    return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+  }catch(e){ return {}; }
+}
+function saveProfile(){
+  if(!storageAvailable) return;
+  try{ localStorage.setItem(PROFILE_KEY, JSON.stringify(profile)); }catch(e){}
+}
+
 function dateKey(d){
   const y = d.getFullYear();
   const m = String(d.getMonth()+1).padStart(2,"0");
@@ -718,33 +1074,48 @@ function dateKey(d){
 }
 
 const log = loadLog();
-// 一次性补录:7/17 记录丢失,按用户口述恢复(🟡 A 日完整完成,无有氧)。已有记录则不覆盖。
-if(!log["2026-07-17"]){
-  log["2026-07-17"] = {
-    day:"A", state:"amber", completed:true,
-    doneA:["青蛙趴髋内旋 + 直膝蛙式","足踝迷你套","360° 腹式呼吸","高脚杯深蹲","哑铃罗马尼亚硬拉","臀桥 / 单腿臀桥","阻力圈蚌式开合","单腿平衡站立"],
-    doneB:[]
-  };
-  saveLog();
-}
+const profile = loadProfile();
 const todayKey = dateKey(new Date());
 if(!log[todayKey]){
   log[todayKey] = { day:"A", state:"green", completed:false, doneA:[], doneB:[] };
 }
 const today = log[todayKey];
 
-let dayType = today.dayType || "train";  // 旧记录无 dayType → 视为训练日
+function syncProfileUI(){
+  const name = typeof profile.displayName === "string" ? profile.displayName.trim() : "";
+  $("#pageTitle").textContent = name ? `${name}，今天练什么` : "今天练什么";
+  const input = $("#profileName");
+  if(input && input.value !== name) input.value = name;
+}
+$("#profileName").oninput = () => {
+  const value = $("#profileName").value.trim();
+  if(value) profile.displayName = value; else delete profile.displayName;
+  saveProfile();
+  $("#pageTitle").textContent = value ? `${value}，今天练什么` : "今天练什么";
+};
+
+function hasStrengthActivity(entry){
+  return !!(entry && (entry.completed === true ||
+    (Array.isArray(entry.doneA) && entry.doneA.length) ||
+    (Array.isArray(entry.doneB) && entry.doneB.length) ||
+    (entry.actuals && typeof entry.actuals === "object" && Object.keys(entry.actuals).length)));
+}
+function entryMode(entry){
+  if(!entry) return "none";
+  if(entry.dayType === "rest") return "rest";
+  if(entry.strength === false) return "none";
+  if(entry.dayType === "train" || entry.strength === true || entry.day || entry.state || Array.isArray(entry.doneA) || Array.isArray(entry.doneB)) return "train";
+  // 历史 dayType:"aero" 读取为“不安排力量”，但原字段在用户编辑前保持不变。
+  return "none";
+}
+function hasActivity(entry){
+  if(!entry) return false;
+  return entryMode(entry) === "rest" || hasStrengthActivity(entry) || !!entry.aerobic;
+}
+
+let dayType = entryMode(today);
 let day = today.day || "A";
 let state = today.state || "green";
-
-function isAchieved(entry){
-  if(!entry) return false;
-  if(entry.dayType === "rest") return true;  // 计划中的休息 = 出现了,算达标
-  return entry.completed === true ||
-    (entry.doneA && entry.doneA.length > 0) ||
-    (entry.doneB && entry.doneB.length > 0) ||
-    !!entry.aerobic;
-}
 
 // 从 PLAN 找某动作的计划值 / 上次实际值 / 智能默认值
 function planFor(nm){
@@ -758,8 +1129,8 @@ function lastActual(nm){
 }
 function defaultActual(nm, plan){
   const la = lastActual(nm);
-  if(la) return { weight: la.weight != null ? la.weight : plan.w, sets: la.sets != null ? la.sets : plan.s, reps: la.reps != null ? la.reps : plan.r };
-  return { weight: plan.w, sets: plan.s, reps: plan.r };
+  if(la) return { weight: la.weight != null ? la.weight : plan.w, sets: la.sets != null ? la.sets : plan.s, reps: la.reps != null ? la.reps : plan.r, rir: la.rir != null ? la.rir : "" };
+  return { weight: plan.w, sets: plan.s, reps: plan.r, rir:"" };
 }
 
 function bind(id, attr, fn){
@@ -784,8 +1155,8 @@ bind("stateSwitch","s", v => { state = v; today.state = v; saveLog(); });
 
 // ---- 第一层:今天是什么日子 ----
 const REST_NOTE = {
-  rest: `<b>休息日 · 计划的一部分。</b>肌肉在你休息时长大,血糖敏感性在恢复日改善。今天来这儿给身体放个假,就算达标。想动就饭后走 10–15 分钟,不想动也完全 OK。`,
-  aero: `<b>有氧日。</b>湖滨快走或骑行 30–40 分钟,心率 ~120(能说话不能唱歌)。在下面「今日有氧」记一笔就好——没门槛、没进度条,做了就算。`
+  rest: `<b>休息是安排的一部分。</b>想活动时可以散步或做轻松的舒展；不想安排活动也可以。下面的有氧记录仍然独立可用。`,
+  none: `<b>今天暂不安排力量。</b>有氧、周期和备注仍可按需记录；不填写的项目不会产生提示。`
 };
 document.querySelectorAll("#dayTypeSwitch button").forEach(b=>{
   b.setAttribute("aria-pressed", b.dataset.dt === dayType ? "true" : "false");
@@ -793,7 +1164,20 @@ document.querySelectorAll("#dayTypeSwitch button").forEach(b=>{
     document.querySelectorAll("#dayTypeSwitch button").forEach(x=>x.setAttribute("aria-pressed","false"));
     b.setAttribute("aria-pressed","true");
     dayType = b.dataset.dt;
-    today.dayType = dayType;
+    if(dayType === "train"){
+      today.dayType = "train";
+      today.strength = true;
+      today.day = today.day || day;
+      today.state = today.state || state;
+      today.doneA = Array.isArray(today.doneA) ? today.doneA : [];
+      today.doneB = Array.isArray(today.doneB) ? today.doneB : [];
+    }else if(dayType === "rest"){
+      today.dayType = "rest";
+      today.strength = false;
+    }else{
+      delete today.dayType;
+      today.strength = false;
+    }
     saveLog();
     renderDayType();
     renderCheckin();
@@ -809,23 +1193,20 @@ function renderDayType(){
   }else{
     $("#trainOnly").hidden = true;
     rn.hidden = false;
-    rn.classList.toggle("aero", dayType === "aero");
+    rn.classList.remove("aero");
     rn.innerHTML = REST_NOTE[dayType];
   }
 }
 
 function detailHTML(dt){
-  let h = "";
-  if(dt.prep) h += `<p><b>预备:</b>${dt.prep}</p>`;
-  if(dt.move) h += `<p><b>怎么动:</b>${dt.move}</p>`;
-  if(dt.subs) dt.subs.forEach(s => {
-    h += `<p><b>${s.t}:</b>${s.d}</p>`;
-    if(s.good) h += `<div class="hint ok">对=${s.good}</div>`;
-    if(s.bad) h += `<div class="hint no">错=${s.bad}</div>`;
-  });
-  if(dt.good) h += `<div class="hint ok">对:${dt.good}</div>`;
-  if(dt.bad) h += `<div class="hint no">错:${dt.bad}</div>`;
-  return h;
+  const labels = [
+    ["start","起始姿势"], ["breath","呼吸"], ["tempo","节奏"],
+    ["sequence","发力顺序"], ["feel","做对的感觉"], ["errors","常见错误"]
+  ];
+  const one = d => labels.map(([key,label]) => `<div class="detail-section detail-${key}"><b>${label}</b><span>${d[key]}</span></div>`).join("") +
+    (d.needsReview ? `<div class="detail-review">这段动作定义待教练复核；如与你现有的专业示范不一致，以专业示范为准。</div>` : "");
+  if(dt.subs) return dt.subs.map(s => `<section class="detail-sub"><h4>${s.t}</h4>${one(s)}</section>`).join("");
+  return one(dt);
 }
 
 function renderPlan(){
@@ -836,6 +1217,8 @@ function renderPlan(){
   $("#pTitle").textContent = p.title;
   $("#pSub").textContent = p.sub;
 
+  today.doneA = Array.isArray(today.doneA) ? today.doneA : [];
+  today.doneB = Array.isArray(today.doneB) ? today.doneB : [];
   const doneList = day === "A" ? today.doneA : today.doneB;
 
   let html = "";
@@ -847,10 +1230,10 @@ function renderPlan(){
       const d = it.dose[k];
       const skip = d === "跳过";
       const done = doneList.indexOf(it.nm) !== -1;
-      html += `<li${skip?' style="opacity:.45"':''}${done?' class="done"':''}>
-        <div class="tick">✓</div>
+      html += `<li data-nm="${escapeAttr(it.nm)}"${skip?' style="opacity:.45"':''}${done?' class="done"':''}>
+        <button class="tick" type="button" aria-label="${done?'取消记录':'记录'} ${escapeAttr(it.nm)}" aria-pressed="${done}">✓</button>
         <div class="mv">
-          <div class="nm">${it.nm}${it.swap?`<span class="swap">${it.swap}</span>`:""}${it.detail?'<span class="caret">▸</span>':""}</div>
+          <div class="nm"><button class="move-name" type="button" aria-expanded="false">${it.nm}${it.swap?`<span class="swap">${it.swap}</span>`:""}${it.detail?'<span class="caret">▸</span>':""}</button></div>
           <div class="dose"><b>${d}</b></div>
           ${it.plan?actualHTML(it.nm, it.plan):""}
           ${it.why?`<div class="why">${it.why}</div>`:""}
@@ -861,12 +1244,12 @@ function renderPlan(){
   });
   $("#pBody").innerHTML = html;
 
-  document.querySelectorAll("#pBody .mv").forEach(m => {
-    m.onclick = (e) => {
-      if(e.target.closest(".exp") || e.target.closest(".act")) return;
-      const li = m.closest("li");
+  document.querySelectorAll("#pBody .move-name").forEach(b => {
+    b.onclick = () => {
+      const li = b.closest("li");
       if(!li.querySelector(".exp")) return;
       li.classList.toggle("open");
+      b.setAttribute("aria-expanded", li.classList.contains("open") ? "true" : "false");
     };
   });
 
@@ -883,6 +1266,8 @@ function renderPlan(){
         const wI = actEl.querySelector(".a-w");
         const obj = { sets };
         if(plan.w > 0) obj.weight = wI ? (Math.max(0, Number(wI.value)||0)) : (cur.weight||0);
+        const rirI = actEl.querySelector(".a-rir");
+        if(rirI && rirI.value !== "") obj.rir = Math.max(0, Number(rirI.value)||0);
         if(tg.dataset.act === "expand"){
           const single = Number(actEl.querySelector(".a-r").value) || (Array.isArray(cur.reps)?cur.reps[0]:cur.reps) || 0;
           obj.reps = Array.from({length:sets}, ()=>single);
@@ -901,12 +1286,14 @@ function renderPlan(){
   document.querySelectorAll("#pBody .tick").forEach(t=>{
     t.onclick = () => {
       const li = t.closest("li");
-      const nm = li.querySelector(".nm").firstChild.textContent.trim();
+      const nm = li.dataset.nm;
       const list = day === "A" ? today.doneA : today.doneB;
       const idx = list.indexOf(nm);
       if(idx === -1){
         list.push(nm);
         li.classList.add("done");
+        t.setAttribute("aria-pressed","true");
+        t.setAttribute("aria-label",`取消记录 ${nm}`);
         // 打勾即快照当前实际值(默认=上次值/计划值),让趋势图有数据
         const pl = planFor(nm);
         if(pl && !(today.actuals && today.actuals[nm])){
@@ -916,6 +1303,8 @@ function renderPlan(){
       }else{
         list.splice(idx,1);
         li.classList.remove("done");
+        t.setAttribute("aria-pressed","false");
+        t.setAttribute("aria-label",`记录 ${nm}`);
       }
       saveLog();
       renderCheckin();
@@ -935,7 +1324,8 @@ function actualHTML(nm, plan){
   }else{
     rF = `<span class="fld">每组次<input class="a-r" type="number" inputmode="numeric" min="0" value="${reps}"></span><button class="a-toggle" data-act="expand">分组</button>`;
   }
-  return `<div class="act" data-nm="${nm}">${wF}${sF}${rF}</div>`;
+  const rirF = `<span class="fld">RIR<input class="a-rir" type="number" inputmode="numeric" min="0" max="10" value="${cur.rir != null ? cur.rir : ""}" placeholder="—"></span>`;
+  return `<div class="act" data-nm="${nm}">${wF}${sF}${rF}${rirF}</div>`;
 }
 function readActualRow(actEl){
   const nm = actEl.dataset.nm;
@@ -946,6 +1336,8 @@ function readActualRow(actEl){
   if(rIs.length > 1) obj.reps = rIs.map(x=>Math.max(0, Number(x.value)||0));
   else obj.reps = Math.max(0, Number(rIs[0].value)||0);
   if(wI) obj.weight = Math.max(0, Number(wI.value)||0);
+  const rirI = actEl.querySelector(".a-rir");
+  if(rirI && rirI.value !== "") obj.rir = Math.max(0, Number(rirI.value)||0);
   if(!today.actuals) today.actuals = {};
   today.actuals[nm] = obj;
   saveLog();
@@ -954,17 +1346,15 @@ function readActualRow(actEl){
 function renderCheckin(){
   const btn = $("#checkinBtn");
   if(dayType === "rest"){
-    btn.textContent = "今天休息 · 已记录 ✓";
-  }else if(dayType === "aero"){
-    btn.textContent = today.completed ? "今天有氧完成 ✓" : "标记今天已完成 ✓";
-  }else if(state === "red"){
-    btn.textContent = "今天散步/休息了 · 也算达标 ✓";
+    btn.textContent = "今天休息 · 已记录";
+  }else if(dayType === "none"){
+    btn.textContent = "暂不安排力量";
   }else{
-    btn.textContent = today.completed ? "今天已达标 ✓" : "完成今日打卡 ✓";
+    btn.textContent = today.completed ? "力量训练 · 已记录 ✓" : "记录这次力量训练 ✓";
   }
   btn.classList.toggle("done", dayType === "rest" ? true : !!today.completed);
   btn.onclick = () => {
-    if(dayType === "rest") return;  // 休息日自动记录,无需打卡
+    if(dayType !== "train") return;
     today.completed = !today.completed;
     saveLog();
     renderCheckin();
@@ -978,7 +1368,7 @@ function renderCheckin(){
     d.setDate(d.getDate() - i);
     const key = dateKey(d);
     const entry = log[key];
-    const hit = isAchieved(entry);
+    const hit = hasActivity(entry);
     const mark = entry && entry.completed ? "✓" : (hit ? "·" : "");
     const isToday = key === todayKey;
     cells += `<div class="cell${hit?' hit':''}${isToday?' today':''}">
@@ -988,17 +1378,11 @@ function renderCheckin(){
   }
   grid.innerHTML = cells;
 
-  // 连续达标天数
-  let cursor = new Date();
-  if(!isAchieved(log[todayKey])){
-    cursor.setDate(cursor.getDate() - 1);
-  }
-  let streak = 0;
-  while(isAchieved(log[dateKey(cursor)])){
-    streak++;
-    cursor.setDate(cursor.getDate() - 1);
-  }
-  $("#streakNote").textContent = `已连续达标 ${streak} 天`;
+  const activeDays = [...Array(14)].reduce((count,_,i) => {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    return count + (hasActivity(log[dateKey(d)]) ? 1 : 0);
+  }, 0);
+  $("#streakNote").textContent = `最近 14 天有记录 ${activeDays} 天`;
 }
 
 // ---- 今日有氧 + 备注 ----
@@ -1044,23 +1428,23 @@ $("#noteInput").oninput = () => {
 
 // ---- 周期感知(Stacy Sims 周期化,仅推荐不锁死)----
 const PHASE = {
-  follicular: { name:"卵泡期", sugg:"🟢", suggWord:"适合冲一冲",
+  follicular: { name:"卵泡期", sugg:"完整或精简", suggWord:"都可以作为参考选项",
     train:"雌激素主导,是你的黄金发力窗口。今天适合冲重量、加量、挑战 PR。身体最扛造、恢复快。",
-    nutri:"这段对碳水利用好、胰岛素敏感性也在高点——训练前后碳水可以给足,是你冲代谢目标的最佳时机。" },
-  ovulation: { name:"排卵期前后", sugg:"🟢", suggWord:"维持高位",
+    nutri:"训练前后按饥饿感和日常饮食安排补充主食、蛋白质与水分即可。" },
+  ovulation: { name:"排卵期前后", sugg:"完整或精简", suggWord:"可按体感选择",
     train:"仍在高能量期,可继续保持较高强度,注意热身充分(此阶段关节相对松弛,别急着冲极限单次)。",
-    nutri:"这段对碳水利用好、胰岛素敏感性也在高点——训练前后碳水可以给足,是你冲代谢目标的最佳时机。" },
-  luteal: { name:"黄体期", sugg:"🟡", suggWord:"维持不猛冲",
+    nutri:"维持平常的均衡饮食与水分；不需要为了周期阶段额外限制某类食物。" },
+  luteal: { name:"黄体期", sugg:"精简或轻量", suggWord:"可作为温和选项",
     train:"孕酮升高,身体进入高消耗模式,更容易累。强度可以维持,但别猛冲 PR,更重视恢复和动作质量。",
     nutri:"蛋白质需求上升,务必吃够 100–120g(帮对抗这阶段的蛋白质分解)。对碳水利用变差,选低 GI。" },
-  premenstrual: { name:"经前期", sugg:"🟡", suggWord:"放松优先,想休息就休息",
-    train:"经前身体最需要照顾。想练就轻重量、想休息就休息,都不是失败。别硬扛。",
-    nutri:"经前对盐和血糖波动更敏感,留意水肿和情绪性进食。蛋白质继续守住,规律吃别让自己饿太久。" },
+  premenstrual: { name:"经前期", sugg:"轻量或休息", suggWord:"都可以",
+    train:"经前体感可能变化。轻重量、舒展或休息都可以，由当天体感决定。",
+    nutri:"若食欲或水肿感变化，可以保持规律进食、蛋白质与水分，并按个人体感调整。" },
   menstrual: { name:"经期", sugg:"", suggWord:"看今天身体怎么说",
-    train:"激素处于低谷,状态因人而异。能动就动,痛经/量大就降到轻重量或改休息;不必强迫躺平,也不必硬撑。",
+    train:"这个阶段的体感因人而异。可在完整、精简、轻量或休息之间自由选择；不需要勉强延续原安排。",
     nutri:"这几天铁流失,记得多补红肉配维C(你本就铁蛋白偏低,尤其重要)。" }
 };
-const DISCLAIMER = "基于经期记录的推算,仅供参考——身体的实际感受永远优先于算法。今天累就降,状态好就上。";
+const DISCLAIMER = "基于经期记录的推算，仅供参考。身体的实际感受始终优先于算法，投入程度可以随时调整。";
 
 function parseKey(k){ const p = k.split("-").map(Number); return new Date(p[0], p[1]-1, p[2]); }
 function daysBetweenKeys(k1, k2){ return Math.round((parseKey(k2) - parseKey(k1)) / 86400000); }
@@ -1117,7 +1501,7 @@ function renderCycle(){
   const el = $("#cycleBody");
   const cy = computeCycle();
   if(!cy.available){
-    el.innerHTML = `<div class="cycle-empty">还没有经期记录。来月经那天点一下上面的按钮,我就能按你的周期给训练 / 营养建议了。</div>`;
+    el.innerHTML = `<div class="cycle-empty">还没有经期记录。来月经那天点一下上面的按钮，即可看到按记录估算的训练 / 营养参考。</div>`;
     return;
   }
   const p = PHASE[cy.phase];
@@ -1161,7 +1545,7 @@ document.querySelectorAll("#tabs button").forEach(b=>{
 });
 
 // ---- 记录页:月历 ----
-const STATE_TXT = { green:"🟢 还行", amber:"🟡 一般", red:"🔴 很差" };
+const LEVEL_TXT = { green:"完整", amber:"精简", red:"轻量" };
 function renderCalendar(){
   $("#calTitle").textContent = `${calY}年${calM+1}月`;
   const first = new Date(calY, calM, 1);
@@ -1172,15 +1556,14 @@ function renderCalendar(){
   for(let d = 1; d <= daysInMonth; d++){
     const key = dateKey(new Date(calY, calM, d));
     const e = log[key];
-    const active = isAchieved(e);
-    const dt = e && e.dayType || "train";
+    const active = hasActivity(e);
+    const mode = entryMode(e);
     let stCls = "";
     if(e){
-      if(dt === "rest") stCls = " st-rest";
-      else if(dt === "aero") stCls = active ? " st-aero" : "";
-      else if(active && e.state) stCls = ` st-${e.state}`;
+      if(mode === "rest") stCls = " st-rest";
+      else if(hasStrengthActivity(e) && e.state) stCls = ` st-${e.state}`;
     }
-    const mark = dt === "rest" ? "休" : (e && e.completed ? "✓" : (active ? "·" : ""));
+    const mark = mode === "rest" ? "休" : (hasStrengthActivity(e) ? "✓" : "");
     const aero = e && e.aerobic ? '<span class="aero-ico">~</span>' : "";
     const pdot = e && e.period ? '<span class="period-dot"></span>' : "";
     const clickable = key <= todayKey;  // 今天及以前都可点(可补标经期)
@@ -1203,6 +1586,32 @@ function setAeroRec(rec, type, minutes){
   if(type || minutes > 0){ rec.aerobic = {}; if(type) rec.aerobic.type = type; if(minutes > 0) rec.aerobic.minutes = minutes; }
   else delete rec.aerobic;
 }
+function escapeAttr(value){
+  return String(value == null ? "" : value).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+function repsText(value){ return Array.isArray(value) ? value.join("/") : (value != null ? value : ""); }
+function parseReps(value){
+  const parts = String(value).split(/[\/,，\s]+/).filter(Boolean).map(x=>Math.max(0, Number(x)||0));
+  return parts.length > 1 ? parts : (parts.length ? parts[0] : 0);
+}
+function allPlanItems(dk){ return PLAN[dk].blocks.flatMap(blk=>blk.items); }
+function previousActual(nm, key){
+  const keys = Object.keys(log).filter(k => k < key && log[k] && log[k].actuals && log[k].actuals[nm]).sort();
+  return keys.length ? log[keys[keys.length-1]].actuals[nm] : null;
+}
+function detailActualHTML(nm, key, entry){
+  const plan = planFor(nm) || {w:0,s:1,r:0};
+  const saved = entry && entry.actuals && entry.actuals[nm];
+  const prior = previousActual(nm,key);
+  const cur = saved || prior || {weight:plan.w,sets:plan.s,reps:plan.r,rir:""};
+  const weight = cur.weight != null && cur.weight !== 0 ? cur.weight : "";
+  return `<div class="dd-actual" data-nm="${escapeAttr(nm)}">
+    <label>重量 <input class="dd-w" type="number" inputmode="decimal" min="0" step="0.5" value="${escapeAttr(weight)}" placeholder="—"> lb</label>
+    <label>组 <input class="dd-s" type="number" inputmode="numeric" min="1" value="${escapeAttr(cur.sets != null ? cur.sets : 1)}"></label>
+    <label>次数 <input class="dd-r" type="text" inputmode="numeric" value="${escapeAttr(repsText(cur.reps))}" placeholder="例 10/10/8"></label>
+    <label>RIR <input class="dd-rir" type="number" inputmode="numeric" min="0" max="10" value="${escapeAttr(cur.rir != null ? cur.rir : "")}" placeholder="—"></label>
+  </div>`;
+}
 function cleanupDay(key){
   if(log[key] && key !== todayKey && Object.keys(log[key]).length === 0) delete log[key];
 }
@@ -1217,44 +1626,44 @@ function renderDayDetail(key){
   if(!e){
     rows.push(`<div><b>${dstr}</b> · 这天还没有记录</div>`);
   }else{
-    const dt = e.dayType || "train";
-    const trainActivity = (e.doneA && e.doneA.length) || (e.doneB && e.doneB.length) || e.completed;
-    if(dt === "rest"){
-      rows.push(`<div><b>${dstr}</b> · 休息日 · 已记录 ✓</div>`);
+    const mode = entryMode(e);
+    const trainActivity = hasStrengthActivity(e);
+    if(mode === "rest"){
+      rows.push(`<div><b>${dstr}</b> · 休息记录</div>`);
     }else if(!trainActivity && !e.aerobic && e.period){
       rows.push(`<div><b>${dstr}</b> · 🩸 来月经</div>`);
     }else{
-      const head = dt === "aero" ? "有氧日" : `${e.day||"—"} 日 · ${STATE_TXT[e.state]||""}`;
-      rows.push(`<div><b>${dstr}</b> · ${head} · ${isAchieved(e)?"已达标 ✓":"未达标"}</div>`);
+      const head = trainActivity ? `${e.day||"—"} 日 · ${LEVEL_TXT[e.state]||"未选择投入程度"}` : (e.aerobic ? "有氧记录" : "这天有记录");
+      rows.push(`<div><b>${dstr}</b> · ${head}</div>`);
       const moves = [...(e.doneA||[]).map(n=>"A·"+n), ...(e.doneB||[]).map(n=>"B·"+n)];
       if(moves.length) rows.push(`<div><b>完成动作:</b>${moves.join("、")}</div>`);
       if(e.actuals){
         const p2 = Object.keys(e.actuals).map(nm=>{
-          const a = e.actuals[nm]; const reps = Array.isArray(a.reps) ? a.reps.join("/") : a.reps; const wp = a.weight ? `${a.weight}lb×` : "";
-          return `${nm} ${wp}${a.sets}×${reps}`;
+          const a = e.actuals[nm] || {}; const reps = repsText(a.reps); const wp = a.weight != null && a.weight !== "" ? `${a.weight}lb · ` : "";
+          const rir = a.rir != null && a.rir !== "" ? ` · RIR ${a.rir}` : "";
+          return `${nm} ${wp}${a.sets != null ? `${a.sets}组` : ""}${reps !== "" ? ` × ${reps}次` : ""}${rir}`;
         });
         if(p2.length) rows.push(`<div><b>实际:</b>${p2.join(";")}</div>`);
       }
     }
     if(e.aerobic) rows.push(`<div><b>有氧:</b>${e.aerobic.type||"其他"}${e.aerobic.minutes?` ${e.aerobic.minutes} 分钟`:""}</div>`);
     if(e.note) rows.push(`<div><b>备注:</b>${e.note}</div>`);
-    if(e.period && ((e.doneA&&e.doneA.length)||(e.doneB&&e.doneB.length)||e.completed||e.aerobic||e.dayType==="rest"||e.dayType==="aero")) rows.push(`<div>🩸 这天来月经了</div>`);
+    if(e.period) rows.push(`<div>🩸 这天来月经了</div>`);
   }
 
   // ---- 补录编辑器(过去的日子;今天在「今天」页操作)----
   if(key === todayKey){
     rows.push(`<div class="dd-hint">今天的记录请在「今天」页操作。</div>`);
   }else{
-    const dt = e ? (e.dayType||"train") : null;
+    const mode = entryMode(e);
     let typeSel = null;
     if(e){
-      if(dt==="rest") typeSel = "rest";
-      else if(dt==="aero") typeSel = "aero";
+      if(mode==="rest") typeSel = "rest";
       else if(e.day==="B" || (e.doneB&&e.doneB.length)) typeSel = "B";
-      else if(e.day==="A" || (e.doneA&&e.doneA.length) || e.completed) typeSel = "A";
+      else if(mode==="train" || e.day==="A" || (e.doneA&&e.doneA.length) || e.completed) typeSel = "A";
+      else typeSel = "none";
     }
     const isTrain = typeSel==="A" || typeSel==="B";
-    const aeroOn = !!(e && e.aerobic) || typeSel==="aero";
     const curState = (e&&e.state) || "green";
     const aeroType = (e&&e.aerobic&&e.aerobic.type) || "";
     const aeroMin = (e&&e.aerobic&&e.aerobic.minutes) || "";
@@ -1265,22 +1674,25 @@ function renderDayDetail(key){
       <button data-set="A" aria-pressed="${typeSel==="A"}">训练A</button>
       <button data-set="B" aria-pressed="${typeSel==="B"}">训练B</button>
       <button data-set="rest" aria-pressed="${typeSel==="rest"}">休息</button>
-      <button data-set="aero" aria-pressed="${typeSel==="aero"}">有氧</button>
+      <button data-set="none" aria-pressed="${typeSel==="none"}">暂不安排力量</button>
     </div></div>`;
     if(isTrain){
-      h += `<div class="dd-row"><span class="dd-lbl">状态</span><div class="dd-chips st" id="ddState">
-        <button data-s="green" aria-pressed="${curState==='green'}">🟢</button>
-        <button data-s="amber" aria-pressed="${curState==='amber'}">🟡</button>
-        <button data-s="red" aria-pressed="${curState==='red'}">🔴</button>
+      h += `<div class="dd-row"><span class="dd-lbl">投入</span><div class="dd-chips st" id="ddState">
+        <button data-s="green" aria-pressed="${curState==='green'}">完整</button>
+        <button data-s="amber" aria-pressed="${curState==='amber'}">精简</button>
+        <button data-s="red" aria-pressed="${curState==='red'}">轻量</button>
       </div></div>`;
+      const doneList = typeSel === "A" ? (e&&e.doneA||[]) : (e&&e.doneB||[]);
+      h += `<div class="dd-moves"><span class="dd-lbl">动作</span>${allPlanItems(typeSel).map(it=>{
+        const checked = doneList.includes(it.nm);
+        return `<div class="dd-move${checked?' selected':''}"><button class="dd-move-toggle" data-nm="${escapeAttr(it.nm)}" aria-pressed="${checked}"><span class="dd-box">${checked?'✓':''}</span>${it.nm}</button>${checked ? detailActualHTML(it.nm,key,e) : ""}</div>`;
+      }).join("")}</div>`;
     }
-    if(aeroOn){
-      h += `<div class="dd-row"><span class="dd-lbl">有氧</span><div class="dd-chips" id="ddAeroType">
-        ${["骑车","快走","散步","游泳","其他"].map(t=>`<button data-t="${t}" aria-pressed="${aeroType===t}">${t}</button>`).join("")}
-      </div><input class="dd-min" id="ddAeroMin" type="number" inputmode="numeric" min="0" placeholder="分钟" value="${aeroMin}"></div>`;
-    }
+    h += `<div class="dd-row dd-aero-row"><span class="dd-lbl">有氧</span><div class="dd-chips" id="ddAeroType">
+      ${["骑车","快走","散步","游泳","其他"].map(t=>`<button data-t="${t}" aria-pressed="${aeroType===t}">${t}</button>`).join("")}
+    </div><input class="dd-min" id="ddAeroMin" type="number" inputmode="numeric" min="0" max="600" placeholder="分钟" value="${aeroMin}"></div>`;
     h += `<div class="dd-row"><span class="dd-lbl">🩸经期</span><button class="day-period-btn" id="ddPeriod" data-on="${marked}">${marked?"已标记 · 点取消":"点击标记"}</button></div>`;
-    h += `<div class="dd-row"><input class="dd-note" id="ddNote" type="text" placeholder="备注(可选)" value="${String(note).replace(/"/g,'&quot;')}"></div>`;
+    h += `<div class="dd-row"><input class="dd-note" id="ddNote" type="text" placeholder="备注(可选)" value="${escapeAttr(note)}"></div>`;
     if(e) h += `<button class="dd-clear" id="ddClear">清除这天记录</button>`;
     h += `</div>`;
     rows.push(h);
@@ -1298,21 +1710,48 @@ function renderDayDetail(key){
     document.querySelectorAll("#ddType button").forEach(b=>{
       b.onclick = () => {
         const rec = ensure(), set = b.dataset.set;
-        if(set==="A" || set==="B"){ rec.dayType="train"; rec.day=set; rec.state=rec.state||"green"; rec.completed=true; rec.doneA=rec.doneA||[]; rec.doneB=rec.doneB||[]; }
-        else if(set==="rest"){ rec.dayType="rest"; delete rec.day; delete rec.state; delete rec.completed; delete rec.doneA; delete rec.doneB; delete rec.actuals; }
-        else if(set==="aero"){ rec.dayType="aero"; delete rec.day; delete rec.state; delete rec.completed; delete rec.doneA; delete rec.doneB; delete rec.actuals; rec.aerobic=rec.aerobic||{}; }
+        if(set==="A" || set==="B"){ rec.dayType="train"; rec.strength=true; rec.day=set; rec.state=rec.state||"green"; rec.completed=rec.completed===true; rec.doneA=Array.isArray(rec.doneA)?rec.doneA:[]; rec.doneB=Array.isArray(rec.doneB)?rec.doneB:[]; }
+        else if(set==="rest"){ rec.dayType="rest"; rec.strength=false; }
+        else if(set==="none"){ delete rec.dayType; rec.strength=false; }
         structural();
       };
     });
     const stEl = $("#ddState");
     if(stEl) stEl.querySelectorAll("button").forEach(b=>{ b.onclick = () => { ensure().state = b.dataset.s; structural(); }; });
+    document.querySelectorAll(".dd-move-toggle").forEach(b=>{
+      b.onclick = () => {
+        const rec=ensure(), dk=rec.day||"A", listKey=dk==="B"?"doneB":"doneA";
+        rec[listKey]=Array.isArray(rec[listKey])?rec[listKey]:[];
+        const idx=rec[listKey].indexOf(b.dataset.nm);
+        if(idx<0){
+          rec[listKey].push(b.dataset.nm);
+          if(!rec.actuals) rec.actuals={};
+          if(!rec.actuals[b.dataset.nm]){
+            const plan=planFor(b.dataset.nm)||{w:0,s:1,r:0};
+            const prior=previousActual(b.dataset.nm,key);
+            rec.actuals[b.dataset.nm]=prior ? {...prior} : {sets:plan.s,reps:plan.r,...(plan.w?{weight:plan.w}: {})};
+          }
+        }else rec[listKey].splice(idx,1);
+        structural();
+      };
+    });
+    document.querySelectorAll(".dd-actual").forEach(row=>{
+      row.querySelectorAll("input").forEach(inp=>{ inp.oninput=()=>{
+        const rec=ensure(), nm=row.dataset.nm;
+        if(!rec.actuals) rec.actuals={};
+        const obj={sets:Math.max(1,Number(row.querySelector(".dd-s").value)||1),reps:parseReps(row.querySelector(".dd-r").value)};
+        const w=row.querySelector(".dd-w").value, rir=row.querySelector(".dd-rir").value;
+        if(w!=="") obj.weight=Math.max(0,Number(w)||0);
+        if(rir!=="") obj.rir=Math.max(0,Number(rir)||0);
+        rec.actuals[nm]=obj;
+        light();
+      }; });
+    });
     const atEl = $("#ddAeroType");
-    if(atEl){
-      atEl.querySelectorAll("button").forEach(b=>{
-        b.onclick = () => { const rec=ensure(); const cur=rec.aerobic&&rec.aerobic.type; setAeroRec(rec, cur===b.dataset.t?null:b.dataset.t, Number($("#ddAeroMin").value)||0); structural(); };
-      });
-      $("#ddAeroMin").oninput = () => { const rec=ensure(); const cur=rec.aerobic&&rec.aerobic.type; setAeroRec(rec, cur||null, Number($("#ddAeroMin").value)||0); light(); };
-    }
+    atEl.querySelectorAll("button").forEach(b=>{
+      b.onclick = () => { const rec=ensure(); const cur=rec.aerobic&&rec.aerobic.type; setAeroRec(rec, cur===b.dataset.t?null:b.dataset.t, Number($("#ddAeroMin").value)||0); structural(); };
+    });
+    $("#ddAeroMin").oninput = () => { const rec=ensure(); const cur=rec.aerobic&&rec.aerobic.type; setAeroRec(rec, cur||null, Number($("#ddAeroMin").value)||0); light(); };
     $("#ddPeriod").onclick = () => { const rec=ensure(); if(rec.period) delete rec.period; else rec.period=true; structural(); };
     $("#ddNote").oninput = () => { const rec=ensure(); const v=$("#ddNote").value.trim(); if(v) rec.note=v; else delete rec.note; light(); };
     const clr = $("#ddClear");
@@ -1321,26 +1760,21 @@ function renderDayDetail(key){
 }
 function renderStats(){
   const daysInMonth = new Date(calY, calM+1, 0).getDate();
-  let sa=0, sb=0, an=0, am=0, ach=0, rest=0;
+  let sa=0, sb=0, an=0, am=0, activity=0, rest=0;
   for(let d = 1; d <= daysInMonth; d++){
     const e = log[dateKey(new Date(calY, calM, d))];
     if(!e) continue;
-    if(e.doneA && e.doneA.length) sa++;
-    if(e.doneB && e.doneB.length) sb++;
+    if(hasStrengthActivity(e) && (e.day==="A" || (e.doneA&&e.doneA.length))) sa++;
+    if(hasStrengthActivity(e) && (e.day==="B" || (e.doneB&&e.doneB.length))) sb++;
     if(e.aerobic){ an++; am += e.aerobic.minutes || 0; }
-    if(e.dayType === "rest") rest++;
-    if(isAchieved(e)) ach++;
+    if(entryMode(e) === "rest") rest++;
+    if(hasStrengthActivity(e) || e.aerobic) activity++;
   }
-  let cursor = new Date();
-  if(!isAchieved(log[todayKey])) cursor.setDate(cursor.getDate() - 1);
-  let streak = 0;
-  while(isAchieved(log[dateKey(cursor)])){ streak++; cursor.setDate(cursor.getDate() - 1); }
   $("#calStats").innerHTML =
     `<span>力量 <b>${sa+sb}</b> 次(A×${sa} B×${sb})</span>` +
     `<span>有氧 <b>${an}</b> 次 · <b>${am}</b> 分钟</span>` +
-    `<span>休息 <b>${rest}</b> 天</span>` +
-    `<span>达标 <b>${ach}</b> 天</span>` +
-    `<span>连续达标 <b>${streak}</b> 天</span>`;
+    `<span>休息记录 <b>${rest}</b> 天</span>` +
+    `<span>活动天数 <b>${activity}</b> 天</span>`;
 }
 function closeDayDetail(){ const dd = $("#dayDetail"); dd.hidden = true; dd.dataset.key = ""; }
 $("#calPrev").onclick = () => { calM--; if(calM < 0){ calM = 11; calY--; } closeDayDetail(); renderCalendar(); };
@@ -1359,7 +1793,8 @@ function buildReport(){
     if(e.doneA && e.doneA.length) sa++;
     if(e.doneB && e.doneB.length) sb++;
     if(e.aerobic){ an++; am += e.aerobic.minutes || 0; const t = e.aerobic.type || "其他"; types[t] = (types[t]||0)+1; }
-    if(isAchieved(e)){ act++; const dt = e.dayType || "train"; if(dt === "train" && states[e.state] !== undefined) states[e.state]++; }
+    if(hasStrengthActivity(e) || e.aerobic) act++;
+    if(hasStrengthActivity(e) && states[e.state] !== undefined) states[e.state]++;
     if(e.note) notes.push(`${fmt(d)} ${e.note}`);
   });
   const lines = [];
@@ -1367,8 +1802,8 @@ function buildReport(){
   lines.push(`力量:${sa+sb}次(A×${sa} B×${sb})`);
   const tstr = Object.keys(types).map(t=>`${t}×${types[t]}`).join(" ");
   lines.push(an ? `有氧:${an}次共${am}分钟(${tstr})` : "有氧:0次");
-  lines.push(`活动天数:${act}/14`);
-  lines.push(`状态:🟢×${states.green} 🟡×${states.amber} 🔴×${states.red}`);
+  lines.push(`活动天数:${act}`);
+  lines.push(`力量投入:完整×${states.green} 精简×${states.amber} 轻量×${states.red}`);
   if(notes.length) lines.push(`备注:${notes.join(";")}`);
   return lines.join("\n");
 }
@@ -1390,33 +1825,76 @@ $("#reportBtn").onclick = () => {
 
 // ---- 备份:导出 / 导入 ----
 function setBackupMsg(m, cls){ const el = $("#backupMsg"); el.textContent = m; el.className = "backup-msg " + (cls||""); }
+function backupPayload(){
+  return { format:"avengo-backup", version:2, exportedAt:new Date().toString(), profile:{...profile}, log };
+}
+function downloadText(text, filename, mime){
+  const blob = new Blob([text], {type:mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+}
+function safeCsvCell(value){
+  let s = value == null ? "" : String(value);
+  if(/^[=+\-@]/.test(s)) s = "'" + s;
+  return `"${s.replace(/"/g,'""')}"`;
+}
+function buildCSV(){
+  const headers = ["date","strength_mode","legacy_day_type","strength_day","investment_level","strength_recorded","exercise","weight_lb","sets","reps","rir","aerobic_type","aerobic_minutes","period","note","display_name"];
+  const rows = [headers];
+  Object.keys(log).filter(k=>/^\d{4}-\d{2}-\d{2}$/.test(k)).sort().forEach(key=>{
+    const e = log[key] && typeof log[key] === "object" ? log[key] : {};
+    const names = [...new Set([...(Array.isArray(e.doneA)?e.doneA:[]), ...(Array.isArray(e.doneB)?e.doneB:[]), ...Object.keys(e.actuals&&typeof e.actuals==="object"?e.actuals:{})])];
+    const common = [key,entryMode(e),e.dayType||"",e.day||"",LEVEL_TXT[e.state]||"",hasStrengthActivity(e)?"true":"false"];
+    const tail = [e.aerobic&&e.aerobic.type||"",e.aerobic&&e.aerobic.minutes!=null?e.aerobic.minutes:"",e.period===true?"true":"false",e.note||"",profile.displayName||""];
+    if(!names.length) rows.push([...common,"","","","","",...tail]);
+    else names.forEach(nm=>{
+      const a=e.actuals&&e.actuals[nm]||{};
+      rows.push([...common,nm,a.weight!=null?a.weight:"",a.sets!=null?a.sets:"",repsText(a.reps),a.rir!=null?a.rir:"",...tail]);
+    });
+  });
+  return "\uFEFF" + rows.map(row=>row.map(safeCsvCell).join(",")).join("\r\n");
+}
 $("#exportCopy").onclick = () => {
-  const txt = JSON.stringify(log);
-  const toBox = () => { $("#importBox").value = txt; setBackupMsg("已把备份填到下面文本框,请长按全选复制。", "ok"); };
+  const txt = JSON.stringify(backupPayload(), null, 2);
+  const toBox = () => { $("#importBox").value = txt; setBackupMsg("已把 JSON 填到下面文本框，请长按全选复制。", "ok"); };
   if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(txt).then(()=>setBackupMsg("已复制备份到剪贴板 ✓ 粘到备忘录/邮件里存好。", "ok"), toBox);
+    navigator.clipboard.writeText(txt).then(()=>setBackupMsg("已复制完整 JSON 到剪贴板。", "ok"), toBox);
   }else{ toBox(); }
 };
 $("#exportFile").onclick = () => {
   try{
-    const blob = new Blob([JSON.stringify(log)], {type:"application/json"});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = `教练卡备份-${todayKey}.json`;
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(()=>URL.revokeObjectURL(url), 1000);
-    setBackupMsg("已生成备份文件 ✓", "ok");
-  }catch(e){ setBackupMsg("这个浏览器不支持下载,请改用「复制备份」。", "err"); }
+    downloadText(JSON.stringify(backupPayload(), null, 2), `coach-card-backup-${todayKey}.json`, "application/json;charset=utf-8");
+    setBackupMsg("已生成 JSON 备份文件。", "ok");
+  }catch(e){ setBackupMsg("这个浏览器无法直接下载，请改用“复制 JSON”。", "err"); }
+};
+$("#exportCsv").onclick = () => {
+  try{
+    downloadText(buildCSV(), `coach-card-data-${todayKey}.csv`, "text/csv;charset=utf-8");
+    setBackupMsg("已生成 CSV 文件。", "ok");
+  }catch(e){
+    const csv=buildCSV();
+    if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(csv).then(()=>setBackupMsg("无法下载，已改为复制 CSV 到剪贴板。","ok"),()=>setBackupMsg("这个浏览器无法下载或复制 CSV。","err"));
+    else setBackupMsg("这个浏览器无法下载 CSV。","err");
+  }
 };
 function doImport(txt){
   let data;
   try{ data = JSON.parse(txt); }catch(e){ setBackupMsg("导入失败:不是有效的备份文本。", "err"); return; }
   if(!data || typeof data !== "object" || Array.isArray(data)){ setBackupMsg("导入失败:备份格式不对。", "err"); return; }
-  const keys = Object.keys(data).filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k));
+  const importedLog = data.log && typeof data.log === "object" && !Array.isArray(data.log) ? data.log : data;
+  const keys = Object.keys(importedLog).filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k) && importedLog[k] && typeof importedLog[k] === "object" && !Array.isArray(importedLog[k]));
   if(!keys.length){ setBackupMsg("导入失败:没找到任何日期记录。", "err"); return; }
   const added = keys.filter(k => !log[k]).length;
   const over = keys.length - added;
-  keys.forEach(k => { log[k] = data[k]; });
+  keys.forEach(k => { log[k] = importedLog[k]; });
+  if(data.profile && typeof data.profile === "object" && typeof data.profile.displayName === "string"){
+    const importedName=data.profile.displayName.trim();
+    if(importedName) profile.displayName=importedName; else delete profile.displayName;
+    saveProfile();
+  }
   saveLog();
   setBackupMsg(`导入成功:新增 ${added} 天,更新 ${over} 天。正在刷新…`, "ok");
   setTimeout(()=>location.reload(), 800);
@@ -1487,7 +1965,7 @@ function trendText(nm, data){
     return s;
   }
   if(stuck) return `<b>${nm}</b>:近 3 次卡在 ${last.w}lb。身体大概适应了——试试加半磅到 2lb、多做 1–2 次、或把下放放慢到 3–4 秒,给它个新刺激。`;
-  if(last.w < first.w) return `<b>${nm}</b>:最近这次 ${last.w}lb,比起点 ${first.w}lb 轻了点。累了或换了节奏都正常,先稳住状态再往上走。`;
+  if(last.w < first.w) return `<b>${nm}</b>:最近这次 ${last.w}lb，比起点 ${first.w}lb 轻一些。负重会随节奏与体感变化，可以按当前负荷继续记录。`;
   return `<b>${nm}</b>:稳定在 ${last.w}lb。稳也是进展——想突破就从加重、加次、放慢离心里挑一个试。`;
 }
 function renderTrend(){
@@ -1523,6 +2001,7 @@ function renderWeekBars(){
 renderDayType();
 renderCheckin();
 syncAeroUI();
+syncProfileUI();
 syncPeriodUI();
 renderCycle();
 </script>
