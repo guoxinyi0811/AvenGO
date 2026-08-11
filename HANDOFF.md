@@ -1,4 +1,4 @@
-# AvenGO v1.1 Engineering Handoff
+# AvenGO v1.2 Engineering Handoff
 
 ## 1. 项目概述
 
@@ -14,6 +14,7 @@ AvenGO 是一个移动端优先的家庭训练记录工具，面向希望用较�
 - `README.md`：使用、安装、本地运行、隐私与 License 入口。
 - `CHANGELOG.md`：迭代记录。
 - `LICENSE`：项目授权文本。
+- `worker/`：Cloudflare Worker 代理、Wrangler 配置、无依赖测试与部署说明。它不是 GitHub Pages 的构建步骤。
 - 无框架、无 npm 依赖、无 CDN、无构建步骤。建议通过静态服务器运行。
 - GitHub Pages 从 `main` 根目录发布。
 - 当前没有 Service Worker，因此安装到主屏幕不等于可靠离线；不要在文档中写成保证离线。
@@ -93,14 +94,21 @@ JSON envelope：
 ```js
 {
   "format": "avengo-backup",
-  "version": 3,
+  "version": 4,
   "exportedAt": "本地日期字符串",
   "profile": { "displayName": "可选" },
+  "reviews": [ /* 可选，本机 AI 复盘历史，最多 12 条 */ ],
   "log": { "YYYY-MM-DD": {} }
 }
 ```
 
-导入同时接受 v3、旧 v2 envelope 和历史裸日期字典；按日期合并，同日期由导入记录覆盖，其余保留。CSV 一行对应一个日期 / 动作；无动作的日期仍输出有氧、周期、备注等日期级字段。
+导入同时接受 v4、旧 v2/v3 envelope 和历史裸日期字典；按日期合并，同日期由导入记录覆盖，其余保留。AI 复盘按 ID 合并并最多保留 12 条。CSV 一行对应一个日期 / 动作；无动作的日期仍输出有氧、周期、备注等日期级字段。
+
+### 3.5 AI 复盘本机数据
+
+- `coach-card-ai-reviews`：数组，最多 12 条。单条字段为 `id`、`createdAt`、`cacheKey`、`model`、`text`。只保存生成结果，不复制训练摘要。
+- `coach-card-ai-client`：随机本机 ID，仅用于 Worker 的每设备限流，不是身份认证，也不会转发给 Anthropic。
+- JSON 完整备份包含 `reviews`；训练日志 key `workout-log` 不变。
 
 ## 4. 状态管理与关键逻辑
 
@@ -115,6 +123,11 @@ JSON envelope：
 - `recentStrengthCount` / `renderRecommendation`：读取最近 10 天力量次数与账本间隔，只改建议文案；所有模板不锁定。
 - `renderPlan`：根据模板、自由组合和投入程度渲染动作；输入即时保存。
 - `progressionHint`：读取同动作历史 actuals；相同重量连续达到计划上限或 RIR ≥ 4 时显示一次行内建议，不写入状态。
+- `BODYWEIGHT_PROGRESSIONS`：徒手 / 弹力带动作连续达到上限时给负重、慢离心或更难变式建议；臀桥和徒手深蹲可额外记录重量。
+- `renderPatternLedger`：模式超过 10 天或已有历史但从未出现时增加“可优先考虑”中性标记。
+- `buildCoachReviewSummary`：只整理最近 8 周力量动作、实际值、每周次数 / 工作组和模式间隔，不读取称呼、经期、有氧或备注。
+- `generateAIReview`：仅由按钮触发；按摘要 hash 查本机缓存，显式“重新生成”才绕过缓存。超时、网络或 API 错误只更新状态文案。
+- `worker/src/index.js`：固定模型、system prompt、输出上限、请求大小、精确 CORS 和两级限流；前端不能传任意 Anthropic body。
 - `renderDayDetail`：过去日期可选模板 / 自由组合、动作、实际值、RIR；有氧始终独立。
 - `renderCalendar` / `renderStats` / `buildReport`：以事实记录和模式计数，不计算达标率。
 - `backupPayload` / `buildCSV` / `doImport`：完整 JSON、兼容导入与行式 CSV。
@@ -128,6 +141,7 @@ JSON envelope：
 - 自由组合动作较多，当前按模式分组的 chip 列表偏长。这是功能范围内的直接实现；后续若调整只能优化排版，不能增加搜索、收藏等新功能。
 - 过去日期编辑器信息密度较高；需重点回归模板下拉、动作实际值与有氧在窄屏的排列。
 - 单文件已较长。可以在未来拆成无构建的 ES modules，但不能在纯 UI 轮次顺手重构业务。
+- AI 卡片沿用现有极简视觉。Worker endpoint 为空时会明确显示尚未连接；正式发布 AI 功能前应先部署 Worker，再把完整 `/review` URL 写入 `avengo-ai-endpoint` meta。
 
 ## 6. 设计约束（必须遵守）
 
@@ -136,6 +150,9 @@ JSON envelope：
 - 禁止“达标 / 未达标 / 状态差 / 硬撑 / 连胜”等评价或施压措辞。
 - 休息是正常记录；没有有氧时不显示空位、提醒或视觉标记。
 - 账本与渐进提示只给建议，不弹窗、不警告、不锁定用户选择。
+- AI 只能由用户主动调用；不得自动、定时或因打开记录页而产生 API 请求。
+- 不得把 API key、`.dev.vars`、Cloudflare token 或任何共享 secret 写入前端和 Git 历史。
+- 发送给 AI 的范围不得扩展到称呼、经期、备注或完整备份，除非未来得到用户新的明确同意。
 - 周期建议使用“大约 / 倾向”语言，不作医疗断言。
 - 不引入外部字体、网络资源、框架、CDN 或构建步骤。
 - 不新增本需求以外的功能，不构建训练量数据库、社交、成就或压力机制。
@@ -148,9 +165,13 @@ JSON envelope：
 - `state` 与剂量键仍是历史内部值，不能因 UI 文案改名而改存储。
 - 每个原子动作详情必须保留 `start / breath / tempo / sequence / feel / errors`；组合动作的每个 `subs` 子动作也要完整。`needsReview:true` 不能在视觉调整中删除。
 - 模式账本应以完成动作 / actuals 为事实来源；仅选择模板但没有记录动作时，不应虚增模式次数。
+- “超过 10 天”只改变账本边框与“可优先考虑”文字，不得变成警告色、进度条或未完成状态。
 - RIR 是可选值；旧 actuals 没有 RIR 时不得显示 `undefined`。
-- JSON 导入必须继续接受 v2 和裸日期对象，并保留所有未知可选字段。
+- AI 缓存只由训练摘要决定；同一摘要普通生成不调 API，重新生成才调用。复盘文本渲染必须继续 HTML 转义。
+- Worker 必须拒绝非 `https://guoxinyi0811.github.io` Origin、非 POST/OPTIONS、超长摘要和超限请求；上游错误不得把 key 或响应体回传前端。
+- JSON 导入必须继续接受 v2/v3 和裸日期对象，并保留所有未知可选字段。
 - 回归旧记录：缺 `dayType` / `actuals` / `aerobic` / `note` / `period`、旧 A/B、旧 `dayType:"aero"`。
 - 回归主流程：所有模板、自由组合、三档剂量、动作勾选、刷新保留、RIR、渐进提示、力量 + 有氧同日、只记有氧、休息 + 有氧。
 - 回归记录页：过去日模板与自由组合补录、月历与账本同步、模式统计、CSV 列、JSON 新旧导入、周期推算、趋势与周柱状图。
 - 回归体验：375px 今天页 / 记录页 / 展开详情 / 编辑器无横向溢出，键盘焦点清楚，控制台无报错。
+- 回归 AI：未配置、超时、非 2xx、成功、缓存命中、重新生成、历史显示、v4 备份导入；任一失败时本地规则仍正常。

@@ -14,6 +14,7 @@
 - Full Body A / B、Push、Pull、Lower Squat、Lower Hinge、Accessory 及自由组合。
 - 六段动作指令：起始姿势、呼吸、节奏、发力顺序、做对的感觉、常见错误。
 - 重量、组数、次数与快捷 RIR 记录，以及非强制的渐进负荷提示。
+- 可选 AI 教练复盘：用户主动生成，分析最近 8 周的停滞、平衡、进步与下次安排；结果和历史保存在本机。
 - 独立有氧、过去日期补录、月历、趋势、周期参考和本机称呼。
 - 完整 JSON 备份 / 恢复与 CSV 导出。
 
@@ -41,10 +42,17 @@ python -m http.server 8000
 
 训练数据保存在浏览器 `localStorage` 的 `workout-log` 中，不会上传服务器。日期使用本地时区；导入备份时同日期以导入内容为准，其它日期保留。
 
+AI 复盘默认不连接网络服务。部署并配置 Worker 后，只有用户点“生成复盘”时才会发送最近 8 周的力量动作、重量、组次、RIR、每周次数与模式间隔；称呼、经期、有氧、备注和完整 JSON 不会发送。Anthropic API key 只允许保存在 Cloudflare Worker secret 中。
+
+## AI Worker
+
+代理代码、限流、安全边界和部署步骤见 [worker/README.md](worker/README.md)。没有配置 Worker 时，动作账本、超过 10 天的模式提示和动作旁加难度建议仍完全在本地运行。
+
 ## 文档
 
 - [HANDOFF.md](HANDOFF.md)：数据结构、关键逻辑、兼容约束与回归清单。
 - [CHANGELOG.md](CHANGELOG.md)：每次功能与界面迭代。
+- [worker/README.md](worker/README.md)：AI 代理的部署与安全配置。
 
 ## License
 
@@ -52,4 +60,4 @@ Copyright © 2026 Xinyi (Aven) Guo. All rights reserved. See [LICENSE](LICENSE).
 
 ---
 
-AvenGO is a calm, mobile-first home-training log with a movement-pattern ledger, flexible templates, RIR-aware progression hints, independent cardio logging, and local JSON/CSV backup. [Try the prototype](https://guoxinyi0811.github.io/AvenGO/). Data stays on the current device; no build step is required.
+AvenGO is a calm, mobile-first home-training log with a movement-pattern ledger, flexible templates, RIR-aware progression hints, independent cardio logging, and local JSON/CSV backup. [Try the prototype](https://guoxinyi0811.github.io/AvenGO/). Data stays on the current device unless the user explicitly requests an AI review, which sends only a compact strength summary through the configured Worker. No build step is required.

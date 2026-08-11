@@ -1,5 +1,24 @@
 # Changelog
 
+## 2026-08-11 — v1.2.0 AI coach review (deployment pending)
+
+### Local coaching rules
+
+- Added a neutral “可优先考虑” ledger marker when a main movement pattern has been absent for more than 10 days or has never appeared in existing history.
+- Added bodyweight and band progression suggestions after repeated top-range work, including optional load recording for bridges and bodyweight squats.
+- Kept every rule local, immediate, optional, and independent from network or AI availability.
+
+### AI review layer
+
+- Added a user-triggered eight-week coaching review with loading, graceful failure, same-data caching, explicit regeneration, and up to 12 locally stored historical reviews.
+- Limited outbound data to strength movements, actual weight / sets / reps / RIR, weekly frequency / recorded sets, and pattern gaps. Names, period data, cardio, notes, and raw JSON are excluded.
+- Added a Cloudflare Worker that fixes the model and prompt server-side, keeps the Anthropic key in a Worker secret, validates request size and shape, restricts CORS to the GitHub Pages origin, and applies per-device plus global rate limits.
+- Upgraded full JSON backups to version 4 with optional review history while retaining v2/v3 and raw-log import compatibility.
+
+### Deployment
+
+- The Worker endpoint remains intentionally blank until Cloudflare authorization and `ANTHROPIC_API_KEY` secret setup are completed. Local coaching rules remain production-ready without it.
+
 ## 2026-08-11 — v1.1.0 movement-pattern iteration
 
 ### Training architecture

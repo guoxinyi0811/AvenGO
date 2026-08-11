@@ -1,0 +1,118 @@
+const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
+const MODEL = "claude-sonnet-4-6";
+const MAX_SUMMARY_CHARS = 12000;
+
+const SYSTEM_PROMPT = `你是一位家庭力量训练教练。基于用户提供的训练记录，给出简洁、具体、可执行的中文复盘。
+
+分析要点：
+1. 渐进负荷：哪些动作重量或难度停滞，下一次可尝试什么具体数字或变式。
+2. 训练平衡：Squat、Hinge、Push、Pull 中哪个模式间隔较久。
+3. 进步趋势：明确指出哪些动作在增加重量、次数或工作组。
+4. 下次训练：给出动作、重量或难度、组数和次数。
+5. 总量变化：只根据每周力量次数和已记录工作组描述趋势，不虚构缺失数据。
+
+风格要求：
+- 像教练在训练旁给简短反馈，不写流水账。
+- 尽量具体到数字；没有足够数据时明确说记录不足。
+- 客观直接，不夸张，不评价意志力或自律程度。
+- 不施压、不说教，不使用“达标”“失败”“应该更努力”等措辞。
+- 训练量波动是正常的；所有建议都允许用户按体感调整。
+- 中文回复，300 字以内。
+
+器械约束：哑铃档位为 3/9/13/19 lb，跳档较大。下一档增幅过大时，优先建议每组增加 1–2 次、下放放慢到 3–4 秒，或换更难变式（双腿→B-stance→单腿），不要要求硬跳重量。
+
+安全：若重量或次数突然下降，或长时间中断后恢复，建议渐进恢复，不直接回到此前最高负荷。不要提供医疗诊断。`;
+
+function corsHeaders(origin) {
+  return {
+    "Access-Control-Allow-Origin": origin,
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Max-Age": "86400",
+    "Cache-Control": "no-store",
+    "Content-Type": "application/json; charset=utf-8",
+    "Vary": "Origin",
+    "X-Content-Type-Options": "nosniff"
+  };
+}
+
+function json(origin, data, status = 200) {
+  return new Response(JSON.stringify(data), { status, headers: corsHeaders(origin) });
+}
+
+async function withinLimit(binding, key) {
+  if (!binding || typeof binding.limit !== "function") return true;
+  const result = await binding.limit({ key });
+  return result && result.success === true;
+}
+
+export default {
+  async fetch(request, env) {
+    const allowedOrigin = String(env.ALLOWED_ORIGIN || "").replace(/\/$/, "");
+    const origin = request.headers.get("Origin") || "";
+    const url = new URL(request.url);
+
+    if (!allowedOrigin || origin !== allowedOrigin) {
+      return new Response("Forbidden", { status: 403, headers: { "Cache-Control": "no-store" } });
+    }
+    if (url.pathname !== "/review") return json(origin, { error: "Not found" }, 404);
+    if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders(origin) });
+    if (request.method !== "POST") return json(origin, { error: "Method not allowed" }, 405);
+    if (!(request.headers.get("Content-Type") || "").toLowerCase().startsWith("application/json")) return json(origin, { error: "Content-Type must be application/json" }, 415);
+
+    const length = Number(request.headers.get("Content-Length") || 0);
+    if (length > 20000) return json(origin, { error: "Request too large" }, 413);
+
+    let body;
+    try {
+      const raw = await request.text();
+      if (raw.length > 20000) return json(origin, { error: "Request too large" }, 413);
+      body = JSON.parse(raw);
+    }
+    catch (error) { return json(origin, { error: "Invalid JSON" }, 400); }
+
+    const summary = typeof body.summary === "string" ? body.summary.trim() : "";
+    const clientId = typeof body.clientId === "string" ? body.clientId.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 128) : "anonymous";
+    if (!summary || summary.length > MAX_SUMMARY_CHARS) return json(origin, { error: "Invalid summary" }, 400);
+
+    const [deviceAllowed, globalAllowed] = await Promise.all([
+      withinLimit(env.DEVICE_RATE_LIMITER, clientId || "anonymous"),
+      withinLimit(env.GLOBAL_RATE_LIMITER, "all-reviews")
+    ]);
+    if (!deviceAllowed || !globalAllowed) return json(origin, { error: "Please wait before generating another review" }, 429);
+    if (!env.ANTHROPIC_API_KEY) return json(origin, { error: "AI service is not configured" }, 503);
+
+    let upstream;
+    try {
+      upstream = await fetch(ANTHROPIC_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": env.ANTHROPIC_API_KEY,
+          "anthropic-version": "2023-06-01"
+        },
+        signal: AbortSignal.timeout(35000),
+        body: JSON.stringify({
+          model: MODEL,
+          max_tokens: 1500,
+          system: SYSTEM_PROMPT,
+          messages: [{ role: "user", content: `请复盘以下训练摘要。不要推断摘要中没有的人口或健康信息。\n\n${summary}` }]
+        })
+      });
+    } catch (error) {
+      return json(origin, { error: "AI analysis is temporarily unavailable" }, 502);
+    }
+
+    if (!upstream.ok) {
+      console.error("Anthropic request failed", upstream.status);
+      return json(origin, { error: "AI analysis is temporarily unavailable" }, 502);
+    }
+
+    let data;
+    try { data = await upstream.json(); }
+    catch (error) { return json(origin, { error: "Invalid AI response" }, 502); }
+    const text = Array.isArray(data.content) ? data.content.filter(block => block && block.type === "text").map(block => block.text || "").join("\n").trim() : "";
+    if (!text) return json(origin, { error: "Empty AI response" }, 502);
+    return json(origin, { text: text.slice(0, 5000), model: data.model || MODEL });
+  }
+};

@@ -9,6 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="AvenGO">
 <meta name="theme-color" content="#F3F1EB">
+<meta name="avengo-ai-endpoint" content="">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="avengo-mark.png">
 <link rel="icon" type="image/png" href="avengo-mark.png">
@@ -469,6 +470,8 @@
   .ledger-item b{display:block;font-size:12px;color:var(--ink);font-weight:650}
   .ledger-item span{display:block;margin-top:2px;font-size:11px;color:var(--soft);font-variant-numeric:tabular-nums;white-space:nowrap}
   .ledger-item.priority{background:var(--accent-tint)}
+  .ledger-item.stale{box-shadow:inset 0 0 0 1px var(--accent)}
+  .ledger-item small{display:block;margin-top:4px;font-size:9.5px;font-weight:650;color:var(--accent)}
   .ledger-note{margin-top:10px;font-size:12px;line-height:1.65;color:var(--soft)}
   .recommendation{margin-top:10px;padding:12px 13px;border-radius:12px;background:var(--pine-tint);font-size:13px;line-height:1.65;color:var(--ink)}
   .recommendation b{font-weight:650}
@@ -497,6 +500,24 @@
   .progression-hint{margin-top:7px;padding:8px 10px;border-radius:9px;background:var(--accent-tint);font-size:11.5px;line-height:1.55;color:var(--level-full-ink)}
   .dd-template{width:100%;min-height:44px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);font:inherit;padding:8px 10px}
 
+  .ai-review{margin-top:22px;padding:17px;background:var(--card);border:1px solid var(--line);border-radius:16px}
+  .ai-review-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+  .ai-review h3{font-family:var(--serif);font-size:18px;font-weight:600;margin:0;color:var(--ink)}
+  .ai-review-head span{font-size:10.5px;color:var(--soft)}
+  .ai-review-copy{margin:8px 0 0;font-size:12px;line-height:1.65;color:var(--soft)}
+  .ai-review-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .ai-review-actions button{min-height:44px;padding:9px 15px;border:1px solid var(--ink);border-radius:999px;background:var(--ink);color:#F8F7F2;font:inherit;font-size:13px;font-weight:650;cursor:pointer}
+  .ai-review-actions button.ghost{background:transparent;color:var(--ink);border-color:var(--line-dark)}
+  .ai-review-actions button:disabled{cursor:default;opacity:.58}
+  .ai-review-status{min-height:20px;margin-top:8px;font-size:11.5px;line-height:1.55;color:var(--soft)}
+  .ai-review-result{margin-top:11px;padding:13px;border-radius:11px;background:var(--pine-tint);font-size:13.5px;line-height:1.75;color:var(--ink);white-space:pre-wrap}
+  .ai-review-result time{display:block;margin-bottom:5px;font-size:10.5px;color:var(--soft);font-variant-numeric:tabular-nums}
+  .ai-history{margin-top:10px;border-top:1px solid var(--line);padding-top:10px}
+  .ai-history summary{font-size:12px;color:var(--soft)}
+  .ai-history-item{padding:10px 0;border-top:1px solid var(--line);font-size:12.5px;line-height:1.65;color:var(--ink);white-space:pre-wrap}
+  .ai-history-item:first-of-type{margin-top:8px}
+  .ai-history-item time{display:block;margin-bottom:4px;font-size:10px;color:var(--soft)}
+
   @media (max-width:390px){
     .wrap{padding-left:calc(16px + env(safe-area-inset-left));padding-right:calc(16px + env(safe-area-inset-right))}
     header{padding-top:calc(24px + env(safe-area-inset-top))}
@@ -514,6 +535,7 @@
     .ledger-item{padding:9px 3px}
     .template-grid{gap:6px}
     .template-grid button{padding:9px;min-height:58px}
+    .ai-review{padding:15px 13px}
   }
   @media (min-width:720px){
     header{padding-top:calc(36px + env(safe-area-inset-top));padding-bottom:22px}
@@ -708,6 +730,21 @@
     <textarea class="report-fallback" id="reportFallback" hidden readonly></textarea>
     <p class="tiny-note">点格子查看当天详情 · ✓=力量记录 · ~=有氧记录 · 休=休息记录</p>
 
+    <section class="ai-review" aria-labelledby="aiReviewTitle">
+      <div class="ai-review-head"><h3 id="aiReviewTitle">AI 教练复盘</h3><span>主动生成 · 可能产生 API 费用</span></div>
+      <p class="ai-review-copy">生成时只发送最近 8 周的力量动作、重量、组次、RIR、每周记录次数和模式间隔；不发送称呼、经期、有氧、备注或完整备份。没有网络或分析失败时，本地账本与加难度提示仍可使用。</p>
+      <div class="ai-review-actions">
+        <button id="aiReviewBtn" type="button">生成复盘</button>
+        <button id="aiReviewAgain" class="ghost" type="button" hidden>重新生成</button>
+      </div>
+      <div class="ai-review-status" id="aiReviewStatus" role="status" aria-live="polite"></div>
+      <div class="ai-review-result" id="aiReviewResult" hidden></div>
+      <details class="ai-history" id="aiReviewHistory" hidden>
+        <summary>历史复盘</summary>
+        <div id="aiReviewHistoryList"></div>
+      </details>
+    </section>
+
     <div class="trend">
       <h3>力量趋势 · 渐进负荷的证据</h3>
       <select class="trend-sel" id="trendMove"></select>
@@ -738,7 +775,7 @@
   </div>
 
   <footer>
-    数据只保存在本机 · 不上传训练、周期或备注内容
+    日常记录保存在本机 · AI 复盘仅在主动生成时发送精简力量摘要
   </footer>
 
 </div>
@@ -1064,6 +1101,9 @@ const NOTES = {
 const KEY = { green:"g", amber:"a", red:"r" };
 const STORAGE_KEY = "workout-log";
 const PROFILE_KEY = "coach-card-profile";
+const AI_REVIEWS_KEY = "coach-card-ai-reviews";
+const AI_CLIENT_KEY = "coach-card-ai-client";
+const AI_REVIEW_ENDPOINT = (document.querySelector('meta[name="avengo-ai-endpoint"]')?.content || "").trim();
 const $ = s => document.querySelector(s);
 
 function testStorage(){
@@ -1108,6 +1148,27 @@ function loadProfile(){
 function saveProfile(){
   if(!storageAvailable) return;
   try{ localStorage.setItem(PROFILE_KEY, JSON.stringify(profile)); }catch(e){}
+}
+
+function loadAIReviews(){
+  if(!storageAvailable) return [];
+  try{
+    const value=JSON.parse(localStorage.getItem(AI_REVIEWS_KEY)||"[]");
+    return Array.isArray(value)?value.filter(item=>item&&typeof item.text==="string"&&typeof item.createdAt==="string").slice(0,12).map(item=>({...item,text:item.text.slice(0,5000)})):[];
+  }catch(e){ return []; }
+}
+const aiReviews=loadAIReviews();
+function saveAIReviews(){
+  if(!storageAvailable) return;
+  try{ localStorage.setItem(AI_REVIEWS_KEY,JSON.stringify(aiReviews.slice(0,12))); }catch(e){}
+}
+function aiClientId(){
+  if(!storageAvailable) return "browser-session";
+  try{
+    let id=localStorage.getItem(AI_CLIENT_KEY);
+    if(!id){ id=(crypto.randomUUID?crypto.randomUUID():`${Date.now()}-${Math.random().toString(36).slice(2)}`); localStorage.setItem(AI_CLIENT_KEY,id); }
+    return id;
+  }catch(e){ return "browser-session"; }
 }
 
 function dateKey(d){
@@ -1349,10 +1410,11 @@ function priorityPattern(ledger){
   },null)?.pattern||null;
 }
 function renderPatternLedger(){
-  const ledger=patternLedger(), priority=priorityPattern(ledger);
+  const ledger=patternLedger(), priority=priorityPattern(ledger), hasHistory=strengthHistoryKeys().length>0;
   $("#patternLedger").innerHTML=MAIN_PATTERNS.map(p=>{
     const v=ledger[p], txt=v.days==null?"尚未记录":(v.days===0?"今天":`${v.days} 天`);
-    return `<div class="ledger-item${priority===p?' priority':''}"><b>${PATTERN_META[p].label}</b><span>${txt}</span></div>`;
+    const stale=hasHistory&&(v.days==null||v.days>10);
+    return `<div class="ledger-item${priority===p?' priority':''}${stale?' stale':''}"><b>${PATTERN_META[p].label}</b><span>${txt}</span>${stale?'<small>可优先考虑</small>':''}</div>`;
   }).join("");
   $("#subPatternNote").textContent=subPatternReminder();
 }
@@ -1387,6 +1449,16 @@ function renderRecommendation(){
 }
 
 const WEIGHT_STEPS=[3,9,13,19];
+const LOADABLE_BODYWEIGHT=new Set(["徒手深蹲","臀桥 / 单腿臀桥"]);
+const BODYWEIGHT_PROGRESSIONS={
+  "徒手深蹲":"可以试抱 3lb 做高脚杯深蹲，或先把下放放慢到 3–4 秒。",
+  "臀桥 / 单腿臀桥":"可以试把 3lb 放在髋部，或从双腿臀桥换成单腿臀桥。",
+  "上斜俯卧撑(扶桌沿)":"可以把支撑面降低一点，或保持高度并把下放放慢到 3–4 秒。",
+  "跪姿俯卧撑":"可以逐步过渡到较高支撑面的上斜俯卧撑，或把下放放慢到 3–4 秒。",
+  "拉力带坐姿划船":"可以换张力更大的拉力带、在收紧位置停 1–2 秒，或每组加 1–2 次。",
+  "拉力带下拉":"可以换张力更大的拉力带、在底部停 1–2 秒，或每组加 1–2 次。",
+  "阻力圈蚌式开合":"可以换更紧的阻力圈、顶端停 1–2 秒，或每组加 1–2 次。"
+};
 function actualHistory(nm,beforeKey=todayKey){
   return Object.keys(log).filter(k=>k<beforeKey&&log[k]&&log[k].actuals&&log[k].actuals[nm]).sort().map(k=>({key:k,...log[k].actuals[nm]}));
 }
@@ -1403,6 +1475,8 @@ function progressionHint(nm,beforeKey=todayKey){
   const atTop=sameLoad&&recent.every(a=>Number(a.sets||0)>=Number(plan.s||1)&&repsReach(a.reps,Number(plan.r||0)));
   if(!highRir&&!atTop) return "";
   const lastReps=repsText(last.reps), load=Number(last.weight||0), lead=load?`上次 ${load}lb × ${lastReps||plan.r}`:`上次 ${lastReps||plan.r} 次`;
+  const neverLoaded=hist.every(a=>Number(a.weight||0)===0);
+  if(neverLoaded&&BODYWEIGHT_PROGRESSIONS[nm]) return `${lead}，${highRir?"还有较多余力":"已连续完成计划上限"}。${BODYWEIGHT_PROGRESSIONS[nm]}`;
   if(load>0){
     const next=nextWeightStep(load);
     if(next&&((next-load)/load)<=.3) return `${lead}，${highRir?"还有较多余力":"已连续完成计划上限"}，下次可以试试 ${next}lb。`;
@@ -1531,7 +1605,8 @@ function actualHTML(nm, plan){
   const cur = (today.actuals && today.actuals[nm]) || defaultActual(nm, plan);
   const reps = cur.reps;
   const multi = Array.isArray(reps);
-  const wF = plan.w > 0 ? `<span class="fld">重量<input class="a-w" type="number" inputmode="decimal" min="0" step="0.5" value="${cur.weight}">lb</span>` : "";
+  const showWeight=plan.w>0||LOADABLE_BODYWEIGHT.has(nm), weightValue=Number(cur.weight)>0?cur.weight:"";
+  const wF = showWeight ? `<span class="fld">重量<input class="a-w" type="number" inputmode="decimal" min="0" step="0.5" value="${weightValue}" placeholder="—">lb</span>` : "";
   const sF = `<span class="fld">组<input class="a-s" type="number" inputmode="numeric" min="1" value="${cur.sets}"></span>`;
   let rF;
   if(multi){
@@ -2260,10 +2335,119 @@ $("#reportBtn").onclick = () => {
   }
 };
 
+// ---- AI 教练复盘：仅用户主动触发；本地规则层不依赖此功能 ----
+function coachReviewKeys(){
+  const start=new Date(); start.setHours(0,0,0,0); start.setDate(start.getDate()-55);
+  const startKey=dateKey(start);
+  return strengthHistoryKeys().filter(key=>key>=startKey&&key<=todayKey);
+}
+function coachMovementLine(name,entry){
+  const actual=entry.actuals&&entry.actuals[name];
+  if(!actual) return `${name}（未记实际值）`;
+  const parts=[];
+  if(Number(actual.weight)>0) parts.push(`${actual.weight}lb`);
+  else if(LOADABLE_BODYWEIGHT.has(name)) parts.push("徒手");
+  if(actual.sets!=null&&actual.reps!=null) parts.push(`${actual.sets}×${repsText(actual.reps)}`);
+  else if(actual.sets!=null) parts.push(`${actual.sets}组`);
+  else if(actual.reps!=null) parts.push(`${repsText(actual.reps)}次`);
+  if(actual.rir!=null&&actual.rir!=="") parts.push(`RIR ${actual.rir}`);
+  return `${name} ${parts.join(" ")}`.trim();
+}
+function weeklyCoachSummary(keys){
+  const monday=new Date(); monday.setHours(0,0,0,0); monday.setDate(monday.getDate()-((monday.getDay()+6)%7));
+  const rows=[];
+  for(let offset=7;offset>=0;offset--){
+    const start=new Date(monday); start.setDate(start.getDate()-offset*7);
+    const end=new Date(start); end.setDate(end.getDate()+6);
+    const inWeek=keys.filter(key=>key>=dateKey(start)&&key<=dateKey(end));
+    const sets=inWeek.reduce((sum,key)=>{
+      const entry=log[key];
+      return sum+completedNames(entry).reduce((n,name)=>n+Number(entry.actuals&&entry.actuals[name]&&entry.actuals[name].sets||0),0);
+    },0);
+    rows.push(`${start.getMonth()+1}/${start.getDate()}周：力量 ${inWeek.length} 次${sets?`，已记录 ${sets} 个工作组`:""}`);
+  }
+  return rows.join("\n");
+}
+function buildCoachReviewSummary(){
+  const keys=coachReviewKeys(), ledger=patternLedger();
+  const sessions=keys.map(key=>{
+    const entry=log[key];
+    const movements=completedNames(entry).map(name=>coachMovementLine(name,entry));
+    return `${key} | ${entryTemplateTitle(entry)} | ${LEVEL_TXT[entry.state]||"未选投入"} | ${movements.length?movements.join("；"):"已记录力量，未记动作"}`;
+  });
+  const gaps=MAIN_PATTERNS.map(pattern=>`${PATTERN_META[pattern].label} ${ledger[pattern].days==null?"尚未记录":`${ledger[pattern].days}天`}`).join(" | ");
+  return [
+    "训练环境：家庭训练；可调哑铃档位 3/9/13/19 lb，跳档较大。",
+    "数据范围：最近 8 周。未包含称呼、经期、有氧或备注。",
+    "",
+    "训练记录：",
+    sessions.length?sessions.join("\n"):"暂无力量动作记录。",
+    "",
+    "每周变化：",
+    weeklyCoachSummary(keys),
+    "",
+    `各模式距上次训练：${gaps}`
+  ].join("\n");
+}
+function reviewCacheKey(text){
+  let hash=2166136261;
+  for(let i=0;i<text.length;i++){ hash^=text.charCodeAt(i); hash=Math.imul(hash,16777619); }
+  return `v1-${(hash>>>0).toString(16)}`;
+}
+function reviewDateText(value){
+  const date=new Date(value);
+  return Number.isNaN(date.getTime())?"日期未知":date.toLocaleString("zh-CN",{year:"numeric",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"});
+}
+function showAIReview(review){
+  const result=$("#aiReviewResult");
+  if(!review){ result.hidden=true; result.innerHTML=""; $("#aiReviewAgain").hidden=true; return; }
+  result.innerHTML=`<time datetime="${escapeAttr(review.createdAt)}">${escapeAttr(reviewDateText(review.createdAt))} · ${escapeAttr(review.model||"AI 教练")}</time>${escapeAttr(review.text)}`;
+  result.hidden=false;
+  $("#aiReviewAgain").hidden=false;
+}
+function renderAIReviewHistory(){
+  showAIReview(aiReviews[0]);
+  const details=$("#aiReviewHistory"), list=$("#aiReviewHistoryList");
+  details.hidden=aiReviews.length<2;
+  list.innerHTML=aiReviews.slice(1).map(review=>`<div class="ai-history-item"><time datetime="${escapeAttr(review.createdAt)}">${escapeAttr(reviewDateText(review.createdAt))}</time>${escapeAttr(review.text)}</div>`).join("");
+  if(!AI_REVIEW_ENDPOINT) $("#aiReviewStatus").textContent="AI Worker 尚未连接；本地账本与动作旁的加难度提示不受影响。";
+}
+async function generateAIReview(force=false){
+  const status=$("#aiReviewStatus"), primary=$("#aiReviewBtn"), again=$("#aiReviewAgain");
+  const summary=buildCoachReviewSummary();
+  if(!coachReviewKeys().length){ status.textContent="还没有可用于复盘的力量动作记录；本地账本会继续正常工作。"; return; }
+  const cacheKey=reviewCacheKey(summary), cached=aiReviews.find(item=>item.cacheKey===cacheKey);
+  if(cached&&!force){ showAIReview(cached); status.textContent="这批训练记录已有复盘，已直接使用本机缓存。"; return; }
+  if(!AI_REVIEW_ENDPOINT){ status.textContent="AI Worker 尚未连接。部署 worker 后，把完整 /review 地址写入页面的 avengo-ai-endpoint meta 即可启用。"; return; }
+  primary.disabled=true; again.disabled=true; primary.textContent="生成中…"; status.textContent="正在整理最近 8 周记录并生成复盘…";
+  const controller=new AbortController(), timeout=setTimeout(()=>controller.abort(),45000);
+  try{
+    const response=await fetch(AI_REVIEW_ENDPOINT,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({summary,clientId:aiClientId()}),
+      signal:controller.signal,
+      credentials:"omit",
+      referrerPolicy:"strict-origin"
+    });
+    let data={}; try{ data=await response.json(); }catch(e){}
+    if(!response.ok||typeof data.text!=="string"||!data.text.trim()) throw new Error(`review-${response.status}`);
+    const review={id:`${Date.now()}-${Math.random().toString(36).slice(2,8)}`,createdAt:new Date().toISOString(),cacheKey,model:data.model||"claude-sonnet-4-6",text:data.text.trim()};
+    aiReviews.unshift(review); if(aiReviews.length>12) aiReviews.length=12; saveAIReviews(); renderAIReviewHistory(); showAIReview(review);
+    status.textContent="复盘已保存在当前设备。";
+  }catch(error){
+    status.textContent=error&&error.name==="AbortError"?"AI 分析等待时间较长，这次已停止；本地规则提示仍可使用。":"AI 分析暂时不可用；本地账本和动作旁提示仍可使用。";
+  }finally{
+    clearTimeout(timeout); primary.disabled=false; again.disabled=false; primary.textContent="生成复盘";
+  }
+}
+$("#aiReviewBtn").onclick=()=>generateAIReview(false);
+$("#aiReviewAgain").onclick=()=>generateAIReview(true);
+
 // ---- 备份:导出 / 导入 ----
 function setBackupMsg(m, cls){ const el = $("#backupMsg"); el.textContent = m; el.className = "backup-msg " + (cls||""); }
 function backupPayload(){
-  return { format:"avengo-backup", version:3, exportedAt:new Date().toString(), profile:{...profile}, log };
+  return { format:"avengo-backup", version:4, exportedAt:new Date().toString(), profile:{...profile}, reviews:aiReviews.map(item=>({...item})), log };
 }
 function downloadText(text, filename, mime){
   const blob = new Blob([text], {type:mime});
@@ -2408,6 +2592,14 @@ function doImport(txt){
     if(importedName) profile.displayName=importedName; else delete profile.displayName;
     saveProfile();
   }
+  if(Array.isArray(data.reviews)){
+    const known=new Set(aiReviews.map(item=>item.id||`${item.createdAt}|${item.cacheKey||""}`));
+    data.reviews.filter(item=>item&&typeof item.text==="string"&&typeof item.createdAt==="string").forEach(item=>{
+      const id=item.id||`${item.createdAt}|${item.cacheKey||""}`;
+      if(!known.has(id)){ aiReviews.push({...item,text:item.text.slice(0,5000)}); known.add(id); }
+    });
+    aiReviews.sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt))); if(aiReviews.length>12) aiReviews.length=12; saveAIReviews();
+  }
   saveLog();
   setBackupMsg(`导入成功:新增 ${added} 天,更新 ${over} 天。正在刷新…`, "ok");
   setTimeout(()=>location.reload(), 800);
@@ -2513,6 +2705,7 @@ syncAeroUI();
 syncProfileUI();
 syncPeriodUI();
 renderCycle();
+renderAIReviewHistory();
 </script>
 </body>
 </html>

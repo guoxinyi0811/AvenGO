@@ -1,0 +1,23 @@
+name = "avengo-coach"
+main = "src/index.js"
+compatibility_date = "2026-08-11"
+workers_dev = true
+
+[vars]
+ALLOWED_ORIGIN = "https://guoxinyi0811.github.io"
+
+[[ratelimits]]
+name = "DEVICE_RATE_LIMITER"
+namespace_id = "12001"
+
+  [ratelimits.simple]
+  limit = 4
+  period = 60
+
+[[ratelimits]]
+name = "GLOBAL_RATE_LIMITER"
+namespace_id = "12002"
+
+  [ratelimits.simple]
+  limit = 20
+  period = 60
