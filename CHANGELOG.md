@@ -1,6 +1,6 @@
 # Changelog
 
-## 2026-08-11 — v1.2.0 AI coach review (deployment pending)
+## 2026-08-11 — v1.2.0 AI coach review
 
 ### Local coaching rules
 
@@ -12,12 +12,12 @@
 
 - Added a user-triggered eight-week coaching review with loading, graceful failure, same-data caching, explicit regeneration, and up to 12 locally stored historical reviews.
 - Limited outbound data to strength movements, actual weight / sets / reps / RIR, weekly frequency / recorded sets, and pattern gaps. Names, period data, cardio, notes, and raw JSON are excluded.
-- Added a Cloudflare Worker that fixes the model and prompt server-side, keeps the Anthropic key in a Worker secret, validates request size and shape, restricts CORS to the GitHub Pages origin, and applies per-device plus global rate limits.
+- Added a Cloudflare Worker that uses the Workers AI binding with a fixed model and prompt, validates request size and shape, restricts CORS to the GitHub Pages origin, and applies per-device plus global rate limits without requiring a third-party API key.
 - Upgraded full JSON backups to version 4 with optional review history while retaining v2/v3 and raw-log import compatibility.
 
 ### Deployment
 
-- The Worker endpoint remains intentionally blank until Cloudflare authorization and `ANTHROPIC_API_KEY` secret setup are completed. Local coaching rules remain production-ready without it.
+- Deployed the Workers AI endpoint at `https://avengo-coach.guoxinyi0811.workers.dev/review`; local coaching rules remain fully usable if the network or daily cloud allocation is unavailable.
 
 ## 2026-08-11 — v1.1.0 movement-pattern iteration
 

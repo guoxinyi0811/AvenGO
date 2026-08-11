@@ -42,7 +42,7 @@ python -m http.server 8000
 
 训练数据保存在浏览器 `localStorage` 的 `workout-log` 中，不会上传服务器。日期使用本地时区；导入备份时同日期以导入内容为准，其它日期保留。
 
-AI 复盘默认不连接网络服务。部署并配置 Worker 后，只有用户点“生成复盘”时才会发送最近 8 周的力量动作、重量、组次、RIR、每周次数与模式间隔；称呼、经期、有氧、备注和完整 JSON 不会发送。Anthropic API key 只允许保存在 Cloudflare Worker secret 中。
+AI 复盘默认不连接网络服务。部署并配置 Worker 后，只有用户点“生成复盘”时才会发送最近 8 周的力量动作、重量、组次、RIR、每周次数与模式间隔；称呼、经期、有氧、备注和完整 JSON 不会发送。复盘使用 Cloudflare Workers AI binding，不需要在前端、Worker 或 Git 中保存第三方 API key。
 
 ## AI Worker
 

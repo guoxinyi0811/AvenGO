@@ -6,6 +6,9 @@ workers_dev = true
 [vars]
 ALLOWED_ORIGIN = "https://guoxinyi0811.github.io"
 
+[ai]
+binding = "AI"
+
 [[ratelimits]]
 name = "DEVICE_RATE_LIMITER"
 namespace_id = "12001"

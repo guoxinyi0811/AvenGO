@@ -107,7 +107,7 @@ JSON envelope：
 ### 3.5 AI 复盘本机数据
 
 - `coach-card-ai-reviews`：数组，最多 12 条。单条字段为 `id`、`createdAt`、`cacheKey`、`model`、`text`。只保存生成结果，不复制训练摘要。
-- `coach-card-ai-client`：随机本机 ID，仅用于 Worker 的每设备限流，不是身份认证，也不会转发给 Anthropic。
+- `coach-card-ai-client`：随机本机 ID，仅用于 Worker 的每设备限流，不是身份认证，也不会转发给模型。
 - JSON 完整备份包含 `reviews`；训练日志 key `workout-log` 不变。
 
 ## 4. 状态管理与关键逻辑
@@ -127,7 +127,8 @@ JSON envelope：
 - `renderPatternLedger`：模式超过 10 天或已有历史但从未出现时增加“可优先考虑”中性标记。
 - `buildCoachReviewSummary`：只整理最近 8 周力量动作、实际值、每周次数 / 工作组和模式间隔，不读取称呼、经期、有氧或备注。
 - `generateAIReview`：仅由按钮触发；按摘要 hash 查本机缓存，显式“重新生成”才绕过缓存。超时、网络或 API 错误只更新状态文案。
-- `worker/src/index.js`：固定模型、system prompt、输出上限、请求大小、精确 CORS 和两级限流；前端不能传任意 Anthropic body。
+- `worker/src/index.js`：通过 `env.AI` 使用固定的 Cloudflare Workers AI 模型、system prompt、输出上限、请求大小、精确 CORS 和两级限流；前端不能传任意模型请求体。
+- `enforceEquipmentGuard`：模型返回后的确定性护栏；若 AI 直接建议跳到 3/9/13/19lb 的下一档，会删除该处方并替换为加次数、慢离心或更难变式。不要仅靠 prompt 约束替代它。
 - `renderDayDetail`：过去日期可选模板 / 自由组合、动作、实际值、RIR；有氧始终独立。
 - `renderCalendar` / `renderStats` / `buildReport`：以事实记录和模式计数，不计算达标率。
 - `backupPayload` / `buildCSV` / `doImport`：完整 JSON、兼容导入与行式 CSV。
@@ -141,7 +142,7 @@ JSON envelope：
 - 自由组合动作较多，当前按模式分组的 chip 列表偏长。这是功能范围内的直接实现；后续若调整只能优化排版，不能增加搜索、收藏等新功能。
 - 过去日期编辑器信息密度较高；需重点回归模板下拉、动作实际值与有氧在窄屏的排列。
 - 单文件已较长。可以在未来拆成无构建的 ES modules，但不能在纯 UI 轮次顺手重构业务。
-- AI 卡片沿用现有极简视觉。Worker endpoint 为空时会明确显示尚未连接；正式发布 AI 功能前应先部署 Worker，再把完整 `/review` URL 写入 `avengo-ai-endpoint` meta。
+- AI 卡片沿用现有极简视觉。生产 Worker 已部署到 `avengo-coach.guoxinyi0811.workers.dev/review`，完整 URL 保存在 `avengo-ai-endpoint` meta；更换账号子域或 Worker 名称时必须同步修改并回归 CORS。
 
 ## 6. 设计约束（必须遵守）
 
@@ -151,7 +152,7 @@ JSON envelope：
 - 休息是正常记录；没有有氧时不显示空位、提醒或视觉标记。
 - 账本与渐进提示只给建议，不弹窗、不警告、不锁定用户选择。
 - AI 只能由用户主动调用；不得自动、定时或因打开记录页而产生 API 请求。
-- 不得把 API key、`.dev.vars`、Cloudflare token 或任何共享 secret 写入前端和 Git 历史。
+- 不得把 `.dev.vars`、Cloudflare token 或任何共享 secret 写入前端和 Git 历史；Workers AI binding 本身不需要应用内 API key。
 - 发送给 AI 的范围不得扩展到称呼、经期、备注或完整备份，除非未来得到用户新的明确同意。
 - 周期建议使用“大约 / 倾向”语言，不作医疗断言。
 - 不引入外部字体、网络资源、框架、CDN 或构建步骤。

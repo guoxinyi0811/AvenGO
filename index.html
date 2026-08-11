@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="AvenGO">
 <meta name="theme-color" content="#F3F1EB">
-<meta name="avengo-ai-endpoint" content="">
+<meta name="avengo-ai-endpoint" content="https://avengo-coach.guoxinyi0811.workers.dev/review">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="avengo-mark.png">
 <link rel="icon" type="image/png" href="avengo-mark.png">
@@ -731,7 +731,7 @@
     <p class="tiny-note">点格子查看当天详情 · ✓=力量记录 · ~=有氧记录 · 休=休息记录</p>
 
     <section class="ai-review" aria-labelledby="aiReviewTitle">
-      <div class="ai-review-head"><h3 id="aiReviewTitle">AI 教练复盘</h3><span>主动生成 · 可能产生 API 费用</span></div>
+      <div class="ai-review-head"><h3 id="aiReviewTitle">AI 教练复盘</h3><span>主动生成 · 使用云端额度</span></div>
       <p class="ai-review-copy">生成时只发送最近 8 周的力量动作、重量、组次、RIR、每周记录次数和模式间隔；不发送称呼、经期、有氧、备注或完整备份。没有网络或分析失败时，本地账本与加难度提示仍可使用。</p>
       <div class="ai-review-actions">
         <button id="aiReviewBtn" type="button">生成复盘</button>
@@ -2432,7 +2432,7 @@ async function generateAIReview(force=false){
     });
     let data={}; try{ data=await response.json(); }catch(e){}
     if(!response.ok||typeof data.text!=="string"||!data.text.trim()) throw new Error(`review-${response.status}`);
-    const review={id:`${Date.now()}-${Math.random().toString(36).slice(2,8)}`,createdAt:new Date().toISOString(),cacheKey,model:data.model||"claude-sonnet-4-6",text:data.text.trim()};
+    const review={id:`${Date.now()}-${Math.random().toString(36).slice(2,8)}`,createdAt:new Date().toISOString(),cacheKey,model:data.model||"Workers AI",text:data.text.trim()};
     aiReviews.unshift(review); if(aiReviews.length>12) aiReviews.length=12; saveAIReviews(); renderAIReviewHistory(); showAIReview(review);
     status.textContent="复盘已保存在当前设备。";
   }catch(error){

@@ -1,5 +1,4 @@
-const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
-const MODEL = "claude-sonnet-4-6";
+const MODEL = "@cf/meta/llama-3.1-8b-instruct-fast";
 const MAX_SUMMARY_CHARS = 12000;
 
 const SYSTEM_PROMPT = `你是一位家庭力量训练教练。基于用户提供的训练记录，给出简洁、具体、可执行的中文复盘。
@@ -19,7 +18,9 @@ const SYSTEM_PROMPT = `你是一位家庭力量训练教练。基于用户提供
 - 训练量波动是正常的；所有建议都允许用户按体感调整。
 - 中文回复，300 字以内。
 
-器械约束：哑铃档位为 3/9/13/19 lb，跳档较大。下一档增幅过大时，优先建议每组增加 1–2 次、下放放慢到 3–4 秒，或换更难变式（双腿→B-stance→单腿），不要要求硬跳重量。
+器械硬规则（优先级最高）：哑铃只有 3/9/13/19 lb，所有相邻档位增幅都超过 30%。绝对不要直接建议从 3→9、9→13 或 13→19 lb。达到当前重量上限时，具体建议每组增加 1–2 次、下放放慢到 3–4 秒，或换更难变式（双腿→B-stance→单腿）。只有摘要明确记录了可用的中间重量时，才可以建议该中间重量。
+
+不要用“很不错”“保持这种趋势”等空泛鼓励收尾；把字数留给下一次训练的具体安排。
 
 安全：若重量或次数突然下降，或长时间中断后恢复，建议渐进恢复，不直接回到此前最高负荷。不要提供医疗诊断。`;
 
@@ -38,6 +39,24 @@ function corsHeaders(origin) {
 
 function json(origin, data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: corsHeaders(origin) });
+}
+
+function enforceEquipmentGuard(text) {
+  const directStep = /(?:尝试|增加|加重|加到|升到|上到|换到|改用|建议)[^\n。！？；]{0,42}(?:3|9|13|19)\s*lb/i;
+  const nextStep = /(?:下次|下一次)[^\n。！？；]{0,60}(?:3|9|13|19)\s*lb/i;
+  const arrowStep = /(?:3|9|13|19)\s*lb\s*(?:→|到|-)\s*(?:3|9|13|19)\s*lb/i;
+  const loadPrescription = /^\s*[*•-]?\s*[^：:\n]{1,24}[：:]\s*(?:3|9|13|19)\s*lb/i;
+  let removed = false;
+  const keptRaw = text.split(/\r?\n/).filter(line => {
+    const risky = directStep.test(line) || nextStep.test(line) || arrowStep.test(line) || loadPrescription.test(line);
+    if (risky) removed = true;
+    return !risky;
+  }).join("\n").replace(/\n{3,}/g, "\n\n").trim();
+  if (!removed) return text.trim();
+  let listIndex = 0;
+  const kept = keptRaw.replace(/^\s*\d+\.\s+/gm, () => `${++listIndex}. `);
+  const guard = "器械跨度提醒：3/9/13/19 lb 相邻档位增幅较大；下次先保持当前重量，每组加 1–2 次、下放 3–4 秒，或按体感换更难变式，不直接跳档。";
+  return `${guard}${kept ? `\n\n${kept}` : ""}`;
 }
 
 async function withinLimit(binding, key) {
@@ -80,39 +99,33 @@ export default {
       withinLimit(env.GLOBAL_RATE_LIMITER, "all-reviews")
     ]);
     if (!deviceAllowed || !globalAllowed) return json(origin, { error: "Please wait before generating another review" }, 429);
-    if (!env.ANTHROPIC_API_KEY) return json(origin, { error: "AI service is not configured" }, 503);
-
-    let upstream;
-    try {
-      upstream = await fetch(ANTHROPIC_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": env.ANTHROPIC_API_KEY,
-          "anthropic-version": "2023-06-01"
-        },
-        signal: AbortSignal.timeout(35000),
-        body: JSON.stringify({
-          model: MODEL,
-          max_tokens: 1500,
-          system: SYSTEM_PROMPT,
-          messages: [{ role: "user", content: `请复盘以下训练摘要。不要推断摘要中没有的人口或健康信息。\n\n${summary}` }]
-        })
-      });
-    } catch (error) {
-      return json(origin, { error: "AI analysis is temporarily unavailable" }, 502);
-    }
-
-    if (!upstream.ok) {
-      console.error("Anthropic request failed", upstream.status);
-      return json(origin, { error: "AI analysis is temporarily unavailable" }, 502);
-    }
+    if (!env.AI || typeof env.AI.run !== "function") return json(origin, { error: "AI service is not configured" }, 503);
 
     let data;
-    try { data = await upstream.json(); }
-    catch (error) { return json(origin, { error: "Invalid AI response" }, 502); }
-    const text = Array.isArray(data.content) ? data.content.filter(block => block && block.type === "text").map(block => block.text || "").join("\n").trim() : "";
+    try {
+      data = await env.AI.run(MODEL, {
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: `请复盘以下训练摘要。不要推断摘要中没有的人口或健康信息。\n\n${summary}` }
+        ],
+        max_tokens: 800,
+        temperature: 0.3
+      });
+    } catch (error) {
+      console.error("Workers AI request failed", error instanceof Error ? error.message : "unknown error");
+      return json(origin, { error: "AI analysis is temporarily unavailable" }, 502);
+    }
+
+    const choiceText = Array.isArray(data && data.choices)
+      ? data.choices.map(choice => {
+          const content = choice && choice.message && choice.message.content;
+          if (typeof content === "string") return content;
+          if (Array.isArray(content)) return content.map(part => part && (part.text || part.content) || "").join("\n");
+          return "";
+        }).join("\n").trim()
+      : "";
+    const text = typeof (data && data.response) === "string" ? data.response.trim() : choiceText;
     if (!text) return json(origin, { error: "Empty AI response" }, 502);
-    return json(origin, { text: text.slice(0, 5000), model: data.model || MODEL });
+    return json(origin, { text: enforceEquipmentGuard(text).slice(0, 5000), model: data && data.model || MODEL });
   }
 };
