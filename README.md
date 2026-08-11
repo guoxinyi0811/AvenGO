@@ -1,61 +1,38 @@
-# AvenGO! Coach Card
+# AvenGO
 
-> 一张面向家庭训练的低压力教练卡：选择力量安排与投入程度，照着动作卡训练，并按需记录有氧、周期与备注。所有个人数据只保存在当前设备。
->
-> A calm at-home training card for choosing a strength plan, checking movement guidance, and optionally logging cardio, cycle information, and notes. Personal data stays on the current device.
+一个移动端优先、低压力的家庭训练记录工具。选择当天安排，查看动作指令，记录重量、次数、RIR、有氧与周期信息。数据只保存在当前设备。
 
-**App:** https://guoxinyi0811.github.io/AvenGO/
+## 在线原型
 
-## 中文
+[打开 AvenGO](https://guoxinyi0811.github.io/AvenGO/)
 
-### 主要功能
+典型使用流程：
 
-- A / B 两日力量计划；“完整 / 精简 / 轻量”使用中性投入语义，不评价当天选择。
-- 每个动作提供固定六段指令：起始姿势、呼吸、节奏、发力顺序、做对的感觉、常见错误。
-- 实际重量、组数、次数与可选 RIR 记录；优先带入上次实际值。
-- 有氧是独立记录，可单独进行，也可与力量安排在同一天；不设目标、进度条或提醒。
-- 月历可补录过去日期的动作与实际值，并查看力量趋势。
-- 周期建议仅作参考，使用“大约 / 倾向”等非诊断措辞，用户选择始终优先。
-- JSON 完整备份与恢复；CSV 导出用于查看或分析。
-- 可选本机称呼，不填写时界面保持通用。
+1. 选择今天做力量、休息或暂不安排。
+2. 选择 A / B 计划与完整、精简或轻量投入。
+3. 训练时查看动作说明并记录实际重量、组数、次数和 RIR。
+4. 有氧可单独记录，也可与力量安排在同一天。
 
-### 数据与隐私
+## 核心特点
 
-- 训练、实际值、有氧、周期和备注保存在浏览器 `localStorage`，不会发送到服务器。
-- 主记录 key 固定为 `workout-log`；可选称呼使用 `coach-card-profile`。
-- 更新、清理浏览器数据或更换设备前，请先导出 JSON 备份。
+- 动作说明包含起始姿势、呼吸、节奏、发力顺序、正确体感和常见错误。
+- 支持过去日期补录、月历、力量趋势、JSON 备份／恢复和 CSV 导出。
+- 周期建议仅供参考，不锁定训练选择。
+- 不设目标、进度条、连胜压力或未记录提醒。
 
-### 安装与离线现状
+## 技术与隐私
 
-项目包含 Web App Manifest，可在 iPhone Safari 中“添加到主屏幕”。当前版本尚未注册 Service Worker，因此首次加载以及浏览器缓存失效后仍需要网络；不要把它描述为保证离线可用。
+原生 HTML / CSS / JavaScript，零依赖、零构建。训练数据存于浏览器 `localStorage`，不会上传服务器。
 
-### 技术与运行
+项目可添加到 iPhone 主屏幕；当前尚无 Service Worker，首次打开或缓存失效时仍需要网络。更换设备或清理浏览器数据前，请先导出 JSON。
 
-原生 HTML / CSS / JavaScript，无框架、无依赖、无构建步骤。直接打开 `index.html`，或在仓库目录运行任意静态文件服务器。GitHub Pages 从 `main` 分支根目录发布。
+## 文档
 
-## English
+- [HANDOFF.md](HANDOFF.md)：数据结构、关键逻辑、兼容要求与回归清单。
+- [CHANGELOG.md](CHANGELOG.md)：功能和 UI 迭代记录。
 
-### Highlights
+---
 
-- A/B strength plans with neutral effort choices: Full, Compact, and Light.
-- Six-part guidance for every movement: setup, breathing, tempo, force sequence, correct sensation, and common errors.
-- Actual weight, sets, reps, and optional RIR, preferring the previous logged value.
-- Cardio is independent and can coexist with strength on the same date; there are no goals, progress bars, or missing-entry reminders.
-- Past-date movement and actual-value editing, calendar history, and strength trends.
-- Cycle-aware suggestions remain approximate, non-diagnostic, and optional.
-- Complete JSON backup/import plus analysis-friendly CSV export.
-- Optional on-device display name; the default UI remains generic.
+AvenGO is a calm, mobile-first home-training log. It provides A/B plans, detailed movement guidance, actual-set tracking, independent cardio logging, approximate cycle-aware suggestions, and local JSON/CSV backup.
 
-### Privacy
-
-All personal records stay in browser `localStorage` and are never uploaded. The stable log key is `workout-log`; the optional display name uses `coach-card-profile`.
-
-### Install and offline status
-
-The repository includes a Web App Manifest and can be added to the iPhone home screen. It does not currently register a Service Worker, so a first load or an expired browser cache still requires a network connection.
-
-### Tech
-
-Vanilla HTML, CSS, and JavaScript with no framework, dependency, build step, or external runtime resource. GitHub Pages serves the `main` branch root.
-
-See [HANDOFF.md](HANDOFF.md) for implementation constraints and [CHANGELOG.md](CHANGELOG.md) for iteration history.
+[Try the prototype](https://guoxinyi0811.github.io/AvenGO/) · Data stays on the current device · Vanilla HTML/CSS/JavaScript · No build step

@@ -10,6 +10,7 @@
 - Returned labels and numeric controls to the system sans stack, reserving the system serif stack for a few structural headings.
 - Kept neutral effort levels, 44px touch targets, clear focus states, reduced-motion support, and every existing workflow unchanged.
 - Updated PWA theme/background colors to match the new warm off-white canvas.
+- Condensed the README and added a direct online prototype plus a short example workflow.
 
 ## 2026-08-10 — Neutral concurrent-training iteration
 
