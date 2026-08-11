@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-08-11 — Quiet minimal visual reset
+
+### UI-only changes
+
+- Removed the in-app zine collage mark, paper grain, photocopy borders, archive labels, hard offset shadows, and magenta interaction system.
+- Rebuilt the visual layer around warm mineral neutrals, open spacing, hairline dividers, soft surfaces, and a restrained sage accent.
+- Simplified the header to a small product wordmark and content-first title; the existing PNG remains available only as the install icon and favicon.
+- Returned labels and numeric controls to the system sans stack, reserving the system serif stack for a few structural headings.
+- Kept neutral effort levels, 44px touch targets, clear focus states, reduced-motion support, and every existing workflow unchanged.
+- Updated PWA theme/background colors to match the new warm off-white canvas.
+
 ## 2026-08-10 — Neutral concurrent-training iteration
 
 ### Functional and data changes

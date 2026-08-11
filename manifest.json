@@ -1,12 +1,12 @@
 {
-  "name": "AvenGO! Coach Card",
+  "name": "AvenGO",
   "short_name": "AvenGO",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#F2E7D2",
-  "theme_color": "#F2E7D2",
+  "background_color": "#F3F1EB",
+  "theme_color": "#F3F1EB",
   "icons": [
     { "src": "avengo-mark.png", "sizes": "1536x1536", "type": "image/png", "purpose": "any" },
     { "src": "avengo-mark.png", "sizes": "1536x1536", "type": "image/png", "purpose": "maskable" }
