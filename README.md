@@ -6,7 +6,9 @@ AvenGO is a calm, mobile-first home-training log. It tracks Squat, Hinge, Push, 
 
 ### Prototype
 
-[Open AvenGO](https://guoxinyi0811.github.io/AvenGO/)
+[Open the main app (Chinese)](https://guoxinyi0811.github.io/AvenGO/) · [Review the English UI prototype](https://guoxinyi0811.github.io/AvenGO/prototype-en.html)
+
+The English prototype is a separate, non-persistent preview for reviewing terminology and layout. It does not read or change records in the main app.
 
 Typical flow: check when each movement pattern was last trained → choose a template or free combination → select Full, Compact, or Light → record weight, sets, reps, and RIR. Cardio can be logged with strength training or on its own.
 
@@ -63,7 +65,9 @@ AvenGO 是一个平静、移动端优先的家庭训练记录工具。它记录 
 
 ### 在线示例
 
-[打开 AvenGO](https://guoxinyi0811.github.io/AvenGO/)
+[打开中文版正式应用](https://guoxinyi0811.github.io/AvenGO/) · [查看独立英文界面原型](https://guoxinyi0811.github.io/AvenGO/prototype-en.html)
+
+英文原型用于确认术语与排版，不会读取或改动正式应用中的训练记录。
 
 典型流程：查看各动作模式距上次记录的时间 → 选择模板或自由组合 → 按体感选择完整、精简或轻量 → 记录重量、组数、次数与 RIR。有氧可以与力量同日，也可以单独记录。
 

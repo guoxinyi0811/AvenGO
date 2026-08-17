@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Added a separate English UI prototype for reviewing terminology and mobile layout without reading or changing production training data.
+- Added direct links to the Chinese app and English prototype in both README language sections.
+
 ## 2026-08-11 — v1.2.0 AI coach review
 
 ### Local coaching rules
