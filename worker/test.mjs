@@ -42,6 +42,8 @@ assert.equal(captured.model, "@cf/meta/llama-3.1-8b-instruct-fast");
 assert.equal(captured.input.max_tokens, 800);
 assert.match(captured.input.messages[0].content, /300 字以内/);
 assert.match(captured.input.messages[0].content, /绝对不要直接建议/);
+assert.match(captured.input.messages[0].content, /固定拉力带硬规则/);
+assert.match(captured.input.messages[0].content, /不根据月经阶段自动升降训练量/);
 assert.match(captured.input.messages[1].content, /深蹲 9lb/);
 const data = await response.json();
 assert.equal(data.text, "下次深蹲可先每组加 1 次。");
@@ -63,5 +65,16 @@ assert.doesNotMatch(guardedData.text, /13lb/);
 assert.match(guardedData.text, /每组加 1–2 次/);
 assert.match(guardedData.text, /髋铰链/);
 assert.match(guardedData.text, /2\. 下次可安排髋铰链/);
+
+const bandGuarded = await worker.fetch(new Request("https://worker.example/review", {
+  method: "POST",
+  headers: { Origin: origin, "Content-Type": "application/json" },
+  body: JSON.stringify({ summary: "训练记录：拉力带坐姿划船 3×15 RIR 4", clientId: "device-band-guard" })
+}), { ...baseEnv, AI: { async run() { return { response: "1. 拉力带坐姿划船：下次换更大张力的拉力带，做 3×12。\n2. Pull 模式本周出现 2 次。" }; } } });
+const bandGuardedData = await bandGuarded.json();
+assert.doesNotMatch(bandGuardedData.text, /更大张力/);
+assert.match(bandGuardedData.text, /每组加 1–2 次/);
+assert.match(bandGuardedData.text, /最多 4 组/);
+assert.match(bandGuardedData.text, /Pull 模式/);
 
 console.log("worker tests passed");

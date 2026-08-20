@@ -1,9 +1,12 @@
 # Changelog
 
-## Unreleased
+## 2026-08-20 — v1.2.1 fixed-band progression and compact defaults
 
 - Added a separate English UI prototype for reviewing terminology and mobile layout without reading or changing production training data.
 - Added direct links to the Chinese app and English prototype in both README language sections.
+- Changed fixed-band progression to add 1–2 reps per set first, then one set up to four, then band-length / end-range-pause adjustments; it no longer suggests buying or selecting a heavier band.
+- Made untouched actual-value fields use the compact plan's set count after switching from Full to Compact, while preserving values already entered for the current day.
+- Extended the AI equipment guard so fixed-band advice follows the same progression order and never infers menstrual-cycle-based load changes.
 
 ## 2026-08-11 — v1.2.0 AI coach review
 

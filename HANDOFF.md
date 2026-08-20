@@ -1,4 +1,4 @@
-# AvenGO v1.2 Engineering Handoff
+# AvenGO v1.2.1 Engineering Handoff
 
 > 语言原型说明：`prototype-en.html` 是独立、无持久化的英文 UI 术语与布局预览，不读取或写入 `workout-log`，也不是正式 App 的第二套业务实现。后续若实现全局 EN/CN，应在 `index.html` 增加展示层 i18n，并继续保留中文动作名作为数据主键，避免复制两套训练逻辑。
 
@@ -124,17 +124,26 @@ JSON envelope：
 - `subPatternReminder`：只有在已有足够历史且水平 / 垂直子模式间隔至少约 14 天时给温和提示。
 - `recentStrengthCount` / `renderRecommendation`：读取最近 10 天力量次数与账本间隔，只改建议文案；所有模板不锁定。
 - `renderPlan`：根据模板、自由组合和投入程度渲染动作；输入即时保存。
+- `prescribedSets` / `defaultActual`：未填写的实际值在精简 / 轻量模式下优先采用当前剂量的组数；当天已经写入 `actuals` 的用户输入不会因切换投入程度被覆盖。完整模式仍保留“上次实际值优先”的默认语义。
 - `progressionHint`：读取同动作历史 actuals；相同重量连续达到计划上限或 RIR ≥ 4 时显示一次行内建议，不写入状态。
-- `BODYWEIGHT_PROGRESSIONS`：徒手 / 弹力带动作连续达到上限时给负重、慢离心或更难变式建议；臀桥和徒手深蹲可额外记录重量。
+- `BODYWEIGHT_PROGRESSIONS`：徒手动作连续达到上限时给负重、慢离心或更难变式建议；臀桥和徒手深蹲可额外记录重量。
+- `ELASTIC_PROGRESSIONS` / `elasticProgressionHint`：固定拉力带动作按“每组加 1–2 次至上限 → 加 1 组但最多 4 组 → 缩短有效带长或末端停顿”进阶，不使用重量字段，也不建议更换更重的带子。触发只看历史 actuals 与 RIR，不根据推算的月经阶段自动改变训练量。
 - `renderPatternLedger`：模式超过 10 天或已有历史但从未出现时增加“可优先考虑”中性标记。
 - `buildCoachReviewSummary`：只整理最近 8 周力量动作、实际值、每周次数 / 工作组和模式间隔，不读取称呼、经期、有氧或备注。
 - `generateAIReview`：仅由按钮触发；按摘要 hash 查本机缓存，显式“重新生成”才绕过缓存。超时、网络或 API 错误只更新状态文案。
 - `worker/src/index.js`：通过 `env.AI` 使用固定的 Cloudflare Workers AI 模型、system prompt、输出上限、请求大小、精确 CORS 和两级限流；前端不能传任意模型请求体。
-- `enforceEquipmentGuard`：模型返回后的确定性护栏；若 AI 直接建议跳到 3/9/13/19lb 的下一档，会删除该处方并替换为加次数、慢离心或更难变式。不要仅靠 prompt 约束替代它。
+- `enforceEquipmentGuard`：模型返回后的确定性护栏；若 AI 直接建议跳到 3/9/13/19lb 的下一档，或建议固定拉力带换更大张力 / 更紧的带子，会删除该处方并替换为对应的渐进顺序。不要仅靠 prompt 约束替代它。
 - `renderDayDetail`：过去日期可选模板 / 自由组合、动作、实际值、RIR；有氧始终独立。
 - `renderCalendar` / `renderStats` / `buildReport`：以事实记录和模式计数，不计算达标率。
 - `backupPayload` / `buildCSV` / `doImport`：完整 JSON、兼容导入与行式 CSV。
 - 状态直接保存在 `log[dateKey]` 对象并立即 `saveLog()`；没有框架状态层。
+
+### 4.1 渐进规则的证据边界
+
+- ACSM 2026 阻力训练立场文件强调一致训练、个体化负荷 / 训练量，以及弹力带等非传统器械同样可以产生有效适应；本 App 因此不把“可加哑铃重量”视为唯一进阶方式：<https://acsm.org/resistance-training-guidelines-update-2026/>。
+- 弹力带阻力随带长和伸长率变化，研究支持用感知用力程度监控强度；本 App 以 RIR 和可完成次数作为固定带子的可执行代理：<https://pubmed.ncbi.nlm.nih.gov/22210471/>。
+- 女性训练适应研究支持阻力训练本身的有效性，但月经周期与表现研究不足以形成统一阶段处方；因此渐进规则不读取周期阶段，只让当天体感覆盖建议：<https://pubmed.ncbi.nlm.nih.gov/31820374/>、<https://pubmed.ncbi.nlm.nih.gov/32661839/>。
+- “先加每组次数，再加一组，最后调整有效带长 / 停顿”是结合上述证据、当前固定器械和降低决策成本所做的产品级推断，不是女性专属生理公式，也不是医疗建议。
 
 ## 5. UI 现状与已知不足
 
