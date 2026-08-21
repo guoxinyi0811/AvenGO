@@ -679,6 +679,7 @@
       <ul>
         <li>加重量 +2–5lb(哑铃到顶 20lb 前优先这条)</li>
         <li>加次数 → 加组数</li>
+        <li><b>固定拉力带:</b>先每组加 1–2 次；到次数上限后再加 1 组(最多 4 组)；组次都到上限时，再小幅缩短有效带长或增加末端停顿</li>
         <li>放慢离心:下放用 3–4 秒(不增加重量也能提高动作控制要求)</li>
         <li>顶峰停顿 2 秒(臀桥尤其)</li>
         <li><b>减少支撑面:双腿 → 单腿</b>(哑铃 20lb 到顶后的主要出路)</li>
@@ -1274,10 +1275,22 @@ function lastActual(nm){
   const keys = Object.keys(log).filter(k => k < todayKey && log[k].actuals && log[k].actuals[nm]).sort();
   return keys.length ? log[keys[keys.length-1]].actuals[nm] : null;
 }
-function defaultActual(nm, plan){
+function prescribedSets(nm, plan, level=state){
+  if(level === "green") return null;
+  const item = planItems(currentPlan()).find(it=>it.nm===nm) || LIBRARY_ITEMS[nm];
+  const text = item && item.dose ? item.dose[KEY[level]] : "";
+  if(!text || text === "—" || text === "跳过") return null;
+  const match = text.match(/(?:各\s*)?(\d+)(?:–\d+)?\s*组/);
+  return match ? Math.max(1, Number(match[1])) : null;
+}
+function defaultActual(nm, plan, level=state){
   const la = lastActual(nm);
-  if(la) return { weight: la.weight != null ? la.weight : plan.w, sets: la.sets != null ? la.sets : plan.s, reps: la.reps != null ? la.reps : plan.r, rir: la.rir != null ? la.rir : "" };
-  return { weight: plan.w, sets: plan.s, reps: plan.r, rir:"" };
+  const levelSets = prescribedSets(nm, plan, level);
+  if(la){
+    const reps = la.reps != null ? la.reps : plan.r;
+    return { weight: la.weight != null ? la.weight : plan.w, sets: levelSets != null ? levelSets : (la.sets != null ? la.sets : plan.s), reps: levelSets != null && Array.isArray(reps) ? reps.slice(0,levelSets) : reps, rir: la.rir != null ? la.rir : "" };
+  }
+  return { weight: plan.w, sets: levelSets != null ? levelSets : plan.s, reps: plan.r, rir:"" };
 }
 
 function bind(id, attr, fn){
@@ -1450,14 +1463,18 @@ function renderRecommendation(){
 
 const WEIGHT_STEPS=[3,9,13,19];
 const LOADABLE_BODYWEIGHT=new Set(["徒手深蹲","臀桥 / 单腿臀桥"]);
+const ELASTIC_PROGRESSIONS={
+  "拉力带坐姿划船":{repCap:15},
+  "拉力带下拉":{repCap:15},
+  "Pallof press":{repCap:15},
+  "弹力带肩外旋 + 站姿 T 字":{repCap:20},
+  "阻力圈蚌式开合":{repCap:20}
+};
 const BODYWEIGHT_PROGRESSIONS={
   "徒手深蹲":"可以试抱 3lb 做高脚杯深蹲，或先把下放放慢到 3–4 秒。",
   "臀桥 / 单腿臀桥":"可以试把 3lb 放在髋部，或从双腿臀桥换成单腿臀桥。",
   "上斜俯卧撑(扶桌沿)":"可以把支撑面降低一点，或保持高度并把下放放慢到 3–4 秒。",
-  "跪姿俯卧撑":"可以逐步过渡到较高支撑面的上斜俯卧撑，或把下放放慢到 3–4 秒。",
-  "拉力带坐姿划船":"可以换张力更大的拉力带、在收紧位置停 1–2 秒，或每组加 1–2 次。",
-  "拉力带下拉":"可以换张力更大的拉力带、在底部停 1–2 秒，或每组加 1–2 次。",
-  "阻力圈蚌式开合":"可以换更紧的阻力圈、顶端停 1–2 秒，或每组加 1–2 次。"
+  "跪姿俯卧撑":"可以逐步过渡到较高支撑面的上斜俯卧撑，或把下放放慢到 3–4 秒。"
 };
 function actualHistory(nm,beforeKey=todayKey){
   return Object.keys(log).filter(k=>k<beforeKey&&log[k]&&log[k].actuals&&log[k].actuals[nm]).sort().map(k=>({key:k,...log[k].actuals[nm]}));
@@ -1465,6 +1482,17 @@ function actualHistory(nm,beforeKey=todayKey){
 function repsReach(value,target){
   if(Array.isArray(value)) return value.length>0&&value.every(v=>Number(v)>=target);
   return Number(value)>=target;
+}
+function minimumReps(value){
+  if(Array.isArray(value)) return value.length ? Math.min(...value.map(v=>Number(v)||0)) : 0;
+  return Number(value)||0;
+}
+function elasticProgressionHint(nm,last,plan,reason){
+  const config=ELASTIC_PROGRESSIONS[nm], sets=Math.max(1,Number(last.sets)||Number(plan.s)||1), reps=minimumReps(last.reps), cap=config.repCap;
+  const lead=`上次 ${sets} 组 × ${reps||plan.r} 次，${reason}`;
+  if(reps<cap) return `${lead}。下次先保持 ${sets} 组，每组加 1–2 次，逐步做到每组 ${cap} 次；保留约 2–3 次余力即可。`;
+  if(sets<4) return `${lead}。次数已到 ${cap}，下次可以加到 ${sets+1} 组，并把每组放回 ${Math.max(Number(plan.r)||10,cap-3)}–${cap} 次；最多 4 组。`;
+  return `${lead}。组次已到当前上限，可以保持组次并小幅缩短有效带长，或在收紧位置停 1–2 秒；当天体感不同，维持原安排也可以。`;
 }
 function nextWeightStep(weight){ return WEIGHT_STEPS.find(w=>w>Number(weight)); }
 function progressionHint(nm,beforeKey=todayKey){
@@ -1475,6 +1503,7 @@ function progressionHint(nm,beforeKey=todayKey){
   const atTop=sameLoad&&recent.every(a=>Number(a.sets||0)>=Number(plan.s||1)&&repsReach(a.reps,Number(plan.r||0)));
   if(!highRir&&!atTop) return "";
   const lastReps=repsText(last.reps), load=Number(last.weight||0), lead=load?`上次 ${load}lb × ${lastReps||plan.r}`:`上次 ${lastReps||plan.r} 次`;
+  if(ELASTIC_PROGRESSIONS[nm]) return elasticProgressionHint(nm,last,plan,highRir?"还有较多余力":"已连续完成计划上限");
   const neverLoaded=hist.every(a=>Number(a.weight||0)===0);
   if(neverLoaded&&BODYWEIGHT_PROGRESSIONS[nm]) return `${lead}，${highRir?"还有较多余力":"已连续完成计划上限"}。${BODYWEIGHT_PROGRESSIONS[nm]}`;
   if(load>0){

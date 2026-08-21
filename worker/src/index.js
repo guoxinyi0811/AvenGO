@@ -20,6 +20,8 @@ const SYSTEM_PROMPT = `你是一位家庭力量训练教练。基于用户提供
 
 器械硬规则（优先级最高）：哑铃只有 3/9/13/19 lb，所有相邻档位增幅都超过 30%。绝对不要直接建议从 3→9、9→13 或 13→19 lb。达到当前重量上限时，具体建议每组增加 1–2 次、下放放慢到 3–4 秒，或换更难变式（双腿→B-stance→单腿）。只有摘要明确记录了可用的中间重量时，才可以建议该中间重量。
 
+固定拉力带硬规则：用户当前不能更换更重或更紧的拉力带。拉力带坐姿划船、拉力带下拉、Pallof press、弹力带肩外旋 / T 字和阻力圈蚌式，不得建议“换更大张力”“换更紧带”或虚构磅数。进阶顺序是：每组加 1–2 次至动作上限 → 加 1 组但最多 4 组 → 小幅缩短有效带长或在收紧位置停 1–2 秒。用 RIR 与当天实际体感决定是否采用，不根据月经阶段自动升降训练量。
+
 不要用“很不错”“保持这种趋势”等空泛鼓励收尾；把字数留给下一次训练的具体安排。
 
 安全：若重量或次数突然下降，或长时间中断后恢复，建议渐进恢复，不直接回到此前最高负荷。不要提供医疗诊断。`;
@@ -46,17 +48,22 @@ function enforceEquipmentGuard(text) {
   const nextStep = /(?:下次|下一次)[^\n。！？；]{0,60}(?:3|9|13|19)\s*lb/i;
   const arrowStep = /(?:3|9|13|19)\s*lb\s*(?:→|到|-)\s*(?:3|9|13|19)\s*lb/i;
   const loadPrescription = /^\s*[*•-]?\s*[^：:\n]{1,24}[：:]\s*(?:3|9|13|19)\s*lb/i;
-  let removed = false;
+  const elasticLoad = /(?:(?:换|用|改用|升级)[^\n。！？；]{0,18}(?:更大张力|更强|更紧|重阻力)[^\n。！？；]{0,12}(?:拉力带|弹力带|阻力圈)|(?:拉力带|弹力带|阻力圈)[^\n。！？；]{0,18}(?:换|升级|增加)[^\n。！？；]{0,12}(?:张力|阻力|重量))/i;
+  let dumbbellRemoved = false, elasticRemoved = false;
   const keptRaw = text.split(/\r?\n/).filter(line => {
-    const risky = directStep.test(line) || nextStep.test(line) || arrowStep.test(line) || loadPrescription.test(line);
-    if (risky) removed = true;
-    return !risky;
+    const riskyDumbbell = directStep.test(line) || nextStep.test(line) || arrowStep.test(line) || loadPrescription.test(line);
+    const riskyElastic = elasticLoad.test(line);
+    if (riskyDumbbell) dumbbellRemoved = true;
+    if (riskyElastic) elasticRemoved = true;
+    return !riskyDumbbell && !riskyElastic;
   }).join("\n").replace(/\n{3,}/g, "\n\n").trim();
-  if (!removed) return text.trim();
+  if (!dumbbellRemoved && !elasticRemoved) return text.trim();
   let listIndex = 0;
   const kept = keptRaw.replace(/^\s*\d+\.\s+/gm, () => `${++listIndex}. `);
-  const guard = "器械跨度提醒：3/9/13/19 lb 相邻档位增幅较大；下次先保持当前重量，每组加 1–2 次、下放 3–4 秒，或按体感换更难变式，不直接跳档。";
-  return `${guard}${kept ? `\n\n${kept}` : ""}`;
+  const guards = [];
+  if (dumbbellRemoved) guards.push("器械跨度提醒：3/9/13/19 lb 相邻档位增幅较大；下次先保持当前重量，每组加 1–2 次、下放 3–4 秒，或按体感换更难变式，不直接跳档。");
+  if (elasticRemoved) guards.push("固定拉力带提醒：先保持当前带子，每组加 1–2 次；到次数上限后再加 1 组（最多 4 组），之后可小幅缩短有效带长或增加 1–2 秒末端停顿。");
+  return `${guards.join("\n")}${kept ? `\n\n${kept}` : ""}`;
 }
 
 async function withinLimit(binding, key) {
