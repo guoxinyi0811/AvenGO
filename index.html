@@ -1201,11 +1201,8 @@ $("#profileName").oninput = () => {
 };
 
 function hasStrengthActivity(entry){
-  return !!(entry && (entry.completed === true ||
-    (Array.isArray(entry.doneExercises) && entry.doneExercises.length) ||
-    (Array.isArray(entry.doneA) && entry.doneA.length) ||
-    (Array.isArray(entry.doneB) && entry.doneB.length) ||
-    (entry.actuals && typeof entry.actuals === "object" && Object.keys(entry.actuals).length)));
+  if(!entry || entry.dayType === "rest" || entry.strength === false) return false;
+  return entry.completed === true || completedNames(entry).length > 0;
 }
 function entryMode(entry){
   if(!entry) return "none";
@@ -1239,12 +1236,14 @@ function selectedNamesForEntry(entry){
   return planItems(TEMPLATES[id]).map(it=>it.nm);
 }
 function completedNames(entry){
-  if(!entry) return [];
+  if(!entry || entry.dayType === "rest" || entry.strength === false) return [];
+  const hasDoneField = Array.isArray(entry.doneExercises) || Array.isArray(entry.doneA) || Array.isArray(entry.doneB);
   const names = [
     ...(Array.isArray(entry.doneExercises)?entry.doneExercises:[]),
     ...(Array.isArray(entry.doneA)?entry.doneA:[]),
     ...(Array.isArray(entry.doneB)?entry.doneB:[]),
-    ...Object.keys(entry.actuals && typeof entry.actuals === "object" ? entry.actuals : {})
+    // 兼容没有勾选数组的旧 actuals-only 记录；新记录以显式勾选为准，避免取消动作后仍被账本计入。
+    ...(!hasDoneField ? Object.keys(entry.actuals && typeof entry.actuals === "object" ? entry.actuals : {}) : [])
   ];
   const unique = [...new Set(names.filter(nm=>MOVEMENT_META[nm] || LIBRARY_ITEMS[nm]))];
   if(!unique.length && entry.completed === true){
@@ -1459,6 +1458,12 @@ function renderRecommendation(){
     focusText=`；${PATTERN_META[focus].label} ${gap}${count>=4?`，可看看 Full Body 或 ${split}`:"，可在下一次 Full Body 里优先保留它"}`;
   }
   $("#recommendation").innerHTML=`<b>今天的参考：</b>${base}${focusText}。这只是建议，所有模板和自由组合始终可选。`;
+}
+function refreshHistoryDerivedViews(){
+  renderPatternLedger();
+  renderRecommendation();
+  const trendSelect=$("#trendMove");
+  if(trendSelect && trendSelect.dataset.init){ renderTrend(); renderWeekBars(); }
 }
 
 const WEIGHT_STEPS=[3,9,13,19];
@@ -1861,6 +1866,8 @@ document.querySelectorAll("#tabs button").forEach(b=>{
       initTrendSelect();
       renderTrend();
       renderWeekBars();
+    }else{
+      refreshHistoryDerivedViews();
     }
   };
 });
@@ -2033,8 +2040,8 @@ function renderDayDetailLegacy(key){
   // ---- 绑定编辑器(仅过去的日子)----
   if(key !== todayKey){
     const ensure = () => { if(!log[key]) log[key] = {}; return log[key]; };
-    const structural = () => { cleanupDay(key); saveLog(); renderCalendar(); renderCycleInfo(); syncPeriodUI(); renderCycle(); renderDayDetail(key); };
-    const light = () => { saveLog(); renderCalendar(); renderCycleInfo(); };  // 文本输入,保持焦点不重建
+    const structural = () => { cleanupDay(key); saveLog(); renderCalendar(); renderCycleInfo(); syncPeriodUI(); renderCycle(); refreshHistoryDerivedViews(); renderDayDetail(key); };
+    const light = () => { saveLog(); renderCalendar(); renderCycleInfo(); refreshHistoryDerivedViews(); };  // 文本输入,保持焦点不重建
 
     document.querySelectorAll("#ddType button").forEach(b=>{
       b.onclick = () => {
@@ -2084,7 +2091,7 @@ function renderDayDetailLegacy(key){
     $("#ddPeriod").onclick = () => { const rec=ensure(); if(rec.period) delete rec.period; else rec.period=true; structural(); };
     $("#ddNote").oninput = () => { const rec=ensure(); const v=$("#ddNote").value.trim(); if(v) rec.note=v; else delete rec.note; light(); };
     const clr = $("#ddClear");
-    if(clr) clr.onclick = () => { delete log[key]; saveLog(); renderCalendar(); renderCycleInfo(); syncPeriodUI(); renderCycle(); renderDayDetail(key); };
+    if(clr) clr.onclick = () => { delete log[key]; saveLog(); renderCalendar(); renderCycleInfo(); syncPeriodUI(); renderCycle(); refreshHistoryDerivedViews(); renderDayDetail(key); };
   }
 }
 
@@ -2113,7 +2120,8 @@ function renderDayDetail(key){
       const moves = completedNames(entry);
       if(moves.length) rows.push(`<div><b>动作：</b>${moves.map(escapeAttr).join("、")}</div>`);
       if(entry.actuals && typeof entry.actuals === "object"){
-        const actualLines = Object.keys(entry.actuals).map(nm=>{
+        const completedSet = new Set(completedNames(entry));
+        const actualLines = Object.keys(entry.actuals).filter(nm=>completedSet.has(nm)).map(nm=>{
           const actual = entry.actuals[nm] || {};
           const reps = repsText(actual.reps);
           const weight = actual.weight != null && actual.weight !== "" ? `${actual.weight}lb · ` : "";
@@ -2187,8 +2195,8 @@ function renderDayDetail(key){
 
   if(key !== todayKey){
     const ensure = () => { if(!log[key]) log[key] = {}; return log[key]; };
-    const structural = () => { cleanupDay(key); saveLog(); renderCalendar(); renderCycleInfo(); syncPeriodUI(); renderCycle(); renderDayDetail(key); };
-    const light = () => { saveLog(); renderCalendar(); renderCycleInfo(); };
+    const structural = () => { cleanupDay(key); saveLog(); renderCalendar(); renderCycleInfo(); syncPeriodUI(); renderCycle(); refreshHistoryDerivedViews(); renderDayDetail(key); };
+    const light = () => { saveLog(); renderCalendar(); renderCycleInfo(); refreshHistoryDerivedViews(); };
 
     document.querySelectorAll("#ddType button").forEach(button=>{
       button.onclick = () => {
@@ -2287,7 +2295,7 @@ function renderDayDetail(key){
     $("#ddPeriod").onclick = () => { const rec=ensure(); if(rec.period) delete rec.period; else rec.period=true; structural(); };
     $("#ddNote").oninput = () => { const rec=ensure(); const value=$("#ddNote").value.trim(); if(value) rec.note=value; else delete rec.note; light(); };
     const clearButton = $("#ddClear");
-    if(clearButton) clearButton.onclick = () => { delete log[key]; saveLog(); renderCalendar(); renderCycleInfo(); syncPeriodUI(); renderCycle(); renderDayDetail(key); };
+    if(clearButton) clearButton.onclick = () => { delete log[key]; saveLog(); renderCalendar(); renderCycleInfo(); syncPeriodUI(); renderCycle(); refreshHistoryDerivedViews(); renderDayDetail(key); };
   }
 }
 
@@ -2655,7 +2663,7 @@ function initTrendSelect(){
 }
 function moveSeries(nm){
   return Object.keys(log)
-    .filter(k => log[k].actuals && log[k].actuals[nm] && log[k].actuals[nm].weight > 0)
+    .filter(k => hasStrengthActivity(log[k]) && completedNames(log[k]).includes(nm) && log[k].actuals && log[k].actuals[nm] && log[k].actuals[nm].weight > 0)
     .sort()
     .map(k => ({ key:k, w: log[k].actuals[nm].weight }));
 }

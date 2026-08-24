@@ -1,4 +1,4 @@
-# AvenGO v1.2.1 Engineering Handoff
+# AvenGO v1.2.2 Engineering Handoff
 
 > 语言原型说明：`prototype-en.html` 是独立、无持久化的英文 UI 术语与布局预览，不读取或写入 `workout-log`，也不是正式 App 的第二套业务实现。后续若实现全局 EN/CN，应在 `index.html` 增加展示层 i18n，并继续保留中文动作名作为数据主键，避免复制两套训练逻辑。
 
@@ -134,6 +134,7 @@ JSON envelope：
 - `worker/src/index.js`：通过 `env.AI` 使用固定的 Cloudflare Workers AI 模型、system prompt、输出上限、请求大小、精确 CORS 和两级限流；前端不能传任意模型请求体。
 - `enforceEquipmentGuard`：模型返回后的确定性护栏；若 AI 直接建议跳到 3/9/13/19lb 的下一档，或建议固定拉力带换更大张力 / 更紧的带子，会删除该处方并替换为对应的渐进顺序。不要仅靠 prompt 约束替代它。
 - `renderDayDetail`：过去日期可选模板 / 自由组合、动作、实际值、RIR；有氧始终独立。
+- `refreshHistoryDerivedViews`：日历补录、取消、清除或修改实际值后，统一重绘首页账本 / 建议与记录页趋势 / 周柱状图；返回「今天」页时也会再次同步。
 - `renderCalendar` / `renderStats` / `buildReport`：以事实记录和模式计数，不计算达标率。
 - `backupPayload` / `buildCSV` / `doImport`：完整 JSON、兼容导入与行式 CSV。
 - 状态直接保存在 `log[dateKey]` 对象并立即 `saveLog()`；没有框架状态层。
@@ -176,7 +177,7 @@ JSON envelope：
 - `TEMPLATES` 依赖 `LIBRARY_ITEMS`，动作库又复用 `DETAILS`；改声明顺序时要测试脚本初始化。
 - `state` 与剂量键仍是历史内部值，不能因 UI 文案改名而改存储。
 - 每个原子动作详情必须保留 `start / breath / tempo / sequence / feel / errors`；组合动作的每个 `subs` 子动作也要完整。`needsReview:true` 不能在视觉调整中删除。
-- 模式账本应以完成动作 / actuals 为事实来源；仅选择模板但没有记录动作时，不应虚增模式次数。
+- 模式账本以显式完成动作作为新记录的事实来源；只有缺少完成数组的旧记录才回退读取 `actuals`。`strength:false` 或 `dayType:"rest"` 必须覆盖遗留动作字段；仅选择模板或取消动作后不应虚增模式次数。
 - “超过 10 天”只改变账本边框与“可优先考虑”文字，不得变成警告色、进度条或未完成状态。
 - RIR 是可选值；旧 actuals 没有 RIR 时不得显示 `undefined`。
 - AI 缓存只由训练摘要决定；同一摘要普通生成不调 API，重新生成才调用。复盘文本渲染必须继续 HTML 转义。

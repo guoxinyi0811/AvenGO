@@ -1,6 +1,6 @@
 # AvenGO
 
-Current stable version: **v1.2.1** · [Release notes](https://github.com/guoxinyi0811/AvenGO/releases/tag/v1.2.1)
+Current stable version: **v1.2.2** · [Release notes](https://github.com/guoxinyi0811/AvenGO/releases/tag/v1.2.2)
 
 ## English
 
@@ -21,7 +21,7 @@ The English prototype is a separate, non-persistent preview for reviewing wordin
 - Optional, user-triggered eight-week AI review through Cloudflare Workers AI.
 - Full JSON backup and restore, plus CSV export.
 
-In v1.2.1, fixed resistance bands no longer receive imaginary weight-upgrade advice. Switching from Full to Compact now also updates untouched set defaults while preserving values already entered.
+In v1.2.2, correcting or clearing a past strength record in the calendar immediately refreshes the home-page movement ledger, training reference, statistics, and trends.
 
 ### Install
 
@@ -76,7 +76,7 @@ AvenGO 是一个平静、移动端优先的家庭训练记录工具，覆盖力�
 - 用户主动触发的八周 AI 复盘，由 Cloudflare Workers AI 提供。
 - 完整 JSON 备份与恢复，以及 CSV 导出。
 
-`v1.2.1` 已修复两个问题：固定拉力带不再收到虚构的加重量建议；从“完整”切换到“精简”时，未编辑的组数默认值会同步更新，已经填写的内容仍会保留。
+`v1.2.2` 修复了历史记录同步：在日历中修正、取消或清除过去的力量记录后，首页动作账本、训练参考、统计与趋势会立即更新。
 
 ### 安装
 
