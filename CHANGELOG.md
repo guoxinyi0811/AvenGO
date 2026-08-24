@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-08-24 — v1.2.2 calendar history sync
+
+- Made past-date edits immediately refresh the home-page movement ledger, training reference, statistics, weight trend, and weekly strength bars without requiring a reload.
+- Made explicit “rest” and “no strength” choices override retained legacy strength fields when deriving activity.
+- Stopped unchecked movements with retained actual-value snapshots from appearing in the movement ledger, summaries, trends, reports, or CSV exports; actuals-only legacy records remain supported when no completion array exists.
+
 ## 2026-08-20 — v1.2.1 fixed-band progression and compact defaults
 
 - Added a separate English UI prototype for reviewing terminology and mobile layout without reading or changing production training data.
