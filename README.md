@@ -1,6 +1,6 @@
 # AvenGO
 
-Current stable version: **v1.2.2** · [Release notes](https://github.com/guoxinyi0811/AvenGO/releases/tag/v1.2.2)
+Current stable version: **v1.3.0** · [Release notes](https://github.com/guoxinyi0811/AvenGO/releases/tag/v1.3.0)
 
 ## English
 
@@ -17,11 +17,12 @@ The English prototype is a separate, non-persistent preview for reviewing wordin
 - Flexible strength templates and free exercise combinations, with Full, Compact, and Light options.
 - Six-part movement guidance: setup, breathing, tempo, force sequence, correct sensation, and common errors.
 - Weight, sets, reps, RIR, cardio, notes, calendar, trends, and optional cycle reference.
+- Calf, knee-flexion hamstring, middle-deltoid, loaded-carry, and gentle neck-accessory coverage.
 - Local progression hints, including fixed-band progression through reps, sets, band length, or pauses.
 - Optional, user-triggered eight-week AI review through Cloudflare Workers AI.
 - Full JSON backup and restore, plus CSV export.
 
-In v1.2.2, correcting or clearing a past strength record in the calendar immediately refreshes the home-page movement ledger, training reference, statistics, and trends.
+In v1.3.0, six templates were rebalanced with lateral raises, calf raises, sliding hamstring curls, loaded carries, chin tucks, and gentle four-way neck isometrics. The existing movement-ledger architecture remains backward compatible.
 
 ### Install
 
@@ -72,11 +73,12 @@ AvenGO 是一个平静、移动端优先的家庭训练记录工具，覆盖力�
 - 灵活的力量训练模板与自由动作组合，并提供完整、精简、轻量三档投入程度。
 - 六段动作指令：起始姿势、呼吸、节奏、发力顺序、做对的感觉、常见错误。
 - 记录重量、组数、次数、RIR、有氧、备注、月历、趋势与可选周期参考。
+- 补充小腿、腘绳肌屈膝、三角肌中束、负重行走与轻量颈部辅助训练。
 - 本地渐进负荷提示；固定拉力带通过增加次数、组数、缩短有效长度或停顿来进阶。
 - 用户主动触发的八周 AI 复盘，由 Cloudflare Workers AI 提供。
 - 完整 JSON 备份与恢复，以及 CSV 导出。
 
-`v1.2.2` 修复了历史记录同步：在日历中修正、取消或清除过去的力量记录后，首页动作账本、训练参考、统计与趋势会立即更新。
+`v1.3.0` 调整了六个模板，加入侧平举、提踵、毛巾滑动腿弯举、负重行走、收下巴与轻量颈部四向等长；动作账本架构与旧数据保持兼容。
 
 ### 安装
 
