@@ -1,4 +1,4 @@
-# AvenGO v1.3.0 Engineering Handoff
+# AvenGO v1.3.1 Engineering Handoff
 
 > 语言原型说明：`prototype-en.html` 是独立、无持久化的英文 UI 术语与布局预览，不读取或写入 `workout-log`，也不是正式 App 的第二套业务实现。后续若实现全局 EN/CN，应在 `index.html` 增加展示层 i18n，并继续保留中文动作名作为数据主键，避免复制两套训练逻辑。
 
@@ -121,6 +121,7 @@ JSON envelope：
 - `MOVEMENT_META` / `LIBRARY_ITEMS`：模式元数据与新模板共享的动作库。
 - `TEMPLATES`：模板库；`templateIdForEntry` 负责新旧映射，`selectedNamesForEntry` / `completedNames` 统一读取新旧动作数组。Full A / B、Push、Lower Squat、Lower Hinge 与 Accessory 在 v1.3.0 调整；Pull 保持不变。
 - 新增动作：哑铃侧平举、提踵 / 单腿提踵、毛巾滑动腿弯举、农夫行走 / Suitcase March、收下巴、颈部四向等长。Accessory 使用现有 `blocks` 分组，没有新增日志字段；Carry 只记录，不进入四大模式间隔提醒。
+- `defaultActual` 的优先级必须保持为：当天 `actuals`（由渲染层先读取）→ `lastActual` 的完整历史实际值 → `prescribedActual` 从当前完整 / 精简 / 轻量剂量解析出的推荐组数和次数。不得再用当前档位覆盖已有历史实际值。
 - `patternLedger`：从已记录动作计算 Squat / Hinge / Push / Pull 最近日期；不存派生统计。
 - `subPatternReminder`：只有在已有足够历史且水平 / 垂直子模式间隔至少约 14 天时给温和提示。
 - `recentStrengthCount` / `renderRecommendation`：读取最近 10 天力量次数与账本间隔，只改建议文案；所有模板不锁定。
