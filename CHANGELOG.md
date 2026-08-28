@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-08-28 — v1.3.0 training coverage expansion
+
+- Added six-part instructions for dumbbell lateral raises, calf raises, towel sliding leg curls, farmer carries / suitcase marches, chin tucks, and gentle four-way neck isometrics.
+- Rebalanced six templates: Full Body A adds calves; Full Body B and Push add lateral raises; Lower Squat adds calves; Lower Hinge adds knee-flexion hamstring work; Accessory adds calf, carry, and neck work.
+- Kept the existing pattern architecture: lateral raises, calves, and neck work are accessories; towel curls use Hinge; carries use the already reserved Carry type and now appear in free combination.
+- Grouped the longer Accessory session into joint / neck-shoulder, lower-body stability, and loaded-stability blocks without changing the log schema.
+- Added an optional RDL grip note for B-stance single-dumbbell work or familiar use of lifting straps; it never automatically increases load.
+
 ## 2026-08-24 — v1.2.2 calendar history sync
 
 - Made past-date edits immediately refresh the home-page movement ledger, training reference, statistics, weight trend, and weekly strength bars without requiring a reload.

@@ -1,4 +1,4 @@
-# AvenGO v1.2.2 Engineering Handoff
+# AvenGO v1.3.0 Engineering Handoff
 
 > 语言原型说明：`prototype-en.html` 是独立、无持久化的英文 UI 术语与布局预览，不读取或写入 `workout-log`，也不是正式 App 的第二套业务实现。后续若实现全局 EN/CN，应在 `index.html` 增加展示层 i18n，并继续保留中文动作名作为数据主键，避免复制两套训练逻辑。
 
@@ -119,7 +119,8 @@ JSON envelope：
 - `entryMode` / `hasStrengthActivity` / `hasActivity`：兼容推断记录事实，不做评价。
 - `PLAN`：旧 A/B 计划与历史剂量；必须保留以解释旧记录。
 - `MOVEMENT_META` / `LIBRARY_ITEMS`：模式元数据与新模板共享的动作库。
-- `TEMPLATES`：模板库；`templateIdForEntry` 负责新旧映射，`selectedNamesForEntry` / `completedNames` 统一读取新旧动作数组。
+- `TEMPLATES`：模板库；`templateIdForEntry` 负责新旧映射，`selectedNamesForEntry` / `completedNames` 统一读取新旧动作数组。Full A / B、Push、Lower Squat、Lower Hinge 与 Accessory 在 v1.3.0 调整；Pull 保持不变。
+- 新增动作：哑铃侧平举、提踵 / 单腿提踵、毛巾滑动腿弯举、农夫行走 / Suitcase March、收下巴、颈部四向等长。Accessory 使用现有 `blocks` 分组，没有新增日志字段；Carry 只记录，不进入四大模式间隔提醒。
 - `patternLedger`：从已记录动作计算 Squat / Hinge / Push / Pull 最近日期；不存派生统计。
 - `subPatternReminder`：只有在已有足够历史且水平 / 垂直子模式间隔至少约 14 天时给温和提示。
 - `recentStrengthCount` / `renderRecommendation`：读取最近 10 天力量次数与账本间隔，只改建议文案；所有模板不锁定。
@@ -144,6 +145,11 @@ JSON envelope：
 - ACSM 2026 阻力训练立场文件强调一致训练、个体化负荷 / 训练量，以及弹力带等非传统器械同样可以产生有效适应；本 App 因此不把“可加哑铃重量”视为唯一进阶方式：<https://acsm.org/resistance-training-guidelines-update-2026/>。
 - 弹力带阻力随带长和伸长率变化，研究支持用感知用力程度监控强度；本 App 以 RIR 和可完成次数作为固定带子的可执行代理：<https://pubmed.ncbi.nlm.nih.gov/22210471/>。
 - 女性训练适应研究支持阻力训练本身的有效性，但月经周期与表现研究不足以形成统一阶段处方；因此渐进规则不读取周期阶段，只让当天体感覆盖建议：<https://pubmed.ncbi.nlm.nih.gov/31820374/>、<https://pubmed.ncbi.nlm.nih.gov/32661839/>。
+- 侧平举用于补充三角肌中束；动作选择依据来自肩部训练激活综述：<https://pubmed.ncbi.nlm.nih.gov/39593452/>。
+- 毛巾滑动腿弯举补的是 RDL 未直接覆盖的屈膝功能；髋主导与膝主导腘绳肌训练不应被当成完全同一个动作功能：<https://pubmed.ncbi.nlm.nih.gov/40085810/>。
+- Carry 采用双侧农夫或单侧 Suitcase 版本；研究显示二者均增加躯干参与，单侧版本另有不对称稳定需求：<https://pubmed.ncbi.nlm.nih.gov/38665162/>。
+- 女性 deadlift 研究显示握力带可增加完成次数并减少握力下降，但它仍是可选工具，不作为自动加重规则：<https://pubmed.ncbi.nlm.nih.gov/37729509/>。
+- 颈部动作按 NHS 的温和后缩与低强度等长版本编写，并保留 `needsReview:true`；出现头晕、麻木、放射痛或尖锐痛时停止：<https://www.nbt.nhs.uk/our-services/a-z-services/emergency-zone/ed-miu-patient-information/neck-injuries>、<https://msk-bexley.nhs.uk/conditions/neck-pain/cervical-myelopathy>。
 - “先加每组次数，再加一组，最后调整有效带长 / 停顿”是结合上述证据、当前固定器械和降低决策成本所做的产品级推断，不是女性专属生理公式，也不是医疗建议。
 
 ## 5. UI 现状与已知不足
@@ -177,6 +183,7 @@ JSON envelope：
 - `TEMPLATES` 依赖 `LIBRARY_ITEMS`，动作库又复用 `DETAILS`；改声明顺序时要测试脚本初始化。
 - `state` 与剂量键仍是历史内部值，不能因 UI 文案改名而改存储。
 - 每个原子动作详情必须保留 `start / breath / tempo / sequence / feel / errors`；组合动作的每个 `subs` 子动作也要完整。`needsReview:true` 不能在视觉调整中删除。
+- 新增颈部动作必须继续保持低强度、无位移和停止条件，不得改成最大力量对抗，也不得根据周期阶段自动调整。
 - 模式账本以显式完成动作作为新记录的事实来源；只有缺少完成数组的旧记录才回退读取 `actuals`。`strength:false` 或 `dayType:"rest"` 必须覆盖遗留动作字段；仅选择模板或取消动作后不应虚增模式次数。
 - “超过 10 天”只改变账本边框与“可优先考虑”文字，不得变成警告色、进度条或未完成状态。
 - RIR 是可选值；旧 actuals 没有 RIR 时不得显示 `undefined`。
