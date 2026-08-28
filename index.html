@@ -1324,22 +1324,25 @@ function lastActual(nm){
   const keys = Object.keys(log).filter(k => k < todayKey && log[k].actuals && log[k].actuals[nm]).sort();
   return keys.length ? log[keys[keys.length-1]].actuals[nm] : null;
 }
-function prescribedSets(nm, plan, level=state){
-  if(level === "green") return null;
+function prescribedActual(nm, plan, level=state){
+  const recommended = {sets:plan.s,reps:plan.r};
+  if(level === "green") return recommended;
   const item = planItems(currentPlan()).find(it=>it.nm===nm) || LIBRARY_ITEMS[nm];
   const text = item && item.dose ? item.dose[KEY[level]] : "";
-  if(!text || text === "—" || text === "跳过") return null;
-  const match = text.match(/(?:各\s*)?(\d+)(?:–\d+)?\s*组/);
-  return match ? Math.max(1, Number(match[1])) : null;
+  if(!text || text === "—" || text === "跳过") return recommended;
+  const setsMatch = text.match(/(?:各\s*)?(\d+)(?:–\d+)?\s*组/);
+  const repsMatch = text.match(/×\s*(\d+)(?:–\d+)?/);
+  if(setsMatch) recommended.sets = Math.max(1, Number(setsMatch[1]));
+  if(repsMatch) recommended.reps = Math.max(0, Number(repsMatch[1]));
+  return recommended;
 }
 function defaultActual(nm, plan, level=state){
   const la = lastActual(nm);
-  const levelSets = prescribedSets(nm, plan, level);
+  const recommended = prescribedActual(nm, plan, level);
   if(la){
-    const reps = la.reps != null ? la.reps : plan.r;
-    return { weight: la.weight != null ? la.weight : plan.w, sets: levelSets != null ? levelSets : (la.sets != null ? la.sets : plan.s), reps: levelSets != null && Array.isArray(reps) ? reps.slice(0,levelSets) : reps, rir: la.rir != null ? la.rir : "" };
+    return { weight: la.weight != null ? la.weight : plan.w, sets: la.sets != null ? la.sets : recommended.sets, reps: la.reps != null ? la.reps : recommended.reps, rir: la.rir != null ? la.rir : "" };
   }
-  return { weight: plan.w, sets: levelSets != null ? levelSets : plan.s, reps: plan.r, rir:"" };
+  return { weight: plan.w, sets: recommended.sets, reps: recommended.reps, rir:"" };
 }
 
 function bind(id, attr, fn){

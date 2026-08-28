@@ -1,6 +1,6 @@
 # AvenGO
 
-Current stable version: **v1.3.0** · [Release notes](https://github.com/guoxinyi0811/AvenGO/releases/tag/v1.3.0)
+Current stable version: **v1.3.1** · [Release notes](https://github.com/guoxinyi0811/AvenGO/releases/tag/v1.3.1)
 
 ## English
 
@@ -22,7 +22,7 @@ The English prototype is a separate, non-persistent preview for reviewing wordin
 - Optional, user-triggered eight-week AI review through Cloudflare Workers AI.
 - Full JSON backup and restore, plus CSV export.
 
-In v1.3.0, six templates were rebalanced with lateral raises, calf raises, sliding hamstring curls, loaded carries, chin tucks, and gentle four-way neck isometrics. The existing movement-ledger architecture remains backward compatible.
+In v1.3.1, strength-input defaults follow one consistent priority: a current-day entry, then the previous actual record, then the recommendation for the selected Full / Compact / Light level.
 
 ### Install
 
@@ -78,7 +78,7 @@ AvenGO 是一个平静、移动端优先的家庭训练记录工具，覆盖力�
 - 用户主动触发的八周 AI 复盘，由 Cloudflare Workers AI 提供。
 - 完整 JSON 备份与恢复，以及 CSV 导出。
 
-`v1.3.0` 调整了六个模板，加入侧平举、提踵、毛巾滑动腿弯举、负重行走、收下巴与轻量颈部四向等长；动作账本架构与旧数据保持兼容。
+`v1.3.1` 统一了实际值默认优先级：当天已输入值 → 上次实际值 → 当前完整 / 精简 / 轻量档的推荐值。
 
 ### 安装
 

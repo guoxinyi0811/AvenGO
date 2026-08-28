@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-08-28 — v1.3.1 input default priority
+
+- Fixed strength-input defaults so a previous actual record keeps its weight, sets, reps, and RIR across Full / Compact / Light selections.
+- When no previous actual exists, both sets and reps now come from the currently selected investment level instead of falling back to the Full recommendation.
+- Kept current-day manual entries as the highest-priority values and made no storage-schema changes.
+
 ## 2026-08-28 — v1.3.0 training coverage expansion
 
 - Added six-part instructions for dumbbell lateral raises, calf raises, towel sliding leg curls, farmer carries / suitcase marches, chin tucks, and gentle four-way neck isometrics.
