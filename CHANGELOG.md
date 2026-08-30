@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-08-29 — v1.3.2 pattern-ledger source fix
+
+- Fixed the movement ledger so it reads one compatible completion field instead of merging `doneExercises`, `doneA`, and `doneB` across data generations.
+- Treats completed movements as training-history facts even when an older calendar edit left the stored template label out of sync; a clear one-pattern mismatch is displayed under the matching template without rewriting the backup.
+- Separated completed-action facts from inferred pattern coverage: an explicit empty array no longer means every template action was completed, while records that truly predate completion arrays may still infer pattern coverage without fabricating action names.
+- Split-day ledger dates now follow the session's primary pattern, so an auxiliary Hinge movement inside Lower Squat does not reset the dedicated Hinge interval; Full Body and custom sessions still follow the patterns actually completed.
+- When the calendar editor changes a template, it now retains only completed actions shared with the destination template; actual-value history remains untouched.
+- Standardized pattern-level UI labels and report output to `Squat` / `Hinge`.
+
 ## 2026-08-28 — v1.3.1 input default priority
 
 - Fixed strength-input defaults so a previous actual record keeps its weight, sets, reps, and RIR across Full / Compact / Light selections.

@@ -1,4 +1,4 @@
-# AvenGO v1.3.1 Engineering Handoff
+# AvenGO v1.3.2 Engineering Handoff
 
 > 语言原型说明：`prototype-en.html` 是独立、无持久化的英文 UI 术语与布局预览，不读取或写入 `workout-log`，也不是正式 App 的第二套业务实现。后续若实现全局 EN/CN，应在 `index.html` 增加展示层 i18n，并继续保留中文动作名作为数据主键，避免复制两套训练逻辑。
 
@@ -122,7 +122,8 @@ JSON envelope：
 - `TEMPLATES`：模板库；`templateIdForEntry` 负责新旧映射，`selectedNamesForEntry` / `completedNames` 统一读取新旧动作数组。Full A / B、Push、Lower Squat、Lower Hinge 与 Accessory 在 v1.3.0 调整；Pull 保持不变。
 - 新增动作：哑铃侧平举、提踵 / 单腿提踵、毛巾滑动腿弯举、农夫行走 / Suitcase March、收下巴、颈部四向等长。Accessory 使用现有 `blocks` 分组，没有新增日志字段；Carry 只记录，不进入四大模式间隔提醒。
 - `defaultActual` 的优先级必须保持为：当天 `actuals`（由渲染层先读取）→ `lastActual` 的完整历史实际值 → `prescribedActual` 从当前完整 / 精简 / 轻量剂量解析出的推荐组数和次数。不得再用当前档位覆盖已有历史实际值。
-- `patternLedger`：从已记录动作计算 Squat / Hinge / Push / Pull 最近日期；不存派生统计。
+- `completionSourceForEntry` 按数据年代只读取一套完成字段，但不得用 `templateId` 过滤已经勾选的动作：旧版日历编辑可能让模板字段与真实动作错位。`completedNames` 只返回有依据的动作名，不得再次无条件合并 `doneExercises` / `doneA` / `doneB`。`patternsForEntry` 只为真正缺少完成数组的旧记录做模式级回退，且不得伪造具体动作；显式空数组不代表整套模板完成。`displayTemplateIdForEntry` 仅在主动作明确属于单一模式且与存储模板完全不相交时修正展示，不写回历史数据。
+- `patternLedger`：计算 Squat / Hinge / Push / Pull 最近日期，不存派生统计。Lower Squat / Lower Hinge / Push / Pull 分化日只更新各自主模式，辅助动作不重置其他模式；Full Body、自由组合与旧版复合模板按实际完成动作覆盖的模式更新。
 - `subPatternReminder`：只有在已有足够历史且水平 / 垂直子模式间隔至少约 14 天时给温和提示。
 - `recentStrengthCount` / `renderRecommendation`：读取最近 10 天力量次数与账本间隔，只改建议文案；所有模板不锁定。
 - `renderPlan`：根据模板、自由组合和投入程度渲染动作；输入即时保存。
