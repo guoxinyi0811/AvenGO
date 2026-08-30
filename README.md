@@ -1,6 +1,6 @@
 # AvenGO
 
-Current stable version: **v1.3.1** · [Release notes](https://github.com/guoxinyi0811/AvenGO/releases/tag/v1.3.1)
+Current stable version: **v1.3.2** · [Release notes](https://github.com/guoxinyi0811/AvenGO/releases/tag/v1.3.2)
 
 ## English
 
@@ -22,7 +22,7 @@ The English prototype is a separate, non-persistent preview for reviewing wordin
 - Optional, user-triggered eight-week AI review through Cloudflare Workers AI.
 - Full JSON backup and restore, plus CSV export.
 
-In v1.3.1, strength-input defaults follow one consistent priority: a current-day entry, then the previous actual record, then the recommendation for the selected Full / Compact / Light level.
+In v1.3.2, the movement ledger no longer merges completion fields from different data generations. Split-day intervals follow the session's primary pattern rather than its auxiliary movements; completed movements still recover an older mismatched template label. Pattern labels consistently use Squat / Hinge.
 
 ### Install
 
@@ -78,7 +78,7 @@ AvenGO 是一个平静、移动端优先的家庭训练记录工具，覆盖力�
 - 用户主动触发的八周 AI 复盘，由 Cloudflare Workers AI 提供。
 - 完整 JSON 备份与恢复，以及 CSV 导出。
 
-`v1.3.1` 统一了实际值默认优先级：当天已输入值 → 上次实际值 → 当前完整 / 精简 / 轻量档的推荐值。
+`v1.3.2` 修正了动作账本的数据来源：不同年代的完成字段不再混合；分化日按当天主模式计算间隔，辅助动作不再重置其他模式；旧版日历编辑造成模板名称与真实动作错位时，仍可由已完成动作恢复正确显示。模式名称统一使用 Squat / Hinge。
 
 ### 安装
 
