@@ -1,6 +1,6 @@
 # AvenGO
 
-Current stable version: **v1.3.2** · [Release notes](https://github.com/guoxinyi0811/AvenGO/releases/tag/v1.3.2)
+Current app version: **v1.4.0** · [Changelog](CHANGELOG.md)
 
 ## English
 
@@ -15,6 +15,7 @@ The English prototype is a separate, non-persistent preview for reviewing wordin
 ### Features
 
 - Flexible strength templates and free exercise combinations, with Full, Compact, and Light options.
+- Home by default; optional Gym alternatives keep their own weight, reps, and RIR history.
 - Six-part movement guidance: setup, breathing, tempo, force sequence, correct sensation, and common errors.
 - Weight, sets, reps, RIR, cardio, notes, calendar, trends, and optional cycle reference.
 - Calf, knee-flexion hamstring, middle-deltoid, loaded-carry, and gentle neck-accessory coverage.
@@ -22,7 +23,7 @@ The English prototype is a separate, non-persistent preview for reviewing wordin
 - Optional, user-triggered eight-week AI review through Cloudflare Workers AI.
 - Full JSON backup and restore, plus CSV export.
 
-In v1.3.2, the movement ledger no longer merges completion fields from different data generations. Split-day intervals follow the session's primary pattern rather than its auxiliary movements; completed movements still recover an older mismatched template label. Pattern labels consistently use Squat / Hinge.
+This revision reduces redundant Hinge/Pull work, makes preparation optional, and treats Accessory as a pick-as-needed toolbox. Existing pattern-ledger rules are unchanged. Machine loads are recorded as displayed, without converting them to dumbbell loads.
 
 ### Install
 
@@ -50,6 +51,7 @@ Then open `http://localhost:8000/`.
 
 - [HANDOFF.md](HANDOFF.md): architecture, data model, compatibility constraints, and regression checklist.
 - [CHANGELOG.md](CHANGELOG.md): release and iteration history.
+- [Action-layer revision](docs/action-layer.md): exercise IDs, compatibility decisions, and verification.
 - [worker/README.md](worker/README.md): Workers AI deployment and privacy boundaries.
 
 ### License
@@ -71,6 +73,7 @@ AvenGO 是一个平静、移动端优先的家庭训练记录工具，覆盖力�
 ### 主要功能
 
 - 灵活的力量训练模板与自由动作组合，并提供完整、精简、轻量三档投入程度。
+- 默认家庭训练；Gym 仅为可选替代，各动作的重量、次数与 RIR 历史独立。
 - 六段动作指令：起始姿势、呼吸、节奏、发力顺序、做对的感觉、常见错误。
 - 记录重量、组数、次数、RIR、有氧、备注、月历、趋势与可选周期参考。
 - 补充小腿、腘绳肌屈膝、三角肌中束、负重行走与轻量颈部辅助训练。
@@ -78,7 +81,7 @@ AvenGO 是一个平静、移动端优先的家庭训练记录工具，覆盖力�
 - 用户主动触发的八周 AI 复盘，由 Cloudflare Workers AI 提供。
 - 完整 JSON 备份与恢复，以及 CSV 导出。
 
-`v1.3.2` 修正了动作账本的数据来源：不同年代的完成字段不再混合；分化日按当天主模式计算间隔，辅助动作不再重置其他模式；旧版日历编辑造成模板名称与真实动作错位时，仍可由已完成动作恢复正确显示。模式名称统一使用 Squat / Hinge。
+本次减少 Hinge/Pull 的重复安排，热身改为可跳过的推荐准备，Accessory 改为按需工具箱。原有账本判定不变。器械按机器显示的重量记录，不与哑铃重量换算。
 
 ### 安装
 
@@ -106,6 +109,7 @@ python -m http.server 8000
 
 - [HANDOFF.md](HANDOFF.md)：架构、数据结构、兼容约束与回归清单。
 - [CHANGELOG.md](CHANGELOG.md)：版本与迭代记录。
+- [动作层修订](docs/action-layer.md)：动作 ID、兼容决策与验证记录。
 - [worker/README.md](worker/README.md)：Workers AI 部署方式与隐私边界。
 
 ### License

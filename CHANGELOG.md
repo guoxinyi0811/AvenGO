@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-09-03 — v1.4.0 action-layer revision
+
+- Revised Lower Hinge to keep a bilateral main lift plus one unilateral slot: B-stance by default, single-leg RDL as a secondary replacement. Reduced the prescribed sets; existing actual values are not overwritten.
+- Made the second horizontal row in Pull optional, including at Full investment level.
+- Added nine explicitly requested Gym implementations, with Home remaining the default. Chest Press and Incline Press have separate exercise IDs and histories.
+- Added stable exercise IDs for actual-value storage. Legacy name-keyed records remain intact and readable; no destructive migration or ledger-rule changes.
+- Kept machine values as displayed, without assumed units, increments, or dumbbell-weight inheritance. Calendar editing, trends, exports, and AI summaries use the same identity adapter.
+- Repositioned Accessory as an opt-in toolbox and warm-up as optional general preparation plus lighter main-movement sets, without completion markers.
+- Added treadmill, elliptical, rowing machine, and marching-in-place as equal cardio choices.
+- Bumped JSON backups to v5; appended identity and machine-weight columns to CSV. Updated handoff and added [revision/verification notes](docs/action-layer.md).
+
 ## 2026-08-29 — v1.3.2 pattern-ledger source fix
 
 - Fixed the movement ledger so it reads one compatible completion field instead of merging `doneExercises`, `doneA`, and `doneB` across data generations.
