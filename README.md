@@ -1,6 +1,6 @@
 # AvenGO
 
-Current app version: **v1.4.0** · [Changelog](CHANGELOG.md)
+Current app version: **v1.4.1** · [Changelog](CHANGELOG.md)
 
 ## English
 
@@ -15,15 +15,15 @@ The English prototype is a separate, non-persistent preview for reviewing wordin
 ### Features
 
 - Flexible strength templates and free exercise combinations, with Full, Compact, and Light options.
-- Home by default; optional Gym alternatives keep their own weight, reps, and RIR history.
+- Switch between Home and Gym; each exercise keeps separate history.
 - Six-part movement guidance: setup, breathing, tempo, force sequence, correct sensation, and common errors.
 - Weight, sets, reps, RIR, cardio, notes, calendar, trends, and optional cycle reference.
-- Calf, knee-flexion hamstring, middle-deltoid, loaded-carry, and gentle neck-accessory coverage.
+- Accessory covers mobility, core, shoulder/upper back, lower body, neck, and carries.
 - Local progression hints, including fixed-band progression through reps, sets, band length, or pauses.
 - Optional, user-triggered eight-week AI review through Cloudflare Workers AI.
 - Full JSON backup and restore, plus CSV export.
 
-This revision reduces redundant Hinge/Pull work, makes preparation optional, and treats Accessory as a pick-as-needed toolbox. Existing pattern-ledger rules are unchanged. Machine loads are recorded as displayed, without converting them to dumbbell loads.
+Preparation remains optional. Machine loads are recorded as displayed and never mixed with Home exercise history.
 
 ### Install
 
@@ -73,15 +73,15 @@ AvenGO 是一个平静、移动端优先的家庭训练记录工具，覆盖力�
 ### 主要功能
 
 - 灵活的力量训练模板与自由动作组合，并提供完整、精简、轻量三档投入程度。
-- 默认家庭训练；Gym 仅为可选替代，各动作的重量、次数与 RIR 历史独立。
+- 可切换在家或健身房；每个动作的记录彼此独立。
 - 六段动作指令：起始姿势、呼吸、节奏、发力顺序、做对的感觉、常见错误。
 - 记录重量、组数、次数、RIR、有氧、备注、月历、趋势与可选周期参考。
-- 补充小腿、腘绳肌屈膝、三角肌中束、负重行走与轻量颈部辅助训练。
+- Accessory 包含活动度、核心、肩背、下肢、颈部与负重稳定动作。
 - 本地渐进负荷提示；固定拉力带通过增加次数、组数、缩短有效长度或停顿来进阶。
 - 用户主动触发的八周 AI 复盘，由 Cloudflare Workers AI 提供。
 - 完整 JSON 备份与恢复，以及 CSV 导出。
 
-本次减少 Hinge/Pull 的重复安排，热身改为可跳过的推荐准备，Accessory 改为按需工具箱。原有账本判定不变。器械按机器显示的重量记录，不与哑铃重量换算。
+推荐准备可直接跳过。器械按机器显示的重量记录，不与在家动作混用历史。
 
 ### 安装
 

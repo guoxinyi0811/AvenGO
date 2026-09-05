@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-09-05 — v1.4.1 concise choices and expanded Accessory
+
+- Shortened Home/Gym choice copy to a direct location switch.
+- Renamed the template to `Accessory` and expanded it with existing mobility, core, shoulder/upper-back, lower-body, neck, and carry movements.
+- Kept every Accessory item optional. No template, log field, exercise identity, or ledger rule changed.
+- Updated the English prototype, README, handoff, and action-layer notes.
+
 ## 2026-09-03 — v1.4.0 action-layer revision
 
 - Revised Lower Hinge to keep a bilateral main lift plus one unilateral slot: B-stance by default, single-leg RDL as a secondary replacement. Reduced the prescribed sets; existing actual values are not overwritten.

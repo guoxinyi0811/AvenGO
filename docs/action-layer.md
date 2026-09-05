@@ -1,6 +1,6 @@
-# AvenGO v1.4.0 Action-Layer Revision
+# AvenGO v1.4.1 Action-Layer Revision
 
-Date: 2026-09-03
+Date: 2026-09-05
 Scope: exercise configuration, per-slot implementation choice, and the minimum persistence adapter required to keep concrete exercise histories separate. No template or ledger rule was added.
 
 ## Training configuration
@@ -31,7 +31,7 @@ The bilateral and unilateral slots have different roles. Progressing the unilate
 
 - Template warm-ups are rendered as optional preparation: 2–5 minutes of self-selected general movement, followed by a few uncounted repetitions with no load or a lighter version of the first main movement.
 - Preparation has no checkbox, incomplete state, reminder, or gate before the main movement.
-- Accessory is a pick-as-needed toolbox. Every item starts collapsed, and the session-level strength check-in is hidden. Existing Accessory records are still readable.
+- Accessory includes existing mobility, core, shoulder/upper-back, lower-body, neck, and carry movements. Every item starts collapsed, and the session-level strength check-in is hidden. Existing records remain readable.
 
 ## Concrete exercise identity
 
@@ -110,7 +110,7 @@ No live AI review was requested during testing. Worker behavior was checked with
 
 - Gym station models, attachments and displayed weight units were not inspected. All nine Gym instructions therefore keep `needsReview: true` and tell the user to follow the station diagram/adjustment method.
 - Cable leg curl, barbells and all unconfirmed machines remain absent.
-- `prototype-en.html` remains a non-persistent wording/layout prototype and does not yet contain these selectors.
+- `prototype-en.html` remains non-persistent and now shows the concise Home/Gym switch plus Accessory terminology.
 - There is still no Service Worker; installation does not guarantee an offline cold start.
 
 Conservative technique references used for the new machine notes: [Mayo Clinic leg press](https://www.mayoclinic.org/healthy-lifestyle/fitness/multimedia/leg-press/vid-20084684), [NASM chest press machine](https://www.nasm.org/resource-center/exercise-library/chest-press-machine), [ACE seated row](https://www.acefitness.org/resources/everyone/exercise-library/168/seated-row/), [ACE Romanian deadlift](https://www.acefitness.org/continuing-education/certified/may-2025/8865/the-ace-do-it-better-series-the-romanian-deadlift/), and [ACE seated lat pulldown](https://www.acefitness.org/resources/everyone/exercise-library/158/seated-lat-pulldown/). These references do not establish which exact machines or attachments exist in the user’s building.

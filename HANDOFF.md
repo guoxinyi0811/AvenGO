@@ -1,4 +1,4 @@
-# AvenGO v1.4.0 Engineering Handoff
+# AvenGO v1.4.1 Engineering Handoff
 
 > 语言原型说明：`prototype-en.html` 是独立、无持久化的英文 UI 术语与布局预览，不读取或写入 `workout-log`，也不是正式 App 的第二套业务实现。后续 EN/CN 应采用展示层 i18n：actuals 使用稳定 exerciseId，历史中文键与 done 数组仍须兼容，不能直接翻译存储键或复制两套业务逻辑。
 
@@ -131,9 +131,9 @@ JSON envelope：
 - `entryMode` / `hasStrengthActivity` / `hasActivity`：兼容推断记录事实，不做评价。
 - `PLAN`：旧 A/B 计划与历史剂量；必须保留以解释旧记录。
 - `MOVEMENT_META` / `LIBRARY_ITEMS`：模式元数据与新模板共享的动作库。
-- `TEMPLATES`：模板库；`templateIdForEntry` 负责新旧映射。v1.4 只修订 Lower Hinge / Pull 的槽位剂量、Accessory 的工具箱定位，不新增模板。`resolvedPlanForEntry` 在渲染时解析具体实现，不修改模板与日志原数据。
+- `TEMPLATES`：模板库；`templateIdForEntry` 负责新旧映射。v1.4 修订 Lower Hinge / Pull 的槽位剂量，并扩充 Accessory，不新增模板。`resolvedPlanForEntry` 在渲染时解析具体实现，不修改模板与日志原数据。
 - Lower Hinge 保留主 RDL；单侧槽默认 B-stance，单腿为二选一的次级替代。Pull 坐姿拉力带划船为 optional，完整档不自动加入。`exerciseChoiceHTML` / `bindExerciseChoices` 在首页与日历复用同一选择逻辑。
-- 通用准备 2–5 分钟与主动作轻重量准备使用 `preparationHTML`，没有勾选框；旧热身数据仍保留。Accessory 每项默认收起、按需加入，隐藏整次力量记录按钮，不显示整套完成度。
+- 通用准备 2–5 分钟与主动作轻重量准备使用 `preparationHTML`，没有勾选框；旧热身数据仍保留。Accessory 汇集现有活动度、核心、肩背、下肢、颈部和负重稳定动作；每项默认收起，隐藏整次力量记录按钮。
 - 新增动作：哑铃侧平举、提踵 / 单腿提踵、毛巾滑动腿弯举、农夫行走 / Suitcase March、收下巴、颈部四向等长。Accessory 使用现有 `blocks` 分组，没有新增日志字段；Carry 只记录，不进入四大模式间隔提醒。
 - `defaultActual` 的优先级必须保持为：当天 `actuals`（由渲染层先读取）→ `lastActual` 的完整历史实际值 → `prescribedActual` 从当前完整 / 精简 / 轻量剂量解析出的推荐组数和次数。不得再用当前档位覆盖已有历史实际值。
 - `completionSourceForEntry` 按数据年代只读取一套完成字段，但不得用 `templateId` 过滤已经勾选的动作：旧版日历编辑可能让模板字段与真实动作错位。`completedNames` 只返回有依据的动作名，不得再次无条件合并 `doneExercises` / `doneA` / `doneB`。`patternsForEntry` 只为真正缺少完成数组的旧记录做模式级回退，且不得伪造具体动作；显式空数组不代表整套模板完成。`displayTemplateIdForEntry` 仅在主动作明确属于单一模式且与存储模板完全不相交时修正展示，不写回历史数据。

@@ -1652,7 +1652,7 @@ function renderPlan(){
 
   const doneList = doneListForEntry(today);
 
-  let html = templateId==="accessory"?"<p class=\"toolbox-note\">哪里需要就做哪个，不必做完。每项记录自动保存。</p>":preparationHTML(p);
+  let html = templateId==="accessory"?"<p class=\"toolbox-note\">可自由添加动作，不必全部完成。</p>":preparationHTML(p);
   p.blocks.forEach(blk => {
     if(blk.preparation || blk.name.startsWith("热身")) return;
     const items = blk.items.filter(it => it.dose[k] !== "—");
@@ -2745,6 +2745,7 @@ const LIBRARY_ITEMS = {
   "俯卧 T 字":{nm:"俯卧 T 字",dose:{g:"2 组 × 10–12",a:"1–2 组 × 8",r:"—"},plan:{w:0,s:2,r:12}},
   "阻力圈蚌式开合":{nm:"阻力圈蚌式开合",dose:{g:"各 2–3 组 × 15",a:"各 2 组 × 12",r:"—"},plan:{w:0,s:2,r:15}},
   "单腿平衡站立":{nm:"单腿平衡站立",dose:{g:"各 2 组 × 30 秒",a:"各 1 组 × 30 秒",r:"—"},plan:{w:0,s:2,r:30}},
+  "青蛙趴髋内旋 + 直膝蛙式":{nm:"青蛙趴髋内旋 + 直膝蛙式",dose:{g:"各 15–20 次",a:"各 10 次",r:"各 10 次"}},
   "足踝迷你套":{nm:"足踝迷你套",dose:{g:"挑 2–3 个 · 各 10",a:"挑 2 个 · 各 8",r:"挑 1–2 个 · 各 8"}},
   "腕功能迷你套":{nm:"腕功能迷你套",dose:{g:"挑 2–3 个 · 各 8",a:"挑 2 个 · 各 8",r:"挑 1–2 个 · 各 6"}},
   "阻力绳肩环绕":{nm:"阻力绳肩环绕",dose:{g:"10–12 次",a:"8–10 次",r:"8 次"}},
@@ -2814,9 +2815,11 @@ const TEMPLATES = {
   pull:templatePlan("Pull 日","Pull","水平拉 · 垂直拉 · 上背辅助",["单臂哑铃划船","拉力带下拉","拉力带坐姿划船","俯卧 T 字"],["360° 腹式呼吸","腕功能迷你套","阻力绳肩环绕"]),
   lowerSquat:templatePlan("Lower Squat 日","Lower · Squat","Squat 为主 · 臀桥 · 核心 · 小腿",["高脚杯深蹲","分腿蹲 / 保加利亚分腿蹲","臀桥 / 单腿臀桥","死虫式(屈膝点地)","提踵 / 单腿提踵"],["360° 腹式呼吸","足踝迷你套","伟大伸展 / 猫式伸展"]),
   lowerHinge:templatePlan("Lower Hinge 日","Lower · Hinge","主 Hinge · 单侧控制 · 屈膝 · 抗旋",["哑铃罗马尼亚硬拉","B-stance RDL","臀桥 / 单腿臀桥","毛巾滑动腿弯举","Pallof press"],["360° 腹式呼吸","足踝迷你套","伟大伸展 / 猫式伸展"]),
-  accessory:{title:"Accessory · 按需取用的工具箱",short:"按需工具箱",sub:"哪里需要就做哪个，不必做完；不是第七套训练",blocks:[
-    {name:"关节与颈肩",items:pickItems("足踝迷你套","腕功能迷你套","阻力绳肩环绕","收下巴(Chin Tuck)","颈部四向等长对抗","俯卧 T 字")},
-    {name:"下肢稳定",items:pickItems("阻力圈蚌式开合","单腿平衡站立","提踵 / 单腿提踵")},
+  accessory:{title:"Accessory",short:"Accessory",sub:"辅助 · 核心 · 活动度 · 稳定",blocks:[
+    {name:"活动与准备",items:pickItems("足踝迷你套","腕功能迷你套","青蛙趴髋内旋 + 直膝蛙式","伟大伸展 / 猫式伸展","阻力绳肩环绕")},
+    {name:"肩颈与上背",items:pickItems("收下巴(Chin Tuck)","颈部四向等长对抗","泡沫轴推墙上回旋(前锯)","弹力带肩外旋 + 站姿 T 字","俯卧 T 字")},
+    {name:"核心与稳定",items:pickItems("死虫式(屈膝点地)","鸟狗式","平板支撑","熊式支撑 · 手脚交叉离地 3 秒","侧平板","Pallof press")},
+    {name:"下肢辅助",items:pickItems("阻力圈蚌式开合","单腿平衡站立","提踵 / 单腿提踵","毛巾滑动腿弯举")},
     {name:"负重稳定",items:pickItems("农夫行走 / Suitcase March")}
   ]},
   legacyA:{...PLAN.A,short:"旧版 A",legacy:true},
@@ -2871,8 +2874,8 @@ function setExerciseChoice(entry,id,slotId,value){
 function exerciseChoiceHTML(item,level=state){
   if(!item.slotId) return "";
   const attrs=`data-slot="${item.slotId}"`;
-  if(item.inactive) return `<details class="exercise-options"><summary>${item.nm} · 按需可选 / optional</summary><p>${item.dose[KEY[level]]==="—"?"可按需取用":item.dose[KEY[level]]}</p><button type="button" ${attrs} data-choice="${exerciseIdFor(item.nm)}">加入这项</button></details>`;
-  const alternatives=item.options.length>1 ? `<details class="exercise-options"><summary>${item.unilateral?"单侧 Hinge · 进阶替代":"同一训练模式的替代实现 · Home / Gym"}</summary><p>${item.unilateral?"默认 B-stance；稳定后可选单腿 RDL。两者二选一，不替代主 RDL。":"这是同一模式下不同的具体动作，重量、组次和 RIR 各自记录。"}</p><label>选择实现<select ${attrs} aria-label="${escapeAttr(item.unilateral?"单侧 Hinge 替代":item.nm+" 的替代实现")}">${item.options.map(option=>`<option value="${option}"${option===exerciseIdFor(item.nm)?" selected":""}>${item.unilateral?(option==="single_leg_rdl"?"进阶替代 · ":"默认 · "):(isMachine(option)?"Gym · ":"Home · ")}${exerciseName(option)}</option>`).join("")}</select></label></details>`:"";
+  if(item.inactive) return `<details class="exercise-options"><summary>${item.nm} · 可选</summary><p>${item.dose[KEY[level]]==="—"?"自由选择":item.dose[KEY[level]]}</p><button type="button" ${attrs} data-choice="${exerciseIdFor(item.nm)}">添加</button></details>`;
+  const alternatives=item.options.length>1 ? `<details class="exercise-options"><summary>${item.unilateral?"单侧 Hinge · 进阶替代":"切换：在家 / 健身房"}</summary>${item.unilateral?"<p>默认 B-stance；稳定后可换单腿 RDL。两者二选一。</p>":""}<label>${item.unilateral?"选择":"训练位置"}<select ${attrs} aria-label="${escapeAttr(item.unilateral?"单侧 Hinge 替代":"切换 "+item.nm+" 的训练位置")}">${item.options.map(option=>`<option value="${option}"${option===exerciseIdFor(item.nm)?" selected":""}>${item.unilateral?(option==="single_leg_rdl"?"进阶 · ":"默认 · "):(isMachine(option)?"健身房 · ":"在家 · ")}${exerciseName(option)}</option>`).join("")}</select></label></details>`:"";
   return alternatives+(item.optional?`<button class="optional-remove" type="button" ${attrs} data-choice="">收起这项 · 保留已记录内容</button>`:"");
 }
 function bindExerciseChoices(root,entry,id,refresh){

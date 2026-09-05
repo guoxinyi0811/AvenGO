@@ -80,11 +80,20 @@ assert.deepEqual(plain('completedNames({day:"A",doneA:["高脚杯深蹲"],doneB:
 
 fresh();
 run('templateId="accessory";today.templateId=templateId;renderPlan();renderCheckin();');
+assert.equal(run('TEMPLATES.accessory.title'),"Accessory");
+assert.equal(run('TEMPLATES.accessory.short'),"Accessory");
+assert.equal(run('new Set(planItems(TEMPLATES.accessory).map(item=>item.nm)).size'),21);
+for(const name of ["伟大伸展 / 猫式伸展","泡沫轴推墙上回旋(前锯)","死虫式(屈膝点地)","侧平板","毛巾滑动腿弯举"]){
+  assert.ok(run(`planItems(TEMPLATES.accessory).some(item=>item.nm===${JSON.stringify(name)})`),`${name}: expected in Accessory`);
+}
 assert.ok(plain('planItems(currentPlan()).every(item=>item.inactive)'));
 assert.equal(nodes.get("#checkinBtn").hidden,true);
 run('templateId="fullA";today.templateId=templateId;renderPlan();');
 assert.ok(nodes.get("#pBody").innerHTML.includes("推荐准备"));
 assert.ok(!nodes.get("#pBody").innerHTML.includes('aria-label="记录 360° 腹式呼吸"'));
+const locationChoice=nodes.get("#pBody").innerHTML;
+assert.ok(locationChoice.includes("切换：在家 / 健身房"));
+assert.ok(!locationChoice.includes("同一训练模式的替代实现"));
 
 fresh();
 run(`log['2026-01-03']={templateId:'push',doneExercises:['Chest Press（器械）'],strength:true,unknown:'keep',actuals:{machine_chest_press:{weight:45,sets:3,reps:[10,9],rir:2}},exerciseChoices:{push:{incline_pushup:'machine_chest_press'}}};`);
