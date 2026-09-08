@@ -39,6 +39,10 @@ run(`log['2026-01-02']={actuals:{machine_chest_press:{weight:45,sets:3,reps:10,r
 assert.equal(run('lastActual("Chest Press（器械）").weight'),45);
 assert.equal(run('lastActual("Incline Press（器械）").weight'),30);
 assert.equal(run('lastActual("上斜俯卧撑(扶桌沿)").reps'),9);
+assert.ok(run('detailActualHTML("Chest Press（器械）","2026-01-03",log["2026-01-02"]).includes("lb")'));
+assert.ok(run('trendText("Chest Press（器械）",[{key:"2026-01-01",w:40},{key:"2026-01-08",w:45}]).includes("40lb → 45lb")'));
+assert.ok(run('trendText("Chest Press（器械）",[{key:"2026-01-01",w:45},{key:"2026-01-08",w:45},{key:"2026-01-15",w:45}]).includes("机器最小可用档位")'));
+assert.ok(!run('trendText("Chest Press（器械）",[{key:"2026-01-01",w:45},{key:"2026-01-08",w:45},{key:"2026-01-15",w:45}]).includes("半磅")'));
 
 fresh();
 run('templateId="lowerHinge";today.templateId=templateId;');
@@ -83,17 +87,26 @@ run('templateId="accessory";today.templateId=templateId;renderPlan();renderCheck
 assert.equal(run('TEMPLATES.accessory.title'),"Accessory");
 assert.equal(run('TEMPLATES.accessory.short'),"Accessory");
 assert.equal(run('new Set(planItems(TEMPLATES.accessory).map(item=>item.nm)).size'),21);
+assert.equal(run('planItems(TEMPLATES.accessory).every(item=>ACCESSORY_USE[item.nm])'),true);
+assert.equal(run('TEMPLATE_ORDER.every(id=>WARMUP_GUIDES[id])'),true);
 for(const name of ["伟大伸展 / 猫式伸展","泡沫轴推墙上回旋(前锯)","死虫式(屈膝点地)","侧平板","毛巾滑动腿弯举"]){
   assert.ok(run(`planItems(TEMPLATES.accessory).some(item=>item.nm===${JSON.stringify(name)})`),`${name}: expected in Accessory`);
 }
 assert.ok(plain('planItems(currentPlan()).every(item=>item.inactive)'));
 assert.equal(nodes.get("#checkinBtn").hidden,true);
+assert.ok(nodes.get("#pBody").innerHTML.includes("Lower Squat / Lower Hinge · 练前"));
+assert.ok(!nodes.get("#pBody").innerHTML.includes("· 可选"));
 run('templateId="fullA";today.templateId=templateId;renderPlan();');
-assert.ok(nodes.get("#pBody").innerHTML.includes("推荐准备"));
+assert.ok(nodes.get("#pBody").innerHTML.includes("热身部位 · 脚踝、髋、肩、腕"));
 assert.ok(!nodes.get("#pBody").innerHTML.includes('aria-label="记录 360° 腹式呼吸"'));
 const locationChoice=nodes.get("#pBody").innerHTML;
-assert.ok(locationChoice.includes("切换：在家 / 健身房"));
+assert.ok(locationChoice.includes("切换到健身房"));
 assert.ok(!locationChoice.includes("同一训练模式的替代实现"));
+run('setPlanLocation(today,"fullA","gym");');
+assert.equal(run('planLocation(today,"fullA")'),"gym");
+assert.ok(plain('planItems(currentPlan()).map(item=>item.exerciseId)').includes("machine_leg_press"));
+run('setPlanLocation(today,"fullA","home");');
+assert.equal(run('planLocation(today,"fullA")'),"home");
 
 fresh();
 run(`log['2026-01-03']={templateId:'push',doneExercises:['Chest Press（器械）'],strength:true,unknown:'keep',actuals:{machine_chest_press:{weight:45,sets:3,reps:[10,9],rir:2}},exerciseChoices:{push:{incline_pushup:'machine_chest_press'}}};`);
@@ -102,9 +115,20 @@ run(`doImport(${JSON.stringify(backup)});`);
 assert.equal(run('log["2026-01-03"].unknown'),"keep");
 assert.equal(run('readExerciseActual(log["2026-01-03"],"Chest Press（器械）").weight'),45);
 assert.ok(run('buildCSV().includes("machine_chest_press")'));
-assert.ok(run('buildCSV().includes("machine_display")'));
+assert.ok(run('buildCSV()').includes('"Chest Press（器械）","push","horizontal","45"'));
+assert.ok(!run('buildCSV().includes("machine_display")'));
+assert.ok(run('buildCSV().includes("aerobic_machine_reading")'));
 assert.equal(run('backupPayload().version'),5);
 assert.equal(run('AEROBIC_TYPES.includes("跑步机")&&AEROBIC_TYPES.includes("椭圆机")&&AEROBIC_TYPES.includes("划船机")&&AEROBIC_TYPES.includes("原地踏步")'),true);
+run('log["2026-01-05"]={aerobic:{type:"划船机",minutes:20,reading:"阻力 5 · 3000m",unknown:"keep"}};setAeroRec(log["2026-01-05"],"划船机",25,"阻力 6 · 3200m");');
+assert.deepEqual(plain('log["2026-01-05"].aerobic'),{type:"划船机",minutes:25,reading:"阻力 6 · 3200m",unknown:"keep"});
+assert.ok(run('buildCSV().includes("阻力 6 · 3200m")'));
+run('today.aerobic={type:"跑步机",minutes:20,reading:"速度 3.2 · 坡度 4"};syncAeroUI();');
+assert.equal(nodes.get("#aeroReading").value,"速度 3.2 · 坡度 4");
+assert.equal(nodes.get("#aeroReading").hidden,false);
+assert.ok(html.includes('data-dt="none" aria-pressed="false">有氧日</button>'));
+assert.ok(!html.includes('data-s="red" aria-pressed="false"><span class="level-mark">轻量</span>'));
+for(const removed of ["安静地安排，也如实地记录","动作、有氧和备注都会自动保存在本机","日常记录保存在本机 · AI 复盘仅在主动生成时发送精简力量摘要","怎么安排 · 先运行，再按账本调整","什么时候加量 · 怎么加","器械替换 · 你家里没有的那些","追踪什么 · 只留有用的信息"]) assert.ok(!html.includes(removed),`${removed}: expected removed`);
 
 // Full / Compact keep previous values; absent history uses the selected slot's dose.
 fresh();

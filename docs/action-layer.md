@@ -1,6 +1,6 @@
-# AvenGO v1.4.1 Action-Layer Revision
+# AvenGO v1.5.0 Training-Flow Revision
 
-Date: 2026-09-05
+Date: 2026-09-07
 Scope: exercise configuration, per-slot implementation choice, and the minimum persistence adapter required to keep concrete exercise histories separate. No template or ledger rule was added.
 
 ## Training configuration
@@ -31,11 +31,11 @@ The bilateral and unilateral slots have different roles. Progressing the unilate
 
 - Template warm-ups are rendered as optional preparation: 2–5 minutes of self-selected general movement, followed by a few uncounted repetitions with no load or a lighter version of the first main movement.
 - Preparation has no checkbox, incomplete state, reminder, or gate before the main movement.
-- Accessory includes existing mobility, core, shoulder/upper-back, lower-body, neck, and carry movements. Every item starts collapsed, and the session-level strength check-in is hidden. Existing records remain readable.
+- Accessory includes 21 mobility, core, shoulder/upper-back, lower-body, neck, and carry movements. Each unselected row directly shows its best-fit plan and pre/post timing; the session-level strength check-in stays hidden.
 
 ## Concrete exercise identity
 
-Home is the default. Gym choices are alternatives inside an existing movement slot, not Gym templates and not recommendations.
+Home remains the default for a new record. One plan-level button switches every available slot to Gym or back to Home; the stored values remain per-slot exercise IDs, not a global location flag.
 
 | Shared pattern/role | Home exerciseId | Gym exerciseId(s) |
 | --- | --- | --- |
@@ -72,16 +72,16 @@ Per-day choices are optional:
 }
 ```
 
-Machine `weight` is only the number displayed by that machine. No unit, plate increment, or conversion to Home dumbbell load is assumed. A machine exercise starts with a blank load unless that same exerciseId has its own earlier history.
+All strength-machine `weight` values use lb. Machine increments are still unknown, and no conversion to Home dumbbell load is allowed. A machine exercise starts blank unless that same exerciseId has earlier history.
 
 ## Export and compatibility
 
 - `workout-log` and local-date keys are unchanged.
 - Existing `day`, `doneA`, `doneB`, `doneExercises`, `selectedExercises`, actuals, reviews, notes, cardio and cycle fields are not migrated or removed.
 - JSON envelope version is 5. The importer continues to accept v2–v5 envelopes and a raw date dictionary.
-- CSV preserves its earlier columns and appends `exercise_id`, `weight_recorded`, and `weight_basis`. `weight_lb` is intentionally blank for machines; `weight_basis` is `machine_display`.
+- CSV keeps its existing columns, writes Home and Gym values to `weight_lb`, uses `weight_basis:lb`, and appends `aerobic_machine_reading`.
 - The unchanged ledger functions are `entryMode`, `hasStrengthActivity`, `completionSourceForEntry`, `patternsForEntry`, `displayTemplateIdForEntry`, and `patternLedger`.
-- The AI summary carries exerciseId and labels machine-display weight. The Worker prompt forbids cross-ID comparison, Home/Gym conversion, merged Chest/Incline history, assumed machine specifications, and Gym encouragement.
+- The AI summary carries exerciseId and lb values. Gym actions enter same-ID load evaluation; the Worker still forbids cross-ID comparison, Home/Gym conversion, merged Chest/Incline history, invented machine increments, and Gym encouragement.
 
 ## Verification record
 
@@ -93,7 +93,7 @@ node worker/test.mjs
 git diff --check
 ```
 
-The exercise test covers nine independent Home/Gym histories, the three-way horizontal-push separation, bilateral/unilateral Hinge structure, optional Pull row, Full/Compact defaults, legacy name keys, unknown fields, v4 import → v5 round trip, CSV identity fields, six-part Gym instructions, equal cardio choices, Accessory behavior, and the known pattern-ledger interval fixture.
+The exercise test covers plan-wide one-tap Home/Gym switching, nine independent Gym histories, three-way horizontal-push separation, bilateral/unilateral Hinge structure, legacy Light records, Full/Compact defaults, cardio readings, CSV lb fields, Accessory timing, and the known pattern-ledger fixture.
 
 Manual local-browser checks at 375 × 812 covered:
 
@@ -108,9 +108,9 @@ No live AI review was requested during testing. Worker behavior was checked with
 
 ## Known limits
 
-- Gym station models, attachments and displayed weight units were not inspected. All nine Gym instructions therefore keep `needsReview: true` and tell the user to follow the station diagram/adjustment method.
+- Gym station models and attachments were not inspected; the user confirmed that strength-machine displays use lb. All nine Gym instructions keep `needsReview: true` and defer setup details to the station diagram.
 - Cable leg curl, barbells and all unconfirmed machines remain absent.
-- `prototype-en.html` remains non-persistent and now shows the concise Home/Gym switch plus Accessory terminology.
+- `prototype-en.html` remains non-persistent and shows the one-tap Home/Gym control, Cardio day, warm-up line, and cardio-machine reading.
 - There is still no Service Worker; installation does not guarantee an offline cold start.
 
 Conservative technique references used for the new machine notes: [Mayo Clinic leg press](https://www.mayoclinic.org/healthy-lifestyle/fitness/multimedia/leg-press/vid-20084684), [NASM chest press machine](https://www.nasm.org/resource-center/exercise-library/chest-press-machine), [ACE seated row](https://www.acefitness.org/resources/everyone/exercise-library/168/seated-row/), [ACE Romanian deadlift](https://www.acefitness.org/continuing-education/certified/may-2025/8865/the-ace-do-it-better-series-the-romanian-deadlift/), and [ACE seated lat pulldown](https://www.acefitness.org/resources/everyone/exercise-library/158/seated-lat-pulldown/). These references do not establish which exact machines or attachments exist in the user’s building.

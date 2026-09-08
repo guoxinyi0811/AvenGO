@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-09-07 — v1.5.0 training-flow revision
+
+- Added one-tap plan-wide Home/Gym switching while keeping concrete exercise histories separate.
+- Standardized all strength-machine loads to lb and included Gym actions in local trends, progression hints, CSV, and AI review input.
+- Added an optional free-text cardio-machine reading for speed, resistance, distance, or combined console values.
+- Replaced the selectable Light level with Cardio day. Historical `state:"red"` strength records remain readable as legacy Light entries.
+- Added a concise warm-up line to every plan and timing guidance to all 21 Accessory movements.
+- Removed the four home-page reference panels and repeated storage/privacy copy. Updated the English prototype and documentation.
+
 ## 2026-09-05 — v1.4.1 concise choices and expanded Accessory
 
 - Shortened Home/Gym choice copy to a direct location switch.

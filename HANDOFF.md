@@ -1,4 +1,4 @@
-# AvenGO v1.4.1 Engineering Handoff
+# AvenGO v1.5.0 Engineering Handoff
 
 > 语言原型说明：`prototype-en.html` 是独立、无持久化的英文 UI 术语与布局预览，不读取或写入 `workout-log`，也不是正式 App 的第二套业务实现。后续 EN/CN 应采用展示层 i18n：actuals 使用稳定 exerciseId，历史中文键与 done 数组仍须兼容，不能直接翻译存储键或复制两套业务逻辑。
 
@@ -6,7 +6,7 @@
 
 AvenGO 是一个移动端优先的家庭训练记录工具，面向希望用较低决策成本持续训练的人。主要场景是在瑜伽垫或哑铃旁单手查看今天的组合、动作指令和上次实际值，并立即记录重量、次数与 RIR。
 
-产品不再绑定特定用户。`AvenGO` 是品牌名；用户可选填本机称呼，留空时标题为“今天练什么”。核心原则是：选择权属于用户，账本和建议只提供参考；休息、轻量或空白都不代表失败。
+产品不再绑定特定用户。`AvenGO` 是品牌名；用户可选填本机称呼，留空时标题为“今天练什么”。核心原则是：选择权属于用户，账本和建议只提供参考；休息、有氧或空白都不代表失败。
 
 ## 2. 技术栈与文件结构
 
@@ -41,7 +41,7 @@ AvenGO 是一个移动端优先的家庭训练记录工具，面向希望用较�
     "completed": true,               // 可选：是否显式记录这次力量训练
     "actuals": {
       "goblet_squat": {             // v1.4 新写入使用 exerciseId；旧动作名仍可读取
-        "weight": 13,                // 可选 number；Home 使用 lb，Gym 为机器显示值
+        "weight": 13,                // 可选 number；所有力量动作统一使用 lb
         "sets": 3,                   // 可选 number
         "reps": [10, 10, 9],         // 可选 number 或 number[]
         "rir": 3                     // 可选 number；快捷档代表值通常为 1 / 3 / 5
@@ -54,7 +54,8 @@ AvenGO 是一个移动端优先的家庭训练记录工具，面向希望用较�
     },
     "aerobic": {
       "type": "骑车",               // 可选 string
-      "minutes": 20                  // 可选 number
+      "minutes": 20,                 // 可选 number
+      "reading": "阻力 6 · 3200m"    // 可选 string；有氧器械控制台读数
     },
     "note": "今天下放更慢",          // 可选 string
     "period": true                   // 可选 boolean
@@ -79,13 +80,13 @@ AvenGO 是一个移动端优先的家庭训练记录工具，面向希望用较�
 - 缺少 `dayType` 时，只要含 `day`、`state`、旧 / 新 done 数组或 actuals，读取层仍可解释为力量记录。
 - `day:"A"/"B"` 分别映射 `legacyA` / `legacyB`；账本从旧动作名推断模式。
 - 旧 `dayType:"aero"` 只读解释为“不安排力量 + 有氧”，不迁移、不删除原字段。
-- `state` 不能改存储值。UI 映射为 `green → 完整`、`amber → 精简`、`red → 轻量`，仅使用同一中性色阶。
+- `state` 不能改历史值。新 UI 只提供 `green → 完整`、`amber → 精简`；`red` 只作为“轻量（旧记录）”读取。有氧日使用既有 `strength:false`，不会把旧 `red` 重解释成有氧。
 - 新字段全部可选；未知字段在 JSON 导入、保存过程中保留。
-- 切换模板、休息或暂不安排不得删除 `day`、`doneA`、`doneB`、`doneExercises`、`selectedExercises` 或 `actuals`。
+- 切换模板、休息或有氧日不得删除 `day`、`doneA`、`doneB`、`doneExercises`、`selectedExercises` 或 `actuals`。
 - 旧动作名是历史关联键。新实际值用稳定 ID；`readExerciseActual` 优先读 ID，缺失才读对应旧名称；`writeExerciseActual` 不删除旧名称键，保留未知字段。同日两种键并存时，ID 版本是当前值，旧键是保留的原始数据，不应重复计数。
 - `doneExercises` / `doneA` / `doneB` / `selectedExercises` 仍是动作名数组，不能直接改成模式或实现组。`completedNames` 仅在读旧 actuals-only 记录时把 ID 还原为动作名，其余判定不变。
-- `exerciseChoices[templateId][slotId]` 为具体 ID 或 `null`，不存全局 Home/Gym 状态；缺失时 Home 默认，可选项默认收起。旧日已勾选的实现仍显示；切换实现不删另一实现的数据。详情编辑器把不在当前槽位的旧已记录动作列为“既有记录”。
-- Gym 重量不假设 lb/kg，不跨机器/动作换算，也不套用哑铃档位。初次使用器械重量为空。新增动作一律使用独立 ID，不能把 `machine_chest_press` 和 `machine_incline_press` 合并。
+- `exerciseChoices[templateId][slotId]` 为具体 ID 或 `null`。计划顶部的一键 Home/Gym 按钮批量写入各槽位，不另存全局状态；缺失时 Home 默认。旧日已勾选的实现仍显示，切换不删另一实现的数据。Chest Press / Incline Press 仍使用独立按钮与 ID。
+- Gym 重量统一按 lb 记录，但不跨机器/动作换算，也不套用哑铃档位。初次使用器械重量为空。新增动作一律使用独立 ID，不能把 `machine_chest_press` 和 `machine_incline_press` 合并。
 
 ### 3.3 动作元数据
 
@@ -116,7 +117,7 @@ JSON envelope：
 }
 ```
 
-导入接受 v5、旧 v2/v3/v4 envelope 和历史裸日期字典；按日期合并，同日期由导入记录覆盖，其余保留。AI 复盘按 ID 合并并最多保留 12 条。CSV 一行对应一个日期 / 已记录动作；无动作的日期仍输出有氧、周期、备注等日期级字段。v1.4 保留原列顺序并追加 `exercise_id`、`weight_recorded`、`weight_basis`；器械的旧 `weight_lb` 列留空，`weight_basis` 为 `machine_display`，Home 为 `lb`。完整的未勾选实际值与未知字段仍由 JSON 保存。
+导入接受 v5、旧 v2/v3/v4 envelope 和历史裸日期字典；按日期合并，同日期由导入记录覆盖，其余保留。AI 复盘按 ID 合并并最多保留 12 条。CSV 一行对应一个日期 / 已记录动作；无动作的日期仍输出有氧、周期、备注等日期级字段。`weight_lb` 与 `weight_basis:"lb"` 覆盖 Home 和 Gym；末列 `aerobic_machine_reading` 保存有氧器械读数。完整的未勾选实际值与未知字段仍由 JSON 保存。
 
 ### 3.5 AI 复盘本机数据
 
@@ -131,27 +132,27 @@ JSON envelope：
 - `entryMode` / `hasStrengthActivity` / `hasActivity`：兼容推断记录事实，不做评价。
 - `PLAN`：旧 A/B 计划与历史剂量；必须保留以解释旧记录。
 - `MOVEMENT_META` / `LIBRARY_ITEMS`：模式元数据与新模板共享的动作库。
-- `TEMPLATES`：模板库；`templateIdForEntry` 负责新旧映射。v1.4 修订 Lower Hinge / Pull 的槽位剂量，并扩充 Accessory，不新增模板。`resolvedPlanForEntry` 在渲染时解析具体实现，不修改模板与日志原数据。
+- `TEMPLATES`：模板库；`templateIdForEntry` 负责新旧映射。v1.5 未新增模板；`resolvedPlanForEntry` 在渲染时解析具体实现，不修改模板与日志原数据。
 - Lower Hinge 保留主 RDL；单侧槽默认 B-stance，单腿为二选一的次级替代。Pull 坐姿拉力带划船为 optional，完整档不自动加入。`exerciseChoiceHTML` / `bindExerciseChoices` 在首页与日历复用同一选择逻辑。
-- 通用准备 2–5 分钟与主动作轻重量准备使用 `preparationHTML`，没有勾选框；旧热身数据仍保留。Accessory 汇集现有活动度、核心、肩背、下肢、颈部和负重稳定动作；每项默认收起，隐藏整次力量记录按钮。
+- `WARMUP_GUIDES` / `preparationHTML` 在每套计划开头显示热身部位、空手动作和对应 Accessory；没有勾选框。Accessory 共 21 项，未添加时直接显示动作、适用日和练前/练后位置；隐藏整次力量记录按钮。
 - 新增动作：哑铃侧平举、提踵 / 单腿提踵、毛巾滑动腿弯举、农夫行走 / Suitcase March、收下巴、颈部四向等长。Accessory 使用现有 `blocks` 分组，没有新增日志字段；Carry 只记录，不进入四大模式间隔提醒。
-- `defaultActual` 的优先级必须保持为：当天 `actuals`（由渲染层先读取）→ `lastActual` 的完整历史实际值 → `prescribedActual` 从当前完整 / 精简 / 轻量剂量解析出的推荐组数和次数。不得再用当前档位覆盖已有历史实际值。
+- `defaultActual` 的优先级必须保持为：当天 `actuals`（由渲染层先读取）→ `lastActual` 的完整历史实际值 → `prescribedActual` 从当前完整 / 精简剂量解析出的推荐组数和次数。历史轻量剂量仍保留读取。不得再用当前档位覆盖已有历史实际值。
 - `completionSourceForEntry` 按数据年代只读取一套完成字段，但不得用 `templateId` 过滤已经勾选的动作：旧版日历编辑可能让模板字段与真实动作错位。`completedNames` 只返回有依据的动作名，不得再次无条件合并 `doneExercises` / `doneA` / `doneB`。`patternsForEntry` 只为真正缺少完成数组的旧记录做模式级回退，且不得伪造具体动作；显式空数组不代表整套模板完成。`displayTemplateIdForEntry` 仅在主动作明确属于单一模式且与存储模板完全不相交时修正展示，不写回历史数据。
 - `patternLedger`：计算 Squat / Hinge / Push / Pull 最近日期，不存派生统计。Lower Squat / Lower Hinge / Push / Pull 分化日只更新各自主模式，辅助动作不重置其他模式；Full Body、自由组合与旧版复合模板按实际完成动作覆盖的模式更新。
 - `subPatternReminder`：只有在已有足够历史且水平 / 垂直子模式间隔至少约 14 天时给温和提示。
 - `recentStrengthCount` / `renderRecommendation`：读取最近 10 天力量次数与账本间隔，只改建议文案；所有模板不锁定。
 - `renderPlan`：根据模板、自由组合和投入程度渲染动作；输入即时保存。
 - `prescribedActual` / `recommendedEntryActual`：没有当前值或同一 exerciseId 的上次值时，从所在模板的当前档位解析组次。所有档位都遵守“当天输入 → 该具体动作上次值 → 当前推荐值”，不可从另一个实现借用默认值。器械首次重量为空。
-- `progressionHint`：读取同动作历史 actuals；相同重量连续达到计划上限或 RIR ≥ 4 时显示一次行内建议，不写入状态。
+- `progressionHint`：读取同一 exerciseId 历史 actuals；Home 与 Gym 都参与判断。Gym 只建议按机器最小可用档位调整，不虚构档位，不写入状态。
 - `BODYWEIGHT_PROGRESSIONS`：徒手动作连续达到上限时给负重、慢离心或更难变式建议；臀桥和徒手深蹲可额外记录重量。
 - `ELASTIC_PROGRESSIONS` / `elasticProgressionHint`：固定拉力带动作按“每组加 1–2 次至上限 → 加 1 组但最多 4 组 → 缩短有效带长或末端停顿”进阶，不使用重量字段，也不建议更换更重的带子。触发只看历史 actuals 与 RIR，不根据推算的月经阶段自动改变训练量。
 - `renderPatternLedger`：模式超过 10 天或已有历史但从未出现时增加“可优先考虑”中性标记。
 - `buildCoachReviewSummary`：只整理最近 8 周力量动作、实际值、每周次数 / 工作组和模式间隔，不读取称呼、经期、有氧或备注。
-- 摘要带 exerciseId，机器重量标注为显示值；Worker prompt 同步禁止跨 ID 比较、合并两种推胸、虚构机器规格或引导去 Gym。未扩大 AI 上传范围、调用时机或账本统计规则。
+- 摘要带 exerciseId，所有力量重量标注为 lb；Worker prompt 要求 Gym 动作进入同 ID 趋势分析，同时禁止跨 ID 比较、合并两种推胸、虚构机器档位或引导去 Gym。未扩大 AI 上传范围、调用时机或账本统计规则。
 - `generateAIReview`：仅由按钮触发；按摘要 hash 查本机缓存，显式“重新生成”才绕过缓存。超时、网络或 API 错误只更新状态文案。
 - `worker/src/index.js`：通过 `env.AI` 使用固定的 Cloudflare Workers AI 模型、system prompt、输出上限、请求大小、精确 CORS 和两级限流；前端不能传任意模型请求体。
 - `enforceEquipmentGuard`：模型返回后的确定性护栏；若 AI 直接建议跳到 3/9/13/19lb 的下一档，或建议固定拉力带换更大张力 / 更紧的带子，会删除该处方并替换为对应的渐进顺序。不要仅靠 prompt 约束替代它。
-- `renderDayDetail`：过去日期可选模板 / 自由组合、动作、实际值、RIR；有氧始终独立。
+- `renderDayDetail`：过去日期可选模板 / 自由组合、动作、实际值、RIR；有氧始终独立，并支持可选 `aerobic.reading`。
 - `refreshHistoryDerivedViews`：日历补录、取消、清除或修改实际值后，统一重绘首页账本 / 建议与记录页趋势 / 周柱状图；返回「今天」页时也会再次同步。
 - `renderCalendar` / `renderStats` / `buildReport`：以事实记录和模式计数，不计算达标率。
 - `backupPayload` / `buildCSV` / `doImport`：完整 JSON、兼容导入与行式 CSV。
@@ -194,7 +195,7 @@ JSON envelope：
 - 周期建议使用“大约 / 倾向”语言，不作医疗断言。
 - 不引入外部字体、网络资源、框架、CDN 或构建步骤。
 - 不新增本需求以外的功能，不构建训练量数据库、社交、成就或压力机制。
-- 家庭是默认；Gym 只作为同模式的可选实现，不推荐去 Gym，不因未选器械而提示。没有确认的器械不新增，未指定变体的动作保持原状。
+- 新记录默认 Home，一键按钮可切换整套计划的已有 Gym 实现；不推荐去 Gym，也不因未选器械而提示。没有确认的器械不新增，未指定变体的动作保持原状。
 - 热身和 Accessory 不构成开始主训练的门槛，不显示跳过警示、空缺标记或完成度。
 
 ## 7. 易损点与回归清单
@@ -212,9 +213,9 @@ JSON envelope：
 - Worker 必须拒绝非 `https://guoxinyi0811.github.io` Origin、非 POST/OPTIONS、超长摘要和超限请求；上游错误不得把 key 或响应体回传前端。
 - JSON 导入必须继续接受 v2/v3 和裸日期对象，并保留所有未知可选字段。
 - 同时回归 v4/v5；不得批量改旧 actuals 键。旧版本不能正确编辑 ID 新数据，不应降级后编辑新备份。
-- 回归九个 Home/Gym 实现：历史、默认值、组次、RIR、趋势、CSV 与 AI 摘要独立；Chest / Incline Press 必须三路隔离（包括 Home 上斜俯卧撑）。
+- 回归计划级 Home/Gym 一键切换与九个 Gym 实现：历史、默认值、组次、RIR、趋势、CSV 与 AI 摘要独立；Chest / Incline Press 必须三路隔离（包括 Home 上斜俯卧撑）。
 - 回归旧记录：缺 `dayType` / `actuals` / `aerobic` / `note` / `period`、旧 A/B、旧 `dayType:"aero"`。
-- 回归主流程：所有模板、自由组合、三档剂量、动作勾选、刷新保留、RIR、渐进提示、力量 + 有氧同日、只记有氧、休息 + 有氧。
+- 回归主流程：所有模板、自由组合、完整 / 精简与旧轻量读取、动作勾选、刷新保留、RIR、渐进提示、力量 + 有氧同日、只记有氧、休息 + 有氧。
 - 回归记录页：过去日模板与自由组合补录、月历与账本同步、模式统计、CSV 列、JSON 新旧导入、周期推算、趋势与周柱状图。
 - 回归体验：375px 今天页 / 记录页 / 展开详情 / 编辑器无横向溢出，键盘焦点清楚，控制台无报错。
 - 回归 AI：未配置、超时、非 2xx、成功、缓存命中、重新生成、历史显示、v4 备份导入；任一失败时本地规则仍正常。

@@ -1,6 +1,6 @@
 # AvenGO
 
-Current app version: **v1.4.1** · [Changelog](CHANGELOG.md)
+Current app version: **v1.5.0** · [Changelog](CHANGELOG.md)
 
 ## English
 
@@ -14,16 +14,16 @@ The English prototype is a separate, non-persistent preview for reviewing wordin
 
 ### Features
 
-- Flexible strength templates and free exercise combinations, with Full, Compact, and Light options.
-- Switch between Home and Gym; each exercise keeps separate history.
+- Flexible strength templates and free combinations, with Full, Compact, Rest, and Cardio day choices.
+- One-tap Home/Gym switching; Gym loads use lb and each exercise keeps separate history.
 - Six-part movement guidance: setup, breathing, tempo, force sequence, correct sensation, and common errors.
-- Weight, sets, reps, RIR, cardio, notes, calendar, trends, and optional cycle reference.
-- Accessory covers mobility, core, shoulder/upper back, lower body, neck, and carries.
+- Weight, sets, reps, RIR, cardio machine readings, notes, calendar, trends, and optional cycle reference.
+- Each plan includes a short warm-up guide; Accessory shows the best day and timing for each movement.
 - Local progression hints, including fixed-band progression through reps, sets, band length, or pauses.
 - Optional, user-triggered eight-week AI review through Cloudflare Workers AI.
 - Full JSON backup and restore, plus CSV export.
 
-Preparation remains optional. Machine loads are recorded as displayed and never mixed with Home exercise history.
+Gym exercises are included in load evaluation without mixing Home and Gym histories.
 
 ### Install
 
@@ -72,16 +72,16 @@ AvenGO 是一个平静、移动端优先的家庭训练记录工具，覆盖力�
 
 ### 主要功能
 
-- 灵活的力量训练模板与自由动作组合，并提供完整、精简、轻量三档投入程度。
-- 可切换在家或健身房；每个动作的记录彼此独立。
+- 灵活的力量模板与自由组合，提供完整、精简、休息和有氧日。
+- 一键切换在家或健身房；Gym 重量统一用 lb，各动作历史独立。
 - 六段动作指令：起始姿势、呼吸、节奏、发力顺序、做对的感觉、常见错误。
-- 记录重量、组数、次数、RIR、有氧、备注、月历、趋势与可选周期参考。
-- Accessory 包含活动度、核心、肩背、下肢、颈部与负重稳定动作。
+- 记录重量、组数、次数、RIR、有氧器械读数、备注、月历、趋势与可选周期参考。
+- 每套计划提供简短热身；Accessory 标注动作适用日及练前/练后位置。
 - 本地渐进负荷提示；固定拉力带通过增加次数、组数、缩短有效长度或停顿来进阶。
 - 用户主动触发的八周 AI 复盘，由 Cloudflare Workers AI 提供。
 - 完整 JSON 备份与恢复，以及 CSV 导出。
 
-推荐准备可直接跳过。器械按机器显示的重量记录，不与在家动作混用历史。
+Gym 动作纳入重量评估，但不与在家动作混用历史。
 
 ### 安装
 
