@@ -733,10 +733,12 @@
         <p>数据只存在这台设备的浏览器里。JSON 包含完整记录并可再次导入；CSV 便于查看和分析。导入采用合并语义：同一天以导入内容为准，其它日期保留。</p>
         <div class="dd-row profile-row"><label class="dd-lbl" for="profileName">本机称呼</label><input class="dd-note" id="profileName" type="text" maxlength="30" placeholder="可选；留空时不显示称呼"></div>
         <div class="backup-btns">
+          <button id="copyLatestData" class="ghost">复制最新数据</button>
           <button id="exportCopy">复制 JSON</button>
           <button id="exportFile" class="ghost">下载 JSON</button>
           <button id="exportCsv" class="ghost">下载 CSV</button>
         </div>
+        <textarea class="report-fallback" id="latestDataFallback" hidden readonly aria-label="各动作最新训练数据"></textarea>
         <textarea id="importBox" placeholder="把备份文本粘贴到这里,或用下面的按钮选文件…"></textarea>
         <div class="backup-btns">
           <button id="importText">导入粘贴的文本</button>
@@ -753,9 +755,12 @@
 const makeDetail = (start, breath, tempo, sequence, feel, errors, needsReview=false) => ({
   start, breath, tempo, sequence, feel, errors, ...(needsReview ? {needsReview:true} : {})
 });
+const makeEquipmentDetail = (setup, start, breath, tempo, sequence, feel, errors) => ({
+  setup, ...makeDetail(start, breath, tempo, sequence, feel, errors)
+});
 const makeGroup = (...subs) => ({ subs });
 
-// 动作指令资料库。每个原子动作固定为六段；组合动作按子动作分别显示六段。
+// 自重 / 哑铃动作固定六段；器械 / 龙门架动作在前面增加“器械设置”。
 const DETAILS = {
   "高脚杯深蹲": makeDetail(
     "双脚略比肩宽，脚尖向外约 10–20°，膝盖始终朝第二、三脚趾方向；哑铃竖直贴在胸骨前，双手托住上端，手肘向下；脊柱保持自然中立，视线看前方偏下。",
@@ -1456,11 +1461,11 @@ function renderDayType(){
 }
 
 function detailHTML(dt){
-  const labels = [
+  const baseLabels = [
     ["start","起始姿势"], ["breath","呼吸"], ["tempo","节奏"],
     ["sequence","发力顺序"], ["feel","做对的感觉"], ["errors","常见错误"]
   ];
-  const one = d => labels.map(([key,label]) => `<div class="detail-section detail-${key}"><b>${label}</b><span>${d[key]}</span></div>`).join("") +
+  const one = d => [...(d.setup ? [["setup","器械设置"]] : []),...baseLabels].map(([key,label]) => `<div class="detail-section detail-${key}"><b>${label}</b><span>${d[key]}</span></div>`).join("") +
     (d.needsReview ? `<div class="detail-review">这段动作定义待教练复核；如与你现有的专业示范不一致，以专业示范为准。</div>` : "");
   if(dt.subs) return dt.subs.map(s => `<section class="detail-sub"><h4>${s.t}</h4>${one(s)}</section>`).join("");
   return one(dt);
@@ -1512,15 +1517,15 @@ function recentStrengthCount(days=10){
 function renderRecommendation(){
   const count=recentStrengthCount(10), ledger=patternLedger(), focus=priorityPattern(ledger);
   let base;
-  if(count<=1) base="最近 10 天的力量窗口较少，可以优先考虑一次全身模板";
-  else if(count===2) base="最近 10 天记录了 2 次力量，Full Body A / B 交替会更容易覆盖主要模式";
-  else if(count===3) base="最近 10 天记录了 3 次力量，可以继续在 Full Body A / B 间轮换";
+  if(count<=1) base="最近 10 天的力量记录较少，可以从当前模板或自由组合里挑一次合适的安排";
+  else if(count===2) base="最近 10 天记录了 2 次力量，可以按时间从当前模板或自由组合里选择";
+  else if(count===3) base="最近 10 天记录了 3 次力量，可以继续按当天时间选择合适的模板";
   else base="最近 10 天力量记录较多，全身或分化模板都可以按时间选择";
   let focusText="";
   if(focus){
     const v=ledger[focus], gap=v.days==null?"还没有记录":`约 ${v.days} 天没记录`;
     const split={squat:"Lower Squat 日",hinge:"Lower Hinge 日",push:"Push 日",pull:"Pull 日"}[focus];
-    focusText=`；${PATTERN_META[focus].label} ${gap}${count>=4?`，可看看 Full Body 或 ${split}`:"，可在下一次 Full Body 里优先保留它"}`;
+    focusText=`；${PATTERN_META[focus].label} ${gap}${count>=4?`，可看看 ${split}`:"，可在下一次力量训练里优先保留它"}`;
   }
   $("#recommendation").innerHTML=`<b>今天的参考：</b>${base}${focusText}。这只是建议，所有模板和自由组合始终可选。`;
 }
@@ -2033,6 +2038,7 @@ function displayTemplateIdForEntry(entry){
 }
 function entryTemplateTitle(entry){
   const id=displayTemplateIdForEntry(entry||{});
+  if((id==="fullA"||id==="fullB")&&completedNames(entry).some(nm=>LIBRARY_ITEMS[nm]&&!isMachine(nm))) return `Full Body ${id==="fullA"?"A":"B"}（旧家庭记录）`;
   return id==="custom"?"自由组合":((TEMPLATES[id]&&TEMPLATES[id].title)||"力量训练");
 }
 function previousActual(nm, key){
@@ -2487,6 +2493,59 @@ function buildReport(){
   if(notes.length) lines.push(`备注:${notes.join(";")}`);
   return lines.join("\n");
 }
+function actualHasContent(actual){
+  if(!actual||typeof actual!=="object"||Array.isArray(actual)) return false;
+  return ["weight","sets","reps","rir"].some(field=>actual[field]!==undefined&&actual[field]!==null&&actual[field]!=="");
+}
+function latestDataText(endKey=todayKey){
+  const exerciseLatest=new Map(), aerobicLatest=new Map();
+  let latestPeriod=null;
+  Object.keys(log).filter(key=>/^\d{4}-\d{2}-\d{2}$/.test(key)&&key<=endKey).sort().forEach(key=>{
+    const entry=log[key];
+    if(!entry||typeof entry!=="object") return;
+    if(entry.actuals&&typeof entry.actuals==="object"&&!Array.isArray(entry.actuals)){
+      Object.keys(entry.actuals).forEach(ref=>{
+        const id=exerciseIdFor(ref), name=exerciseName(id), actual=readExerciseActual(entry,id)||entry.actuals[ref];
+        if(actualHasContent(actual)) exerciseLatest.set(id,{key,name,actual:{...actual}});
+      });
+    }
+    const aerobic=entry.aerobic;
+    if(aerobic&&typeof aerobic==="object"&&!Array.isArray(aerobic)){
+      const type=String(aerobic.type||"其他").trim()||"其他";
+      if(aerobic.minutes>0||String(aerobic.reading||"").trim()) aerobicLatest.set(type,{key,type,aerobic:{...aerobic}});
+    }
+    if(entry.period===true) latestPeriod=key;
+  });
+  const md=key=>{const [,m,d]=key.split("-");return `${m}-${d}`;};
+  const headerDate=endKey.split("-").slice(1).map(Number).join("/");
+  const lines=[`最新训练数据（截至 ${headerDate}）`,"","力量动作"];
+  const exercises=[...exerciseLatest.values()].sort((a,b)=>b.key.localeCompare(a.key)||a.name.localeCompare(b.name,"zh-CN"));
+  if(!exercises.length) lines.push("暂无实际值");
+  exercises.forEach(({key,name,actual})=>{
+    const values=[];
+    if(actual.weight!==undefined&&actual.weight!==null&&actual.weight!=="") values.push(Number(actual.weight)===0?"徒手":`${actual.weight}lb`);
+    const reps=repsText(actual.reps);
+    if(actual.sets!==undefined&&actual.sets!==null&&actual.sets!==""&&reps!=="") values.push(`${actual.sets}×${reps}`);
+    else if(actual.sets!==undefined&&actual.sets!==null&&actual.sets!=="") values.push(`${actual.sets}组`);
+    else if(reps!=="") values.push(`${reps}次`);
+    if(actual.rir!==undefined&&actual.rir!==null&&actual.rir!=="") values.push(`RIR${actual.rir}`);
+    lines.push(`${name} | ${md(key)} | ${values.join(" | ")}`);
+  });
+  lines.push("","有氧");
+  const aerobic=[...aerobicLatest.values()].sort((a,b)=>b.key.localeCompare(a.key)||a.type.localeCompare(b.type,"zh-CN"));
+  if(!aerobic.length) lines.push("暂无记录");
+  aerobic.forEach(({key,type,aerobic:record})=>{
+    const values=[];
+    if(record.minutes>0) values.push(`${record.minutes}min`);
+    if(String(record.reading||"").trim()) values.push(String(record.reading).trim());
+    lines.push(`${type} | ${md(key)} | ${values.join(" | ")}`);
+  });
+  const ledger=patternLedger(endKey);
+  const gaps=MAIN_PATTERNS.map(pattern=>`${PATTERN_META[pattern].label} ${ledger[pattern].days==null?"尚未记录":`${ledger[pattern].days}天`}`).join(" | ");
+  lines.push("",`各模式距上次：${gaps}`);
+  if(latestPeriod) lines.push(`最近来潮：${md(latestPeriod)}`);
+  return lines.join("\n");
+}
 $("#reportBtn").onclick = () => {
   const txt = buildReport();
   const btn = $("#reportBtn");
@@ -2501,6 +2560,18 @@ $("#reportBtn").onclick = () => {
   }else{
     fallback();
   }
+};
+$("#copyLatestData").onclick=()=>{
+  const text=latestDataText(), button=$("#copyLatestData"), fallback=$("#latestDataFallback");
+  fallback.hidden=true;
+  const copied=()=>{button.textContent="已复制";setTimeout(()=>{button.textContent="复制最新数据";},1500);};
+  const selectFallback=()=>{
+    fallback.value=text;fallback.hidden=false;fallback.focus();fallback.select();
+    try{if(document.execCommand("copy")){copied();return;}}catch(error){}
+    setBackupMsg("已生成最新数据，请在文本框中长按全选复制。","ok");
+  };
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(copied,selectFallback);
+  else selectFallback();
 };
 
 // ---- AI 教练复盘：仅用户主动触发；本地规则层不依赖此功能 ----
@@ -2751,6 +2822,7 @@ const EXERCISE_IDS = {
 };
 const GYM_MOVEMENTS = [
   ["machine_leg_press","Leg Press（器械）","高脚杯深蹲"],
+  ["machine_calf_press","Leg Press 提踵","提踵 / 单腿提踵"],
   ["machine_shoulder_press","Shoulder Press（器械）","哑铃肩推"],
   ["machine_chest_press","Chest Press（器械）","上斜俯卧撑(扶桌沿)"],
   ["machine_incline_press","Incline Press（器械）","上斜俯卧撑(扶桌沿)"],
@@ -2758,24 +2830,115 @@ const GYM_MOVEMENTS = [
   ["cable_row","Cable Row","单臂哑铃划船"],
   ["cable_lateral_raise","Cable Lateral Raise","哑铃侧平举"],
   ["cable_face_pull","Cable Face Pull","俯卧 T 字"],
-  ["cable_rdl","Cable RDL","哑铃罗马尼亚硬拉"]
+  ["cable_rdl","Cable RDL","哑铃罗马尼亚硬拉"],
+  ["cable_pallof_press","站姿 Pallof Press（龙门架）","Pallof press"]
 ];
 const GYM_DETAILS = {
-  machine_leg_press:makeDetail("坐入腿举机，背和骨盆贴靠垫；双脚与肩同宽踩踏板，脚尖略朝外、膝盖跟随脚尖。手握侧把手，视线向前；先按机身图示确认座椅和安全挡。","屈膝回程时吸气，蹬出时呼气，不憋气。","回程 2–3 秒 → 舒适深度停一下 → 1–2 秒蹬出。","先轻收核心并保持骨盆贴垫 → 全脚掌压踏板，由大腿和臀部蹬出 → 膝盖保留微屈。","大腿和臀部受力；脚跟不离踏板，腰背不被挤压。","骨盆卷起：减小屈膝深度；膝盖内扣：让膝盖跟随脚尖；猛锁膝：到接近伸直就回程。",true),
-  machine_shoulder_press:makeDetail("坐入肩推机，背贴靠垫，双脚与髋同宽落地、脚尖和膝盖朝前；调座椅使把手约在肩旁。按把手方向全握、手腕顺直；颈部中立，视线向前。","下放吸气，向上推时呼气。","下放 2–3 秒 → 不反弹 → 1–2 秒推起。","先轻收核心、背贴垫 → 肩部带动上臂向上，肱三头肌伸肘 → 不用腰部顶起重量。","肩部和上臂后侧受力，颈部无挤压。","腰部拱起：减重并保持肋骨不过度上翻；耸肩或夹痛：缩小无痛行程并检查座椅位置。",true),
-  machine_chest_press:makeDetail("坐入水平胸推机，双脚与髋同宽、脚尖和膝盖朝前；背和骨盆贴垫。调座椅使把手约在胸中部，两手全握、手腕顺直；颈部中立，视线向前。","把手回程时吸气，向前推时呼气。","回程 2–3 秒 → 不反弹 → 1–2 秒推直，肘不猛锁。","先轻收核心并让肩胛稳定贴垫 → 胸部带动上臂向前 → 上臂后侧参与伸肘。","胸部和上臂后侧受力，肩前侧不夹痛。","肩向前耸起：减重并保持背部贴垫；回程过深肩痛：缩小行程；折腕：让手腕与前臂成线。",true),
-  machine_incline_press:makeDetail("坐入上斜推胸机，背和骨盆贴靠垫，双脚与髋同宽落地、膝盖跟随脚尖。按机身图示调座椅，使把手在上胸两侧，全握且手腕顺直；视线沿机器前上方，不仰头。","回程吸气，沿机器轨迹向前上方推时呼气。","回程 2–3 秒 → 不反弹 → 1–2 秒推出。","先轻收核心、肩胛贴垫 → 胸部和肩部前侧带动上臂 → 上臂后侧伸肘。","上胸、肩前侧和上臂后侧受力，颈部与肩关节无挤压。","把腰顶离靠垫：减重；强行改变推行轨迹：跟随机器轨迹；肩痛：缩小无痛行程并重新检查座椅。",true),
-  machine_lat_pulldown:makeDetail("坐在高位下拉机，双脚与髋同宽、脚尖和膝盖朝前；大腿垫贴住大腿但不挤压。双手正握把手、略比肩宽，拇指环握；脊柱中立，可轻微后倾，视线向前。","把手上回时吸气，下拉时呼气。","上回 2–3 秒 → 不耸起猛拉 → 1–2 秒下拉，末端停 1 秒。","先轻收核心 → 上臂带肘向身体两侧下方移动 → 背阔肌主导，手仅握稳把手。","腋下到背侧受力，躯干基本不晃动。","拉到颈后：改为身前向上胸方向；大幅后仰：减重；仅弯肘卷手：想着肘向下走。",true),
-  cable_row:makeDetail("使用有座位和踏板的绳索划船站，双脚与髋同宽踩踏板、膝微屈并跟随脚尖；双手全握把手、手腕顺直。坐骨坐稳、脊柱中立、视线向前；若站点无此支撑，先确认该站使用方式。","手臂向前回程吸气，拉向躯干时呼气。","回程 2–3 秒 → 不用腰部前后摆 → 1–2 秒拉回，停 1 秒。","先轻收核心稳定躯干 → 肘向后走、肩胛自然向内滑 → 背部主导，手不主动卷腕。","背部两侧与肩胛周围受力，腰部保持平稳。","躯干前后甩：减重并保持坐姿；耸肩：让肩远离耳朵；把肘拉得过远：上臂到躯干旁即可。",true),
-  cable_lateral_raise:makeDetail("侧对低位滑轮，双脚与髋同宽、脚尖和膝盖朝前；远离机器的手全握单把手，手臂在体侧、肘微屈，另一手轻扶固定立柱。脊柱中立、视线向前；先确认有合适把手且绳索不蹭身体。","放下吸气，向侧面抬起时呼气。","下放 2–3 秒 → 不借反弹 → 1–2 秒抬起，不高于肩。","先轻收核心 → 肩部侧面带上臂侧抬，肘角基本不变 → 不以耸肩起动。","肩部侧面受力，身体不需要侧倾。","甩动或耸肩：减重；手腕折起：顺直握持；夹痛：缩小无痛行程。",true),
-  cable_face_pull:makeDetail("面对约面部高度的滑轮，用合适的双端绳把；双脚与髋同宽或前后小错步，脚尖和膝盖同向。双手全握绳端，手臂向前、肘微屈；脊柱中立、视线向前。未确认绳把时不强行用其他附件代替。","向前回程吸气，向面部两侧拉时呼气。","回程 2–3 秒 → 不反弹 → 1–2 秒拉回，末端停 1 秒。","先轻收核心稳住躯干 → 肘向外后方走，双手到面部两侧的舒适位置 → 肩后侧与肩胛周围发力。","肩后侧、上背受力，腰和颈部不用后仰。","用腰后仰拉动：减重；耸肩或强扭肩：降低抬肘角度、缩小无痛行程。",true),
-  cable_rdl:makeDetail("面对低位滑轮，双脚与髋同宽，脚尖朝前或略外、膝盖跟随脚尖且微屈；双手全握适合该站的把手，手臂在身前自然伸直。脊柱中立，视线随躯干转向前下方；先确认附件、拉索路径和站位不会使身体被拉走。","髋向后折叠时吸气，髋向前回到站立时呼气。","折叠下放 2–3 秒 → 舒适末端短停 → 1–2 秒站起。","先轻收核心 → 臀部向后送、膝角变化小 → 臀部和大腿后侧把髋带回，不用手臂拉把手。","臀部与大腿后侧受力，腰部不需要弯曲或后仰。","做成深蹲：少屈膝、多向后送髋；腰背变圆：减小行程；被绳索拉向前：减重并重新确认站位。",true)
+  machine_leg_press:makeEquipmentDetail(
+    "坐下后调整座椅位置,使双脚踩上踏板时膝盖弯曲约 90°,不要更深——座椅离踏板太近会让下背在底部离开靠垫。配重用插销插进对应重量的孔位;若配重栈顶部有小的微调块,可在整档基础上再加半档。开始前双脚推住踏板承重,然后把两侧安全杆向外拨开解锁;做完最后一次,把踏板推到接近伸直再把安全杆扣回,之后才松腿。",
+    "双脚踩在踏板中央偏上,与髋同宽,脚尖略朝外与膝盖方向一致,整个脚掌踩实、脚跟不翘起。背部和臀部完全贴住靠垫,双手握住两侧扶手,视线朝前。",
+    "踏板下降时吸气,推起时呼气。",
+    "下降 2–3 秒 → 底部不停顿 → 1–2 秒推起。",
+    "先收紧核心、背臀贴紧靠垫 → 屈膝让踏板下降至膝盖约 90° → 脚跟发力推起 → 接近伸直时停住,不锁死膝盖。",
+    "大腿前侧与臀部发力,全程下背贴着靠垫没有离开,膝盖始终对准脚尖方向。",
+    "下背或臀部在底部离开靠垫——这是降得太深,立即减小下降幅度;膝盖完全锁死——推到接近伸直即可保留微弯;膝盖向内塌陷——主动把膝盖往脚尖方向顶住。"
+  ),
+  machine_calf_press:makeEquipmentDetail(
+    "沿用 Leg Press 的座椅设置,但重量要比做腿举时轻很多,先从很轻的档位试起。安全杆解锁方式同上。",
+    "坐好后把双脚往踏板下缘挪,只用前脚掌踩在踏板边缘、脚跟悬空,双脚与髋同宽。膝盖保持接近伸直(微弯不锁死),背臀贴靠垫。",
+    "推出踏板时呼气,脚跟下沉时吸气。",
+    "1 秒推出 → 顶端停 1 秒 → 2 秒缓慢下沉到最低。",
+    "膝盖角度固定不变 → 前脚掌用力把踏板推远(脚踝跖屈)→ 顶端夹紧小腿停住 → 控制脚跟慢慢沉到最低,让小腿被拉长。",
+    "小腿后侧明显发力和牵拉,膝盖全程没有明显屈伸。",
+    "靠屈伸膝盖去推踏板——膝盖角度必须固定;下沉速度过快失去控制——离心慢下来才是这个动作的重点;重量过大导致行程变短——宁轻勿重。"
+  ),
+  machine_shoulder_press:makeEquipmentDetail(
+    "调整座椅高度,使坐下后握把大约在肩膀高度或略高一点,手肘起始时不会高过肩线太多。背部贴紧靠垫。配重插销选定后先试一次空程,确认行程顺畅。",
+    "坐直,双脚踩实地面与髋同宽,背和后腰贴紧靠垫。双手握住握把,手腕保持中立不后折,手肘略在身体前方。",
+    "向上推时呼气,回落时吸气。",
+    "1–2 秒推起 → 顶端不停 → 2–3 秒控制回落。",
+    "先收紧核心、肋骨不外翻 → 肩部发力向上推到手臂接近伸直(不锁死)→ 控制回落到握把与肩同高。",
+    "肩部发力,核心稳定,腰没有反弓离开靠垫。",
+    "为了推起而挺腰、肋骨前顶——收紧腹部即可解决;耸肩;手腕向后折;回落过快失去控制。"
+  ),
+  machine_chest_press:makeEquipmentDetail(
+    "调整座椅高度,使坐下后握把大约在胸部中段高度。背部贴紧靠垫。配重插销选定后先试一次空程确认行程。",
+    "坐直,双脚踩实地面,背部与后脑贴靠垫。双手握住握把,手腕中立,手肘略低于肩,大臂与身体约 70–80° 夹角(不要完全外张成 90°)。",
+    "向前推时呼气,回收时吸气。",
+    "1–2 秒推出 → 顶端不停 → 2–3 秒控制回收。",
+    "先沉肩、肩胛贴住靠垫 → 胸部发力把握把向前推到手臂接近伸直(不锁死)→ 控制回收到胸部两侧。",
+    "胸部与手臂发力,肩膀没有向前耸出,肩胛始终贴着靠垫。",
+    "手肘完全外张成一条直线——容易伤肩,保持 70–80°;肩膀向前顶出、肩胛离开靠垫;回收过深造成肩关节被动拉伸。"
+  ),
+  machine_incline_press:makeEquipmentDetail(
+    "与 Chest Press 相同,但推的轨迹是斜向上。调整座椅使握把大约在胸部上缘至锁骨之间的高度。",
+    "坐直,背部贴紧靠垫,双脚踩实。双手握住握把,手腕中立,大臂与身体约 70–80°。",
+    "向斜上方推时呼气,回收时吸气。",
+    "1–2 秒推出 → 2–3 秒控制回收。",
+    "先沉肩、肩胛贴靠垫 → 沿器械轨迹斜向上推至手臂接近伸直 → 控制回收。",
+    "上胸与肩前侧发力,肩胛贴稳靠垫。",
+    "同 Chest Press;另外注意不要为了推起而把头前顶离开靠垫。"
+  ),
+  machine_lat_pulldown:makeEquipmentDetail(
+    "调整大腿固定垫的高度,使坐下后大腿被稳稳压住、身体不会被重量带起来。配重插销选定。握把通常是宽握横杆,双手握距略比肩宽。",
+    "坐直,大腿压在固定垫下,双脚踩实地面。双手握住横杆,手臂在头顶上方伸直,肩膀此时是被拉起来的状态。躯干可以略向后倾一点点,但不要靠摆动借力。",
+    "下拉时呼气,回放时吸气。",
+    "1–2 秒下拉 → 底部停 1 秒 → 2–3 秒控制回放。",
+    "先沉肩胛(把肩膀从耳朵旁边拉开)→ 手肘向下向后带,把杆拉到胸部上缘 → 腋下夹紧停住 → 控制回放,让肩胛重新被拉长。",
+    "腋下和体侧那一片(背阔肌)明显绷紧,手臂只是挂着的钩子。",
+    "只用手臂拉导致二头先累——先沉肩胛再动手肘;身体大幅后仰借力;拉不下来时耸肩——换轻一档;把杆拉到颈后——始终拉到身体前方。"
+  ),
+  cable_row:makeEquipmentDetail(
+    "使用 Dual Row 坐姿划船机。调整座椅高度,使坐下后把手位于下胸至腹部之间;若有胸垫,调整到手臂伸直时躯干仍能稳定贴住。配重插销选定后先用轻重量试一次,确认左右把手和行程顺畅。",
+    "坐直,双脚踩实踏板或地面,核心收紧,腰以下保持稳定。双手握住把手,手臂向前伸直,肩膀略被向前带,脊柱保持中立不弓背。",
+    "向后拉时呼气,回放时吸气。",
+    "1–2 秒拉 → 收紧停 1 秒 → 2–3 秒控制回放。",
+    "先用两块肩胛骨向后向下夹 → 再让手肘沿身体两侧向后拉 → 拉到腹部附近,肩胛之间夹紧 → 控制回放,先让背舒展再把手送出去。",
+    "后背中间(肩胛之间)收紧发力,胸打开,躯干没有前后摆动。",
+    "耸肩;靠手臂猛拉而肩胛不动——动作起点是肩胛骨;躯干前后晃借力;回放时突然卸力。"
+  ),
+  cable_rdl:makeEquipmentDetail(
+    "龙门架滑轮调到最低位,挂直杆或绳索把手。站在器械前方约一步距离,使绳索在起始位置已有张力但不会把你向前拽倒。",
+    "双手握杆(约与肩同宽),站直,杆贴在大腿前侧。双脚与髋同宽,膝盖微弯(不是深蹲那种弯),背部挺直,视线朝前下方。",
+    "下放时吸气,起身时呼气。",
+    "2–3 秒下放 → 底部不停 → 1–2 秒起身,顶端夹臀 1 秒。",
+    "先收紧核心 → 屁股向后推(像用臀去关身后的抽屉),杆贴着大腿往下滑 → 感觉大腿后侧被拉到最紧即停 → 呼气用臀把身体带回站直。",
+    "大腿后侧有明显牵拉与发力,背全程是平的,动作来自髋部折叠而不是弯腰。绳索的水平拉力会帮你找到“髋向后”的感觉。",
+    "弓背含胸去够低处——最危险的错误,杆下到大腿后侧最紧的位置就够,不追求触地;靠弯腰而不是推髋;站得太远被绳索拽得失去平衡。"
+  ),
+  cable_lateral_raise:makeEquipmentDetail(
+    "龙门架滑轮调到最低位,挂单手 D 形把手。侧身站在器械旁,用远离器械的那只手绕到身前握住把手,绳索从身体前方斜向外。从最轻档开始。",
+    "侧身站直,双脚与髋同宽,核心收紧。握把手的那只手自然下垂在身前,手臂微屈不锁死。另一只手可扶器械稳定身体。",
+    "抬起时呼气,下放时吸气。",
+    "1–2 秒抬起 → 顶端停 1 秒 → 2–3 秒控制下放。",
+    "先沉肩、不耸肩 → 用手肘带动手臂向侧面抬起到与肩同高 → 顶端停住 → 控制下放,不让重量自由落回。",
+    "肩膀外侧(三角肌中束)明显发力,肩膀没有向耳朵方向耸起。",
+    "耸肩;靠身体摆动把重量甩起来;抬过肩膀高度——到肩高即可;重量过大——这个动作宁轻勿重,最轻档往往就够。"
+  ),
+  cable_face_pull:makeEquipmentDetail(
+    "龙门架滑轮调到上胸至面部之间的高度,挂绳索把手。双手各握绳索一端,掌心相对。站在器械前约一步,使起始时绳索已有张力。",
+    "站直,双脚与髋同宽(也可一前一后更稳),核心收紧。双臂向前伸直握住绳索两端,肩膀放松不耸起。",
+    "向后拉时呼气,回放时吸气。",
+    "1–2 秒拉 → 收紧停 1 秒 → 2–3 秒控制回放。",
+    "先沉肩胛 → 把绳索向面部/额头方向拉,同时双手向两侧分开、手肘保持在与肩同高 → 顶端肩胛后侧夹紧 → 控制回放。",
+    "肩膀后侧与上背发力,手肘全程保持在肩膀高度,胸口打开。",
+    "手肘掉到身体两侧——那就变成划船了,手肘要保持高位;耸肩;重量过大导致靠身体后仰借力。"
+  ),
+  cable_pallof_press:makeEquipmentDetail(
+    "龙门架滑轮调到胸口高度,挂单手或双手把手。侧身站立,使绳索的拉力方向与身体正面垂直。从轻档开始——这个动作的目的是抗住扭转,不是推重量。",
+    "侧身站直,双脚与髋同宽、微屈膝,核心收紧。双手合拢握住把手,置于胸口正中。身体正对前方,肩膀与骨盆保持在同一平面。",
+    "向前推出时呼气,收回时吸气。",
+    "1 秒推出 → 伸直停 1–2 秒 → 1–2 秒收回。",
+    "先建立腹压、把躯干“锁住” → 双手笔直向前推出至手臂伸直 → 全程对抗绳索把你向器械方向扭转的力,躯干纹丝不动 → 控制收回胸前。做完一侧换边。",
+    "腹部一圈(尤其侧腹)在用力抗扭,手在动而躯干完全没有转动。",
+    "身体跟着转向器械——重量过大,换轻档或站近一点;憋气;用手臂使劲而核心松掉——手只负责把把手推出去,发力的是核心在抗扭。"
+  )
 };
 GYM_MOVEMENTS.forEach(([id,nm,base])=>{
   EXERCISE_IDS[nm]=id;
   MOVEMENT_META[nm]={...movementMeta(base)};
   const source=LIBRARY_ITEMS[base];
-  const dose=Object.fromEntries(Object.entries(source.dose).map(([key,value])=>[key,value==="—"?value:(id==="cable_lateral_raise"?"各 ":"")+value.replace(/^各\s*/,"")]));
+  const dose=Object.fromEntries(Object.entries(source.dose).map(([key,value])=>[key,value==="—"?value:(["cable_lateral_raise","cable_pallof_press"].includes(id)?"各 ":"")+value.replace(/^各\s*/,"")]));
   LIBRARY_ITEMS[nm]={...source,nm,...MOVEMENT_META[nm],equipment:"gym",dose,plan:{...source.plan,w:null},why:"重量按 lb 记录；与在家动作分开保存历史。",detail:GYM_DETAILS[id]};
 });
 Object.values(LIBRARY_ITEMS).forEach(item=>{ item.exerciseId=EXERCISE_IDS[item.nm]; });
@@ -2807,8 +2970,8 @@ const ACCESSORY_USE={
   "农夫行走 / Suitcase March":"Full Body / Lower · 练后"
 };
 const WARMUP_GUIDES={
-  fullA:{areas:"脚踝、髋、肩、腕",moves:"徒手深蹲、空手肩推各 6–8 次；Accessory：足踝、腕功能、肩环绕。"},
-  fullB:{areas:"髋、脚踝、肩",moves:"空手髋折叠、墙面俯卧撑各 6–8 次；Accessory：足踝、肩环绕。"},
+  fullA:{areas:"髋、膝、肩、上背、小腿",moves:"先用很轻的器械重量各做几次，再进入工作重量；也可按需从 Accessory 选择准备动作。"},
+  fullB:{areas:"髋、膝、胸、背、核心",moves:"先用很轻的器械重量各做几次，再进入工作重量；也可按需从 Accessory 选择准备动作。"},
   push:{areas:"肩胛、肩、腕",moves:"空手肩推、墙面俯卧撑各 6–8 次；Accessory：腕功能、肩环绕、墙上回旋。"},
   pull:{areas:"肩胛、肩、腕",moves:"轻拉力划船、下拉各 8 次；Accessory：腕功能、肩环绕。"},
   lowerSquat:{areas:"脚踝、髋、膝",moves:"徒手深蹲 8–10 次；Accessory：足踝、髋内旋。"},
@@ -2823,8 +2986,8 @@ const templatePlan = (title, short, sub, names, warmups=[]) => ({title,short,sub
   {name:"今天的动作",items:pickItems(...names)}
 ]});
 const TEMPLATES = {
-  fullA:templatePlan("Full Body A","全身 A","Squat · 垂直推 · 水平拉 · Hinge · 核心 · 小腿",["高脚杯深蹲","哑铃肩推","单臂哑铃划船","臀桥 / 单腿臀桥","死虫式(屈膝点地)","提踵 / 单腿提踵"],["360° 腹式呼吸","足踝迷你套","腕功能迷你套"]),
-  fullB:templatePlan("Full Body B","全身 B","Hinge · 水平推 · 垂直拉 · Squat · 抗旋 · 肩外展",["哑铃罗马尼亚硬拉","上斜俯卧撑(扶桌沿)","拉力带下拉","分腿蹲 / 保加利亚分腿蹲","Pallof press","哑铃侧平举"],["360° 腹式呼吸","足踝迷你套","阻力绳肩环绕"]),
+  fullA:templatePlan("Gym Full Body A","Gym A","Squat · 垂直推 · 水平拉 · Hinge · 肩外展 · 小腿",["Leg Press（器械）","Shoulder Press（器械）","Cable Row","Cable RDL","Cable Lateral Raise","Leg Press 提踵"]),
+  fullB:templatePlan("Gym Full Body B","Gym B","水平推 · 垂直拉 · Squat · Hinge · 上背 · 抗旋",["Chest Press（器械）","Lat Pulldown（器械）","Leg Press（器械）","Cable RDL","Cable Face Pull","站姿 Pallof Press（龙门架）"]),
   push:templatePlan("Push 日","Push","垂直推 · 水平推 · 肩外展 · 肩胛辅助",["哑铃肩推","上斜俯卧撑(扶桌沿)","哑铃侧平举","泡沫轴推墙上回旋(前锯)","弹力带肩外旋 + 站姿 T 字"],["360° 腹式呼吸","腕功能迷你套","阻力绳肩环绕"]),
   pull:templatePlan("Pull 日","Pull","水平拉 · 垂直拉 · 上背辅助",["单臂哑铃划船","拉力带下拉","拉力带坐姿划船","俯卧 T 字"],["360° 腹式呼吸","腕功能迷你套","阻力绳肩环绕"]),
   lowerSquat:templatePlan("Lower Squat 日","Lower · Squat","Squat 为主 · 臀桥 · 核心 · 小腿",["高脚杯深蹲","分腿蹲 / 保加利亚分腿蹲","臀桥 / 单腿臀桥","死虫式(屈膝点地)","提踵 / 单腿提踵"],["360° 腹式呼吸","足踝迷你套","伟大伸展 / 猫式伸展"]),
@@ -2850,8 +3013,21 @@ reviseTemplateItem("pull","单臂哑铃划船",{g:"各 3 组 × 8–12",a:"各 2
 reviseTemplateItem("pull","拉力带下拉",{g:"3 组 × 8–12",a:"2 组 × 8"},{s:3,r:12});
 reviseTemplateItem("pull","俯卧 T 字",{g:"2 组 × 10–15",a:"1 组 × 10"},{s:2,r:15});
 reviseTemplateItem("pull","拉力带坐姿划船",{g:"2 组 × 10–15",a:"1 组 × 10"},{s:2,r:15},{optional:true});
+reviseTemplateItem("fullA","Leg Press（器械）",{g:"3 组 × 8–12",a:"2 组 × 8"},{w:null,s:3,r:12});
+reviseTemplateItem("fullA","Shoulder Press（器械）",{g:"3 组 × 8–10",a:"2 组 × 8"},{w:null,s:3,r:10});
+reviseTemplateItem("fullA","Cable Row",{g:"3 组 × 8–12",a:"2 组 × 8"},{w:null,s:3,r:12});
+reviseTemplateItem("fullA","Cable RDL",{g:"3 组 × 8–12",a:"2 组 × 8"},{w:null,s:3,r:12});
+reviseTemplateItem("fullA","Cable Lateral Raise",{g:"各 2–3 组 × 12–15",a:"各 2 组 × 12"},{w:null,s:3,r:15});
+reviseTemplateItem("fullA","Leg Press 提踵",{g:"2–3 组 × 15–20",a:"2 组 × 15"},{w:null,s:3,r:20});
+reviseTemplateItem("fullB","Chest Press（器械）",{g:"3 组 × 8–12",a:"2 组 × 8"},{w:null,s:3,r:12},{exerciseOptions:["machine_chest_press","machine_incline_press"]});
+reviseTemplateItem("fullB","Lat Pulldown（器械）",{g:"3 组 × 8–12",a:"2 组 × 8"},{w:null,s:3,r:12});
+reviseTemplateItem("fullB","Leg Press（器械）",{g:"3 组 × 8–12",a:"2 组 × 8"},{w:null,s:3,r:12});
+reviseTemplateItem("fullB","Cable RDL",{g:"3 组 × 8–12",a:"2 组 × 8"},{w:null,s:3,r:12});
+reviseTemplateItem("fullB","Cable Face Pull",{g:"2 组 × 12–15",a:"1–2 组 × 12"},{w:null,s:2,r:15});
+reviseTemplateItem("fullB","站姿 Pallof Press（龙门架）",{g:"各 2 组 × 8–12",a:"各 1–2 组 × 8"},{w:null,s:2,r:12});
 TEMPLATES.pull.blocks.find(block=>!block.preparation).items.sort((a,b)=>Number(!!a.optional)-Number(!!b.optional));
 function slotOptions(item){
+  if(Array.isArray(item.exerciseOptions)&&item.exerciseOptions.length) return item.exerciseOptions;
   return item.unilateral ? ["b_stance_rdl","single_leg_rdl"] : (ALTERNATIVE_IDS[item.nm]||[exerciseIdFor(item.nm)]);
 }
 function resolvedPlanForEntry(entry,id=displayTemplateIdForEntry(entry)){

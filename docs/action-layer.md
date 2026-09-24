@@ -1,7 +1,20 @@
-# AvenGO v1.5.0 Training-Flow Revision
+# AvenGO v1.6.0 Training-Flow Revision
 
-Date: 2026-09-07
-Scope: exercise configuration, per-slot implementation choice, and the minimum persistence adapter required to keep concrete exercise histories separate. No template or ledger rule was added.
+Date: 2026-09-23
+Scope: overwrite the existing Full Body A/B configurations with Gym versions, add executable equipment setup notes, and add a read-only latest-value copy. Stored template IDs, the ledger rules, and the backup schema remain unchanged.
+
+## Gym Full Body A/B
+
+`fullA` and `fullB` are retained as stable storage IDs. Their current configurations are Gym-only and contain no floor movements:
+
+- Gym A: Leg Press, Shoulder Press, Cable Row, Cable RDL, Cable Lateral Raise, and Leg Press calf raise.
+- Gym B: Chest Press or Incline Press, Lat Pulldown, Leg Press, Cable RDL, Cable Face Pull, and cable Pallof Press.
+
+Chest Press and Incline Press remain separate exercise IDs. Leg Press is the same `machine_leg_press` in both plans. Cable Pallof Press uses `cable_pallof_press`, independent from the Home band `pallof_press`. Existing records that stored `templateId:"fullA"` or `"fullB"` are not rewritten; completed Home movements remain readable and are labelled as older Home records.
+
+Cable Row retains `exerciseId:"cable_row"` and its UI name. Its setup now specifies the Dual Row seated machine, not a cable tower.
+
+Every machine/cable detail has `setup` followed by the standard six fields. Home dumbbell, bodyweight, and band details keep the six-field structure and do not render an equipment-setup section.
 
 ## Training configuration
 
@@ -35,7 +48,7 @@ The bilateral and unilateral slots have different roles. Progressing the unilate
 
 ## Concrete exercise identity
 
-Home remains the default for a new record. One plan-level button switches every available slot to Gym or back to Home; the stored values remain per-slot exercise IDs, not a global location flag.
+Gym Full Body A/B are the current defaults for the stable `fullA` / `fullB` IDs. Other supported plans keep the one-tap Home/Gym switch; stored values remain per-slot exercise IDs, not a global location flag.
 
 | Shared pattern/role | Home exerciseId | Gym exerciseId(s) |
 | --- | --- | --- |
@@ -47,6 +60,8 @@ Home remains the default for a new record. One plan-level button switches every 
 | Shoulder abduction | `dumbbell_lateral_raise` | `cable_lateral_raise` |
 | Upper back / rear deltoid | `prone_t` | `cable_face_pull` |
 | Hinge | `dumbbell_rdl` | `cable_rdl` |
+| Calf raise | `calf_raise` | `machine_calf_press` |
+| Anti-rotation | `pallof_press` | `cable_pallof_press` |
 
 Chest Press and Incline Press are deliberately separate histories. Pattern equality affects only existing pattern-ledger attribution; it never permits weight or RIR inheritance.
 
@@ -80,6 +95,7 @@ All strength-machine `weight` values use lb. Machine increments are still unknow
 - Existing `day`, `doneA`, `doneB`, `doneExercises`, `selectedExercises`, actuals, reviews, notes, cardio and cycle fields are not migrated or removed.
 - JSON envelope version is 5. The importer continues to accept v2–v5 envelopes and a raw date dictionary.
 - CSV keeps its existing columns, writes Home and Gym values to `weight_lb`, uses `weight_basis:lb`, and appends `aerobic_machine_reading`.
+- “复制最新数据” scans existing records without mutating them, keeps one latest actual per concrete exercise ID and one latest entry per cardio type, and appends current pattern gaps plus the latest cycle marker. It does not copy a four-week session log or import prompt examples.
 - The unchanged ledger functions are `entryMode`, `hasStrengthActivity`, `completionSourceForEntry`, `patternsForEntry`, `displayTemplateIdForEntry`, and `patternLedger`.
 - The AI summary carries exerciseId and lb values. Gym actions enter same-ID load evaluation; the Worker still forbids cross-ID comparison, Home/Gym conversion, merged Chest/Incline history, invented machine increments, and Gym encouragement.
 
@@ -93,11 +109,11 @@ node worker/test.mjs
 git diff --check
 ```
 
-The exercise test covers plan-wide one-tap Home/Gym switching, nine independent Gym histories, three-way horizontal-push separation, bilateral/unilateral Hinge structure, legacy Light records, Full/Compact defaults, cardio readings, CSV lb fields, Accessory timing, and the known pattern-ledger fixture.
+The exercise test covers Gym Full Body A/B composition, eleven independent Gym histories, Dual Row wording, seven-part equipment details, latest-value copying, plan-wide Home/Gym switching in supported plans, horizontal-push separation, bilateral/unilateral Hinge structure, legacy Light records, Full/Compact defaults, cardio readings, CSV lb fields, Accessory timing, and the known pattern-ledger fixture.
 
 Manual local-browser checks at 375 × 812 covered:
 
-- Home load retained after switching to Gym and back.
+- Home load retained after switching a supported split plan to Gym and back.
 - New machine load initially blank; recorded machine load, per-set reps and RIR survive rerender/reload.
 - Calendar-created machine record uses the selected Compact dose and immediately appears in the existing pattern ledger and machine-only trend.
 - JSON copy/import and CSV download complete on the mobile layout.
@@ -108,9 +124,9 @@ No live AI review was requested during testing. Worker behavior was checked with
 
 ## Known limits
 
-- Gym station models and attachments were not inspected; the user confirmed that strength-machine displays use lb. All nine Gym instructions keep `needsReview: true` and defer setup details to the station diagram.
+- Strength-machine displays use lb. The current machine/cable instructions include the supplied station setup; Cable Row is specifically the Dual Row seated machine. Station-specific diagrams and safety labels still take precedence where hardware differs.
 - Cable leg curl, barbells and all unconfirmed machines remain absent.
-- `prototype-en.html` remains non-persistent and shows the one-tap Home/Gym control, Cardio day, warm-up line, and cardio-machine reading.
+- `prototype-en.html` remains non-persistent; it now previews Gym Full Body A, the Dual Row label, equipment setup, Cardio day, and the latest-data action without reading `workout-log`.
 - There is still no Service Worker; installation does not guarantee an offline cold start.
 
 Conservative technique references used for the new machine notes: [Mayo Clinic leg press](https://www.mayoclinic.org/healthy-lifestyle/fitness/multimedia/leg-press/vid-20084684), [NASM chest press machine](https://www.nasm.org/resource-center/exercise-library/chest-press-machine), [ACE seated row](https://www.acefitness.org/resources/everyone/exercise-library/168/seated-row/), [ACE Romanian deadlift](https://www.acefitness.org/continuing-education/certified/may-2025/8865/the-ace-do-it-better-series-the-romanian-deadlift/), and [ACE seated lat pulldown](https://www.acefitness.org/resources/everyone/exercise-library/158/seated-lat-pulldown/). These references do not establish which exact machines or attachments exist in the user’s building.

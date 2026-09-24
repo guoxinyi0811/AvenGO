@@ -1,10 +1,10 @@
 # AvenGO
 
-Current app version: **v1.5.0** · [Changelog](CHANGELOG.md)
+Current app version: **v1.6.0** · [Changelog](CHANGELOG.md)
 
 ## English
 
-AvenGO is a calm, mobile-first home-training log for strength, cardio, and cycle-aware reference. It tracks Squat, Hinge, Push, and Pull patterns while leaving every training choice to the user. No account or build step is required.
+AvenGO is a calm, mobile-first training log for strength, cardio, and optional cycle reference. It tracks Squat, Hinge, Push, and Pull while leaving every choice to the user. No account or build step is required.
 
 ### Try it
 
@@ -14,14 +14,14 @@ The English prototype is a separate, non-persistent preview for reviewing wordin
 
 ### Features
 
-- Flexible strength templates and free combinations, with Full, Compact, Rest, and Cardio day choices.
-- One-tap Home/Gym switching; Gym loads use lb and each exercise keeps separate history.
-- Six-part movement guidance: setup, breathing, tempo, force sequence, correct sensation, and common errors.
+- Gym Full Body A/B, split templates, and free combinations; choose Full, Compact, Rest, or Cardio day.
+- One-tap Home/Gym switching in supported plans; every concrete exercise keeps separate history.
+- Six-part movement guidance; machine and cable movements add a practical equipment-setup section.
 - Weight, sets, reps, RIR, cardio machine readings, notes, calendar, trends, and optional cycle reference.
 - Each plan includes a short warm-up guide; Accessory shows the best day and timing for each movement.
 - Local progression hints, including fixed-band progression through reps, sets, band length, or pauses.
 - Optional, user-triggered eight-week AI review through Cloudflare Workers AI.
-- Full JSON backup and restore, plus CSV export.
+- Copy the latest value for every exercise and cardio type; full JSON backup/restore and CSV export remain available.
 
 Gym exercises are included in load evaluation without mixing Home and Gym histories.
 
@@ -62,7 +62,7 @@ Copyright © 2026 Xinyi (Aven) Guo. All rights reserved. See [LICENSE](LICENSE).
 
 ## 中文
 
-AvenGO 是一个平静、移动端优先的家庭训练记录工具，覆盖力量、有氧与可选的周期参考。它记录 Squat、Hinge、Push、Pull 四大动作模式，但所有训练选择仍由用户决定。无需账号，也没有构建步骤。
+AvenGO 是一个平静、移动端优先的训练记录工具，覆盖力量、有氧与可选周期参考。它记录 Squat、Hinge、Push、Pull 四大动作模式，但所有选择仍由用户决定。无需账号，也没有构建步骤。
 
 ### 在线体验
 
@@ -72,14 +72,14 @@ AvenGO 是一个平静、移动端优先的家庭训练记录工具，覆盖力�
 
 ### 主要功能
 
-- 灵活的力量模板与自由组合，提供完整、精简、休息和有氧日。
-- 一键切换在家或健身房；Gym 重量统一用 lb，各动作历史独立。
-- 六段动作指令：起始姿势、呼吸、节奏、发力顺序、做对的感觉、常见错误。
+- Gym Full Body A/B、分化模板与自由组合，提供完整、精简、休息和有氧日。
+- 支持的计划可一键切换在家或健身房；每个具体动作的历史独立。
+- 动作指令固定六段；器械与龙门架动作另有可执行的“器械设置”。
 - 记录重量、组数、次数、RIR、有氧器械读数、备注、月历、趋势与可选周期参考。
 - 每套计划提供简短热身；Accessory 标注动作适用日及练前/练后位置。
 - 本地渐进负荷提示；固定拉力带通过增加次数、组数、缩短有效长度或停顿来进阶。
 - 用户主动触发的八周 AI 复盘，由 Cloudflare Workers AI 提供。
-- 完整 JSON 备份与恢复，以及 CSV 导出。
+- 可复制每个动作和有氧类型的最新值；同时保留完整 JSON 备份/恢复与 CSV 导出。
 
 Gym 动作纳入重量评估，但不与在家动作混用历史。
 

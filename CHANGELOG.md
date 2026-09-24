@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-09-23 — v1.6.0 Gym full-body revision
+
+- Replaced the existing `fullA` / `fullB` configurations with Gym Full Body A/B without changing their stored template IDs or migrating historical records.
+- Added Leg Press calf raises and cable Pallof press as independent exercise IDs; Chest Press and Incline Press remain separate choices and histories.
+- Added an equipment-setup section to all machine/cable instructions. Cable Row keeps its existing name and ID but now documents the Dual Row seated machine.
+- Added “复制最新数据”, which copies the latest actual value for each concrete exercise and each cardio type, plus pattern gaps and the latest cycle marker. JSON/CSV export remains unchanged.
+- Kept older Home Full Body entries readable and labelled as historical Home records; no prompt sample data is imported.
+
 ## 2026-09-07 — v1.5.0 training-flow revision
 
 - Added one-tap plan-wide Home/Gym switching while keeping concrete exercise histories separate.

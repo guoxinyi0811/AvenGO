@@ -1,10 +1,10 @@
-# AvenGO v1.5.0 Engineering Handoff
+# AvenGO v1.6.0 Engineering Handoff
 
 > 语言原型说明：`prototype-en.html` 是独立、无持久化的英文 UI 术语与布局预览，不读取或写入 `workout-log`，也不是正式 App 的第二套业务实现。后续 EN/CN 应采用展示层 i18n：actuals 使用稳定 exerciseId，历史中文键与 done 数组仍须兼容，不能直接翻译存储键或复制两套业务逻辑。
 
 ## 1. 项目概述
 
-AvenGO 是一个移动端优先的家庭训练记录工具，面向希望用较低决策成本持续训练的人。主要场景是在瑜伽垫或哑铃旁单手查看今天的组合、动作指令和上次实际值，并立即记录重量、次数与 RIR。
+AvenGO 是一个移动端优先的个人训练记录工具，面向希望用较低决策成本持续训练的人。主要场景是在家或公寓健身房单手查看今天的组合、动作指令和上次实际值，并立即记录重量、次数与 RIR。
 
 产品不再绑定特定用户。`AvenGO` 是品牌名；用户可选填本机称呼，留空时标题为“今天练什么”。核心原则是：选择权属于用户，账本和建议只提供参考；休息、有氧或空白都不代表失败。
 
@@ -85,7 +85,7 @@ AvenGO 是一个移动端优先的家庭训练记录工具，面向希望用较�
 - 切换模板、休息或有氧日不得删除 `day`、`doneA`、`doneB`、`doneExercises`、`selectedExercises` 或 `actuals`。
 - 旧动作名是历史关联键。新实际值用稳定 ID；`readExerciseActual` 优先读 ID，缺失才读对应旧名称；`writeExerciseActual` 不删除旧名称键，保留未知字段。同日两种键并存时，ID 版本是当前值，旧键是保留的原始数据，不应重复计数。
 - `doneExercises` / `doneA` / `doneB` / `selectedExercises` 仍是动作名数组，不能直接改成模式或实现组。`completedNames` 仅在读旧 actuals-only 记录时把 ID 还原为动作名，其余判定不变。
-- `exerciseChoices[templateId][slotId]` 为具体 ID 或 `null`。计划顶部的一键 Home/Gym 按钮批量写入各槽位，不另存全局状态；缺失时 Home 默认。旧日已勾选的实现仍显示，切换不删另一实现的数据。Chest Press / Incline Press 仍使用独立按钮与 ID。
+- `exerciseChoices[templateId][slotId]` 为具体 ID 或 `null`。支持替代实现的分化计划用顶部一键 Home/Gym 按钮批量写入各槽位，不另存全局状态；这些槽位缺失选择时以模板原动作作为默认。Gym Full Body A/B 本身全为 Gym 动作，不显示整套位置切换。旧日已勾选的实现仍显示，切换不删另一实现的数据。Chest Press / Incline Press 仍使用独立按钮与 ID。
 - Gym 重量统一按 lb 记录，但不跨机器/动作换算，也不套用哑铃档位。初次使用器械重量为空。新增动作一律使用独立 ID，不能把 `machine_chest_press` 和 `machine_incline_press` 合并。
 
 ### 3.3 动作元数据
@@ -98,7 +98,9 @@ AvenGO 是一个移动端优先的家庭训练记录工具，面向希望用较�
 
 模式元数据属于代码内动作定义，不重复写进每天的日志。CSV 导出时会展开为 `pattern` / `sub_pattern` 列。
 
-`EXERCISE_IDS` 管理稳定身份和历史名称映射；`GYM_MOVEMENTS` 限定九个实现；`ALTERNATIVE_IDS` 定义可替代的槽位。相同 `pattern` 不等于同一个动作。当前俯卧 T 与侧平举仍为 `accessory`，对应 Cable 变体沿用这一归属，避免改变账本含义。器械说明按六段结构保守编写，全部带 `needsReview:true`，不能假称已确认现场座椅、把手和规格。
+`EXERCISE_IDS` 管理稳定身份和历史名称映射；`GYM_MOVEMENTS` 现有十一个实现；`ALTERNATIVE_IDS` 定义可替代槽位。相同 `pattern` 不等于同一个动作。当前俯卧 T 与侧平举仍为 `accessory`，对应 Cable 变体沿用这一归属。器械 / 龙门架详情比普通六段多一个置顶 `setup` 字段；Cable Row 名称与 `cable_row` ID 不变，但设置文案明确指向 Dual Row 坐姿划船机。
+
+`fullA` / `fullB` 是稳定的历史模板 ID，当前内容已覆盖为 Gym Full Body A/B，不能另建平行 Gym 模板。旧 Home Full Body 记录不迁移：既有 `doneExercises`、名称键 actuals 与 ID 键 actuals 全部保留，展示标题会标为旧家庭记录。Gym A/B 全部是器械 / 龙门架动作；Chest / Incline 在 Gym B 同一槽位二选一但历史独立。
 
 ### 3.4 可选称呼与备份
 
@@ -155,6 +157,7 @@ JSON envelope：
 - `renderDayDetail`：过去日期可选模板 / 自由组合、动作、实际值、RIR；有氧始终独立，并支持可选 `aerobic.reading`。
 - `refreshHistoryDerivedViews`：日历补录、取消、清除或修改实际值后，统一重绘首页账本 / 建议与记录页趋势 / 周柱状图；返回「今天」页时也会再次同步。
 - `renderCalendar` / `renderStats` / `buildReport`：以事实记录和模式计数，不计算达标率。
+- `latestDataText`：只读扫描全部现有日期，按具体 exerciseId 取每个动作最新实际值，按有氧类型取最新记录，并附模式间隔和最近经期；“复制最新数据”不生成四周流水账，也不写回日志。
 - `backupPayload` / `buildCSV` / `doImport`：完整 JSON、兼容导入与行式 CSV。
 - 状态直接保存在 `log[dateKey]` 对象并立即 `saveLog()`；没有框架状态层。
 
@@ -177,7 +180,7 @@ JSON envelope：
 - 模板较多，375px 下会形成多行网格；必须保留所有选项直接可见，不能用“锁定 / 解锁”折叠。
 - 自由组合动作较多，当前按模式分组的 chip 列表偏长。这是功能范围内的直接实现；后续若调整只能优化排版，不能增加搜索、收藏等新功能。
 - 过去日期编辑器信息密度较高；需重点回归模板下拉、动作实际值与有氧在窄屏的排列。
-- 新实现选择采用原生 select + 次级折叠区；保留既有极简风格，只加必要布局。英文 prototype 本轮未同步新控件，仍是静态术语预览。
+- 新实现选择采用原生 select + 次级折叠区；保留既有极简风格，只加必要布局。英文 prototype 已同步 Gym Full Body A、Dual Row、器械设置与复制最新数据的术语，但仍是无持久化静态预览。
 - `renderDayDetailLegacy` 是保留的旧实现，当前未调用；不要把它误接回入口，否则会绕过新实际值适配器。
 - 单文件已较长。可以在未来拆成无构建的 ES modules，但不能在纯 UI 轮次顺手重构业务。
 - AI 卡片沿用现有极简视觉。生产 Worker 已部署到 `avengo-coach.guoxinyi0811.workers.dev/review`，完整 URL 保存在 `avengo-ai-endpoint` meta；更换账号子域或 Worker 名称时必须同步修改并回归 CORS。
@@ -195,7 +198,7 @@ JSON envelope：
 - 周期建议使用“大约 / 倾向”语言，不作医疗断言。
 - 不引入外部字体、网络资源、框架、CDN 或构建步骤。
 - 不新增本需求以外的功能，不构建训练量数据库、社交、成就或压力机制。
-- 新记录默认 Home，一键按钮可切换整套计划的已有 Gym 实现；不推荐去 Gym，也不因未选器械而提示。没有确认的器械不新增，未指定变体的动作保持原状。
+- Gym Full Body A/B 是 `fullA` / `fullB` 的当前配置；其余支持替代实现的模板仍可一键切换 Home/Gym。不推荐去 Gym，也不因未选器械而提示。没有确认的器械不新增，未指定变体的动作保持原状。
 - 热身和 Accessory 不构成开始主训练的门槛，不显示跳过警示、空缺标记或完成度。
 
 ## 7. 易损点与回归清单
@@ -204,7 +207,7 @@ JSON envelope：
 - 禁止用 `toISOString()` 生成日期。
 - `TEMPLATES` 依赖 `LIBRARY_ITEMS`，动作库又复用 `DETAILS`；改声明顺序时要测试脚本初始化。
 - `state` 与剂量键仍是历史内部值，不能因 UI 文案改名而改存储。
-- 每个原子动作详情必须保留 `start / breath / tempo / sequence / feel / errors`；组合动作的每个 `subs` 子动作也要完整。`needsReview:true` 不能在视觉调整中删除。
+- 每个原子动作详情必须保留 `start / breath / tempo / sequence / feel / errors`；器械 / 龙门架动作还必须保留置顶 `setup`；组合动作的每个 `subs` 子动作也要完整。已有非器械动作上的 `needsReview:true` 不能在视觉调整中删除。
 - 新增颈部动作必须继续保持低强度、无位移和停止条件，不得改成最大力量对抗，也不得根据周期阶段自动调整。
 - 模式账本以显式完成动作作为新记录的事实来源；只有缺少完成数组的旧记录才回退读取 `actuals`。`strength:false` 或 `dayType:"rest"` 必须覆盖遗留动作字段；仅选择模板或取消动作后不应虚增模式次数。
 - “超过 10 天”只改变账本边框与“可优先考虑”文字，不得变成警告色、进度条或未完成状态。
@@ -213,7 +216,8 @@ JSON envelope：
 - Worker 必须拒绝非 `https://guoxinyi0811.github.io` Origin、非 POST/OPTIONS、超长摘要和超限请求；上游错误不得把 key 或响应体回传前端。
 - JSON 导入必须继续接受 v2/v3 和裸日期对象，并保留所有未知可选字段。
 - 同时回归 v4/v5；不得批量改旧 actuals 键。旧版本不能正确编辑 ID 新数据，不应降级后编辑新备份。
-- 回归计划级 Home/Gym 一键切换与九个 Gym 实现：历史、默认值、组次、RIR、趋势、CSV 与 AI 摘要独立；Chest / Incline Press 必须三路隔离（包括 Home 上斜俯卧撑）。
+- 回归 Gym Full Body A/B、计划级 Home/Gym 一键切换与十一个 Gym 实现：历史、默认值、组次、RIR、趋势、CSV 与 AI 摘要独立；Chest / Incline Press 必须三路隔离（包括 Home 上斜俯卧撑），Home / cable Pallof 也必须隔离。
+- 回归“复制最新数据”：每个动作按 exerciseId 只出现最新值，Home/Gym 不混；每个有氧类型只出现最新记录；clipboard 失败时显示可全选文本框。
 - 回归旧记录：缺 `dayType` / `actuals` / `aerobic` / `note` / `period`、旧 A/B、旧 `dayType:"aero"`。
 - 回归主流程：所有模板、自由组合、完整 / 精简与旧轻量读取、动作勾选、刷新保留、RIR、渐进提示、力量 + 有氧同日、只记有氧、休息 + 有氧。
 - 回归记录页：过去日模板与自由组合补录、月历与账本同步、模式统计、CSV 列、JSON 新旧导入、周期推算、趋势与周柱状图。

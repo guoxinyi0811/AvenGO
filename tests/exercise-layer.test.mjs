@@ -17,7 +17,7 @@ const plain=code=>JSON.parse(JSON.stringify(run(code)));
 const fresh=()=>run(`for(const key of Object.keys(log))delete log[key]; for(const key of Object.keys(today))delete today[key]; Object.assign(today,{templateId:"fullA",doneExercises:[],actuals:{},exerciseChoices:{},state:"green",strength:true}); templateId="fullA";state="green";`);
 
 assert.equal(new Set(plain("Object.values(EXERCISE_IDS)")).size,plain("Object.keys(EXERCISE_IDS)").length);
-assert.equal(run("GYM_MOVEMENTS.length"),9);
+assert.equal(run("GYM_MOVEMENTS.length"),11);
 assert.ok(run('EXERCISE_BY_ID.machine_chest_press.nm !== EXERCISE_BY_ID.machine_incline_press.nm'));
 assert.ok(!/machine_chest_or_incline_press|cable_leg_curl|barbell_/.test(run("JSON.stringify(EXERCISE_IDS)")));
 
@@ -35,6 +35,14 @@ for(const [id,name,base] of gymPairs){
   assert.equal(run(`movementMeta(${JSON.stringify(base)}).pattern === movementMeta(${JSON.stringify(name)}).pattern`),true);
   run(`delete log['2026-01-01'];`);
 }
+assert.equal(run('TEMPLATES.fullA.title'),"Gym Full Body A");
+assert.equal(run('TEMPLATES.fullB.title'),"Gym Full Body B");
+assert.deepEqual(plain('planItems(TEMPLATES.fullA).map(item=>item.exerciseId)'),["machine_leg_press","machine_shoulder_press","cable_row","cable_rdl","cable_lateral_raise","machine_calf_press"]);
+assert.deepEqual(plain('planItems(TEMPLATES.fullB).map(item=>item.exerciseId)'),["machine_chest_press","machine_lat_pulldown","machine_leg_press","cable_rdl","cable_face_pull","cable_pallof_press"]);
+assert.equal(run('planItems(TEMPLATES.fullA).every(item=>item.equipment==="gym")&&planItems(TEMPLATES.fullB).every(item=>item.equipment==="gym")'),true);
+assert.deepEqual(plain('slotOptions(planItems(TEMPLATES.fullB)[0])'),["machine_chest_press","machine_incline_press"]);
+assert.deepEqual(new Set(plain('patternsForEntry({templateId:"fullA",strength:true,doneExercises:planItems(TEMPLATES.fullA).map(item=>item.nm)})')),new Set(["squat","push","pull","hinge"]));
+assert.deepEqual(new Set(plain('patternsForEntry({templateId:"fullB",strength:true,doneExercises:planItems(TEMPLATES.fullB).map(item=>item.nm)})')),new Set(["push","pull","squat","hinge"]));
 run(`log['2026-01-02']={actuals:{machine_chest_press:{weight:45,sets:3,reps:10,rir:2},machine_incline_press:{weight:30,sets:2,reps:8,rir:1},"上斜俯卧撑(扶桌沿)":{sets:2,reps:9,rir:3}}};`);
 assert.equal(run('lastActual("Chest Press（器械）").weight'),45);
 assert.equal(run('lastActual("Incline Press（器械）").weight'),30);
@@ -60,13 +68,14 @@ run('setExerciseChoice(today,templateId,"band_seated_row","band_seated_row");');
 assert.equal(run('planItems(currentPlan()).find(item=>item.nm==="拉力带坐姿划船").inactive'),false);
 
 fresh();
-run('today.doneExercises=["高脚杯深蹲"]; writeExerciseActual(today,"高脚杯深蹲",{weight:13,sets:3,reps:12,rir:2});setExerciseChoice(today,"fullA","goblet_squat","machine_leg_press");');
+run('today.doneExercises=["高脚杯深蹲"]; writeExerciseActual(today,"高脚杯深蹲",{weight:13,sets:3,reps:12,rir:2});');
 assert.equal(run('readExerciseActual(today,"Leg Press（器械）")'),null);
 assert.equal(run('readExerciseActual(today,"高脚杯深蹲").weight'),13);
 assert.deepEqual(plain('completedNames(today)'),["高脚杯深蹲"]);
-run('writeExerciseActual(today,"Leg Press（器械）",{weight:60,sets:2,reps:10,rir:3});setExerciseChoice(today,"fullA","goblet_squat","goblet_squat");');
+run('writeExerciseActual(today,"Leg Press（器械）",{weight:60,sets:2,reps:10,rir:3});');
 assert.equal(run('readExerciseActual(today,"高脚杯深蹲").weight'),13);
 assert.equal(run('readExerciseActual(today,"Leg Press（器械）").weight'),60);
+assert.equal(run('entryTemplateTitle(today)'),"Full Body A（旧家庭记录）");
 
 fresh();
 run(`Object.assign(log,{
@@ -97,16 +106,18 @@ assert.equal(nodes.get("#checkinBtn").hidden,true);
 assert.ok(nodes.get("#pBody").innerHTML.includes("Lower Squat / Lower Hinge · 练前"));
 assert.ok(!nodes.get("#pBody").innerHTML.includes("· 可选"));
 run('templateId="fullA";today.templateId=templateId;renderPlan();');
-assert.ok(nodes.get("#pBody").innerHTML.includes("热身部位 · 脚踝、髋、肩、腕"));
+assert.ok(nodes.get("#pBody").innerHTML.includes("热身部位 · 髋、膝、肩、上背、小腿"));
 assert.ok(!nodes.get("#pBody").innerHTML.includes('aria-label="记录 360° 腹式呼吸"'));
+assert.ok(!nodes.get("#pBody").innerHTML.includes("切换到在家"));
+run('templateId="push";today.templateId=templateId;renderPlan();');
 const locationChoice=nodes.get("#pBody").innerHTML;
 assert.ok(locationChoice.includes("切换到健身房"));
 assert.ok(!locationChoice.includes("同一训练模式的替代实现"));
-run('setPlanLocation(today,"fullA","gym");');
-assert.equal(run('planLocation(today,"fullA")'),"gym");
-assert.ok(plain('planItems(currentPlan()).map(item=>item.exerciseId)').includes("machine_leg_press"));
-run('setPlanLocation(today,"fullA","home");');
-assert.equal(run('planLocation(today,"fullA")'),"home");
+run('setPlanLocation(today,"push","gym");');
+assert.equal(run('planLocation(today,"push")'),"gym");
+assert.ok(plain('planItems(currentPlan()).map(item=>item.exerciseId)').includes("machine_shoulder_press"));
+run('setPlanLocation(today,"push","home");');
+assert.equal(run('planLocation(today,"push")'),"home");
 
 fresh();
 run(`log['2026-01-03']={templateId:'push',doneExercises:['Chest Press（器械）'],strength:true,unknown:'keep',actuals:{machine_chest_press:{weight:45,sets:3,reps:[10,9],rir:2}},exerciseChoices:{push:{incline_pushup:'machine_chest_press'}}};`);
@@ -165,9 +176,29 @@ assert.deepEqual(plain('completedNames(log["2026-01-03"])'),["哑铃肩推"]);
 const past={templateId:"lowerHinge",strength:true,doneExercises:["B-stance RDL","单腿 RDL"],exerciseChoices:{lowerHinge:{b_stance_rdl:"single_leg_rdl"}}};
 assert.equal(run(`itemsForEntry(${JSON.stringify(past)}).find(item=>item.nm==="B-stance RDL").historical`),true);
 for(const [id] of gymPairs){
-  for(const field of ["start","breath","tempo","sequence","feel","errors"])assert.ok(run(`GYM_DETAILS.${id}.${field}`),`${id}.${field}`);
-  assert.equal(run(`GYM_DETAILS.${id}.needsReview`),true);
+  for(const field of ["setup","start","breath","tempo","sequence","feel","errors"])assert.ok(run(`GYM_DETAILS.${id}.${field}`),`${id}.${field}`);
 }
+assert.ok(run('GYM_DETAILS.cable_row.setup.includes("Dual Row 坐姿划船机")'));
+assert.ok(!run('GYM_DETAILS.cable_row.setup.includes("龙门架")'));
+assert.ok(run('detailHTML(GYM_DETAILS.cable_row).indexOf("器械设置") < detailHTML(GYM_DETAILS.cable_row).indexOf("起始姿势")'));
+assert.ok(!run('detailHTML(DETAILS["高脚杯深蹲"]).includes("器械设置")'));
 assert.ok(!run('LIBRARY_ITEMS["Cable Row"].dose.g').startsWith("各"));
 assert.ok(run('LIBRARY_ITEMS["Cable Lateral Raise"].dose.g').startsWith("各"));
+
+fresh();
+run(`Object.assign(log,{
+  '2026-03-01':{templateId:'fullA',strength:true,doneExercises:['高脚杯深蹲'],actuals:{goblet_squat:{weight:9,sets:3,reps:10,rir:2}}},
+  '2026-03-02':{templateId:'fullA',strength:true,doneExercises:['高脚杯深蹲','Leg Press（器械）'],actuals:{goblet_squat:{weight:13,sets:3,reps:[10,10,9],rir:1},machine_leg_press:{weight:50,sets:3,reps:12,rir:3}},aerobic:{type:'散步',minutes:20},period:true},
+  '2026-03-03':{aerobic:{type:'跑步机',minutes:25,reading:'速度 3.2 · 坡度 4'}},
+  '2026-03-04':{aerobic:{type:'散步',minutes:30}}
+});`);
+const latest=run('latestDataText("2026-03-04")');
+assert.ok(latest.includes('高脚杯深蹲 | 03-02 | 13lb | 3×10/10/9 | RIR1'));
+assert.ok(latest.includes('Leg Press（器械） | 03-02 | 50lb | 3×12 | RIR3'));
+assert.ok(!latest.includes('高脚杯深蹲 | 03-01'));
+assert.ok(latest.includes('散步 | 03-04 | 30min'));
+assert.ok(latest.includes('跑步机 | 03-03 | 25min | 速度 3.2 · 坡度 4'));
+assert.ok(latest.includes('最近来潮：03-02'));
+assert.ok(html.includes('id="copyLatestData"'));
+assert.ok(html.includes('id="latestDataFallback"'));
 console.log("exercise layer regression tests passed");
