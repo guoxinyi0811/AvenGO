@@ -1,7 +1,21 @@
-# AvenGO v1.7.0 Training-Flow Revision
+# AvenGO v1.7.1 Training-Flow Revision
 
 Date: 2026-11-01
-Scope: derive optional preparation from enabled exercise identities, add date-level venue recording, and add a portable custom-exercise catalog. Existing templates, `workout-log`, and ledger semantics remain unchanged.
+Scope: derive optional preparation from enabled exercise identities, add date-level venue recording and a portable custom-exercise catalog, then extend free combination with confirmed standalone machines. Existing templates, `workout-log`, and ledger semantics remain unchanged.
+
+## v1.7.1 standalone machine library
+
+The free-combination picker now includes five confirmed machines without adding them to a fixed template or Home/Gym replacement slot:
+
+| Display name | exerciseId | Pattern |
+|---|---|---|
+| 髋外展（器械） | `machine_hip_abduction` | accessory |
+| Calf Extension（器械） | `machine_calf_extension` | accessory |
+| Leg Curl（器械） | `machine_leg_curl` | hinge |
+| Leg Extension（器械） | `machine_leg_extension` | squat |
+| Rear Delt（器械） | `machine_rear_delt` | accessory |
+
+All five use lb actuals, independent weight / set / rep / RIR history, weighted trends, explicit preparation needs, and equipment setup plus the standard six instruction sections. Existing Leg Press, Chest Press, Cable Row, and Lat Pulldown IDs cover the other movements in the supplied friend-gym record. The supplied numbers are not defaults and are not inserted into `workout-log`.
 
 ## v1.7.0 dynamic preparation
 
@@ -153,7 +167,7 @@ No live AI review was requested during testing. Worker behavior was checked with
 ## Known limits
 
 - Strength-machine displays use lb. The current machine/cable instructions include the supplied station setup; Cable Row is specifically the Dual Row seated machine. Station-specific diagrams and safety labels still take precedence where hardware differs.
-- Cable leg curl, barbells and all unconfirmed machines remain absent.
+- Cable leg curl, barbells and all still-unconfirmed machines remain absent. The confirmed selectorized `machine_leg_curl` is a separate identity.
 - `prototype-en.html` remains non-persistent; it previews dynamic preparation, venue, custom-action, Gym Full Body A, equipment setup, Cardio day, and data/privacy terminology without reading `workout-log`.
 - There is still no Service Worker; installation does not guarantee an offline cold start.
 

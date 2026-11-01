@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-01 — v1.7.1 standalone machine library
+
+- Added five confirmed machines to free combination: Hip Abduction, Calf Extension, Leg Curl, Leg Extension, and Rear Delt.
+- Gave every machine an independent exercise ID, lb-based actuals, weighted trend support, explicit `prepNeeds`, and a seven-part setup and movement guide.
+- Kept these movements out of the six fixed templates and out of Home/Gym replacement slots. Existing Leg Press, Chest Press, Cable Row, and Lat Pulldown identities remain unchanged.
+- Used the supplied friend-gym records only to confirm equipment coverage; no personal weights or sessions are seeded into the app.
+
 ## 2026-11-01 — v1.7.0 dynamic preparation and portable custom exercises
 
 - Added warm-up and optional post-training stretch lists derived from the day’s currently enabled exercise IDs. General preparation is capped at five items; the separate specific-warm-up block identifies the first main compound in each active pattern.

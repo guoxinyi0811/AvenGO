@@ -1,4 +1,4 @@
-# AvenGO v1.7.0 Engineering Handoff
+# AvenGO v1.7.1 Engineering Handoff
 
 > 语言原型说明：`prototype-en.html` 是独立、无持久化的英文 UI 术语与布局预览，不读取或写入 `workout-log`，也不是正式 App 的第二套业务实现。后续 EN/CN 应采用展示层 i18n：actuals 使用稳定 exerciseId，历史中文键与 done 数组仍须兼容，不能直接翻译存储键或复制两套业务逻辑。
 
@@ -101,7 +101,9 @@ AvenGO 是一个移动端优先的个人训练记录工具，面向希望用较�
 
 模式元数据属于代码内动作定义，不重复写进每天的日志。CSV 导出时会展开为 `pattern` / `sub_pattern` 列。
 
-`EXERCISE_IDS` 管理稳定身份和历史名称映射；`GYM_MOVEMENTS` 现有十一个实现；`ALTERNATIVE_IDS` 定义可替代槽位。相同 `pattern` 不等于同一个动作。当前俯卧 T 与侧平举仍为 `accessory`，对应 Cable 变体沿用这一归属。器械 / 龙门架详情比普通六段多一个置顶 `setup` 字段；Cable Row 名称与 `cable_row` ID 不变，但设置文案明确指向 Dual Row 坐姿划船机。
+`EXERCISE_IDS` 管理稳定身份和历史名称映射；`GYM_MOVEMENTS` 保留十一个模板替代实现，`STANDALONE_GYM_MOVEMENTS` 另含五个只供自由组合选择的已确认器械；`ALTERNATIVE_IDS` 仅定义前者的可替代槽位。相同 `pattern` 不等于同一个动作。当前俯卧 T、Rear Delt 与侧平举仍为 `accessory`。器械 / 龙门架详情比普通六段多一个置顶 `setup` 字段；Cable Row 名称与 `cable_row` ID 不变，但设置文案明确指向 Dual Row 坐姿划船机。
+
+自由组合新增的独立 ID 为 `machine_hip_abduction`、`machine_calf_extension`、`machine_leg_curl`、`machine_leg_extension`、`machine_rear_delt`。它们不进入六套固定模板，也不成为 Home/Gym 一键替换项；所有重量按 lb 记录并进入各自趋势。Leg Curl 归入 Hinge、Leg Extension 归入 Squat，其余三项归 Accessory。用户提供的朋友家训练数字只是确认器械存在，不能作为默认重量或预置日志。
 
 `fullA` / `fullB` 是稳定的历史模板 ID，当前内容已覆盖为 Gym Full Body A/B，不能另建平行 Gym 模板。旧 Home Full Body 记录不迁移：既有 `doneExercises`、名称键 actuals 与 ID 键 actuals 全部保留，展示标题会标为旧家庭记录。Gym A/B 全部是器械 / 龙门架动作；Chest / Incline 在 Gym B 同一槽位二选一但历史独立。
 
@@ -240,6 +242,7 @@ JSON envelope：
 - 回归记录页：过去日模板与自由组合补录、月历与账本同步、模式统计、CSV 列、JSON 新旧导入、周期推算、趋势与周柱状图。
 - 回归动态准备：所有动作均有显式 `prepNeeds`；当前启用动作增减会实时更新；通用 / 舒展各不超过 5 项；专项区不含固定百分比；跳过不写日志。
 - 回归场地与自定义动作：场地-only 日期安静保留；CSV 两列齐全；空模式不更新账本但重量趋势保留；改名不断历史；备份清空再导入可恢复目录与实际值；AI 摘要不含场地。
+- 回归自由组合器械：五个 standalone ID 可选、可记录、可导出并进入重量趋势；不出现在固定模板或 `ALTERNATIVE_IDS`，也不继承对应徒手 / 拉力带动作或其他机器的历史。
 - 回归体验：375px 今天页 / 记录页 / 展开详情 / 编辑器无横向溢出，键盘焦点清楚，控制台无报错。
 - 回归 AI：未配置、超时、非 2xx、成功、缓存命中、重新生成、历史显示、v4/v5/v6 备份导入；任一失败时本地规则仍正常。
 

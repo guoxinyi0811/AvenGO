@@ -2981,7 +2981,61 @@ const GYM_MOVEMENTS = [
   ["cable_rdl","Cable RDL","哑铃罗马尼亚硬拉"],
   ["cable_pallof_press","站姿 Pallof Press（龙门架）","Pallof press"]
 ];
+// Confirmed standalone machines for free combination. They are not template
+// replacements, so they keep independent histories without changing plan slots.
+const STANDALONE_GYM_MOVEMENTS = [
+  {id:"machine_hip_abduction",nm:"髋外展（器械）",base:"阻力圈蚌式开合",dose:{g:"2–3 组 × 12–15",a:"2 组 × 12",r:"—"},plan:{s:3,r:15}},
+  {id:"machine_calf_extension",nm:"Calf Extension（器械）",base:"提踵 / 单腿提踵",dose:{g:"2–3 组 × 15–20",a:"2 组 × 15",r:"—"},plan:{s:3,r:20}},
+  {id:"machine_leg_curl",nm:"Leg Curl（器械）",base:"毛巾滑动腿弯举",dose:{g:"2–3 组 × 10–15",a:"2 组 × 10",r:"—"},plan:{s:3,r:15}},
+  {id:"machine_leg_extension",nm:"Leg Extension（器械）",base:"徒手深蹲",dose:{g:"2–3 组 × 10–15",a:"2 组 × 10",r:"—"},plan:{s:3,r:15}},
+  {id:"machine_rear_delt",nm:"Rear Delt（器械）",base:"俯卧 T 字",dose:{g:"2–3 组 × 10–15",a:"2 组 × 10",r:"—"},plan:{s:3,r:15}}
+];
 const GYM_DETAILS = {
+  machine_hip_abduction:makeEquipmentDetail(
+    "调整座椅和靠背,让坐下后髋、膝大约弯曲 90°。两侧挡垫贴在大腿外侧、靠近膝盖但不压膝关节;先把起始角度调到舒适范围,再插入配重。",
+    "臀部和背部贴住靠垫,双脚踩稳踏板,膝盖与脚尖方向一致。双手握住扶手,脊柱中立,视线朝前。",
+    "双腿向外打开时呼气,控制回到起始位时吸气。",
+    "1–2 秒打开 → 末端停 1 秒 → 2–3 秒回收。",
+    "先收紧核心、保持骨盆不动 → 臀部外侧发力把膝盖向两边打开 → 在可控末端停住 → 不让配重片相撞地缓慢回收。",
+    "臀部外上侧持续发力,躯干和骨盆保持稳定;膝关节没有挤压或刺痛。",
+    "身体前后摆动借力——减轻重量并贴住靠垫;为了追求幅度让骨盆后卷——缩小打开范围;回收过快让配重片撞击——全程控制回程。"
+  ),
+  machine_calf_extension:makeEquipmentDetail(
+    "Calf Extension 机型的挡垫和踏板位置可能不同,先按机身图示调整座椅与接触点。确保前脚掌稳定踩在踏板上、脚跟可以自由上下移动;从轻重量试一组,确认膝盖和身体能被固定。",
+    "前脚掌与髋同宽踩稳,脚尖朝前或略向外,膝盖对准脚尖并保持机器要求的固定角度。双手握扶手,脊柱贴稳靠垫,视线朝前。",
+    "脚跟下沉时吸气,前脚掌发力抬高脚跟时呼气。",
+    "2–3 秒下沉 → 底部不停或停 1 秒 → 1 秒抬起 → 顶端停 1 秒。",
+    "先固定膝盖和躯干 → 前脚掌均匀压住踏板 → 小腿发力抬高脚跟 → 顶端停住 → 控制脚跟下沉到舒适幅度。",
+    "小腿后侧收缩和拉长都清楚,大脚趾根部持续压住踏板,膝盖没有来回屈伸。",
+    "靠屈伸膝盖带动重量——固定膝角;脚踝向外翻——减轻重量并让大脚趾根部压实;重量太大导致行程变短——先恢复完整可控行程。"
+  ),
+  machine_leg_curl:makeEquipmentDetail(
+    "先按机身图示确认坐姿或俯卧结构。调整转轴,使机器旋转轴与膝关节大致对齐;滚垫放在小腿下端、脚跟上方,不要直接压跟腱。坐姿机还要压稳大腿挡垫。",
+    "按机器结构让背部贴靠垫,或让胸腹和骨盆贴稳俯卧垫。双腿与髋同宽,膝盖朝下或朝前并对准转轴;双手握扶手,脊柱中立,视线保持自然。",
+    "膝盖弯曲、把滚垫拉回时呼气;控制腿伸长时吸气。",
+    "1–2 秒屈膝 → 末端停 1 秒 → 2–3 秒控制伸回。",
+    "先固定骨盆和大腿 → 大腿后侧发力弯曲膝盖 → 在可控末端停住 → 保持腘绳肌张力缓慢伸回,不让配重片撞击。",
+    "大腿后侧发力明显,骨盆没有离开靠垫;膝关节沿机器转轴顺畅移动。",
+    "抬臀或弓腰借力——减轻重量并压稳骨盆;回程突然放掉——延长到 2–3 秒;滚垫压在跟腱或转轴错位——停下重新调座椅和滚垫。"
+  ),
+  machine_leg_extension:makeEquipmentDetail(
+    "调整靠背和座椅,使膝关节与机器转轴大致对齐。小腿滚垫放在胫骨下端、脚踝上方,不要压在脚背;若有大腿挡垫,调到能固定但不挤压。",
+    "臀部和背部贴住靠垫,双腿与髋同宽,膝盖和脚尖朝前。双手握住扶手,脊柱中立,视线朝前;起始角度以膝盖舒适为准。",
+    "伸膝抬起滚垫时呼气,控制回落时吸气。",
+    "1–2 秒伸直 → 顶端停 1 秒 → 2–3 秒回落。",
+    "先收紧核心并压稳臀部 → 大腿前侧发力伸膝 → 接近伸直时停住、不猛锁膝 → 控制回到舒适起始角度。",
+    "大腿前侧持续发力,躯干贴稳靠垫;膝盖没有刺痛,滚垫和转轴位置稳定。",
+    "踢甩重量或顶端猛锁膝——减轻重量并放慢;臀部离开座椅——握稳扶手并减少重量;膝前侧不适——重新对齐转轴、缩小范围或停止该动作。"
+  ),
+  machine_rear_delt:makeEquipmentDetail(
+    "使用反向飞鸟 / Rear Delt 设置。调整座椅高度,让握把大约与肩同高;胸垫位置应允许胸口贴稳、手臂向前时肩膀不被迫耸起。先用轻重量确认手柄轨迹。",
+    "面向胸垫坐好,双脚踩稳地面,胸口贴住垫面。双手握住把手,手臂微屈、手腕中立,手肘与肩大致同高;脊柱中立,视线看前方偏下。",
+    "双臂向两侧打开时呼气,控制回到前方时吸气。",
+    "1–2 秒打开 → 末端停 1 秒 → 2–3 秒回收。",
+    "先收紧核心、胸口贴稳 → 肩膀远离耳朵 → 用手肘带动双臂向两侧和后方打开 → 后肩与肩胛周围收紧 → 控制回收。",
+    "肩膀后侧和上背发力,颈部放松;胸口始终贴着胸垫,动作不靠身体后仰。",
+    "手肘掉低变成划船——让手肘保持接近肩高;耸肩夹颈——减轻重量并沉肩;手臂甩开或胸口离垫——缩小幅度并放慢。"
+  ),
   machine_leg_press:makeEquipmentDetail(
     "坐下后调整座椅位置,使双脚踩上踏板时膝盖弯曲约 90°,不要更深——座椅离踏板太近会让下背在底部离开靠垫。配重用插销插进对应重量的孔位;若配重栈顶部有小的微调块,可在整档基础上再加半档。开始前双脚推住踏板承重,然后把两侧安全杆向外拨开解锁;做完最后一次,把踏板推到接近伸直再把安全杆扣回,之后才松腿。",
     "双脚踩在踏板中央偏上,与髋同宽,脚尖略朝外与膝盖方向一致,整个脚掌踩实、脚跟不翘起。背部和臀部完全贴住靠垫,双手握住两侧扶手,视线朝前。",
@@ -3082,13 +3136,15 @@ const GYM_DETAILS = {
     "身体跟着转向器械——重量过大,换轻档或站近一点;憋气;用手臂使劲而核心松掉——手只负责把把手推出去,发力的是核心在抗扭。"
   )
 };
-GYM_MOVEMENTS.forEach(([id,nm,base])=>{
+function registerGymMovement(id,nm,base,overrides={}){
   EXERCISE_IDS[nm]=id;
   MOVEMENT_META[nm]={...movementMeta(base)};
   const source=LIBRARY_ITEMS[base];
   const dose=Object.fromEntries(Object.entries(source.dose).map(([key,value])=>[key,value==="—"?value:(["cable_lateral_raise","cable_pallof_press"].includes(id)?"各 ":"")+value.replace(/^各\s*/,"")]));
-  LIBRARY_ITEMS[nm]={...source,nm,...MOVEMENT_META[nm],equipment:"gym",dose,plan:{...source.plan,w:null},why:"重量按 lb 记录；与在家动作分开保存历史。",detail:GYM_DETAILS[id]};
-});
+  LIBRARY_ITEMS[nm]={...source,nm,...MOVEMENT_META[nm],equipment:"gym",dose:overrides.dose||dose,plan:{...source.plan,w:null,...(overrides.plan||{})},why:"重量按 lb 记录；与其他具体动作分开保存历史。",detail:GYM_DETAILS[id]};
+}
+GYM_MOVEMENTS.forEach(([id,nm,base])=>registerGymMovement(id,nm,base));
+STANDALONE_GYM_MOVEMENTS.forEach(item=>registerGymMovement(item.id,item.nm,item.base,item));
 function registerCustomDefinition(definition){
   const def=canonicalCustomExercise(definition);if(!def) return null;
   EXERCISE_IDS[def.name]=def.id;
@@ -3113,7 +3169,8 @@ const PREP_NEEDS_BY_ID={
   one_arm_dumbbell_row:["thoracic","shoulder","wrist"],cable_row:["thoracic","shoulder","wrist"],band_seated_row:["thoracic","shoulder","wrist"],
   band_pulldown:["lat","shoulder","thoracic"],machine_lat_pulldown:["lat","shoulder","thoracic"],
   dumbbell_lateral_raise:["shoulder","thoracic"],cable_lateral_raise:["shoulder","thoracic"],cable_face_pull:["shoulder","thoracic"],prone_t:["shoulder","thoracic"],band_external_rotation_t:["shoulder","thoracic"],
-  calf_raise:["ankle"],machine_calf_press:["ankle"],carry_march:["shoulder","wrist"],
+  calf_raise:["ankle"],machine_calf_press:["ankle"],machine_calf_extension:["ankle"],carry_march:["shoulder","wrist"],
+  machine_hip_abduction:["hip"],machine_leg_curl:["knee","hamstring"],machine_leg_extension:["knee","hip"],machine_rear_delt:["shoulder","thoracic"],
   pallof_press:["thoracic"],cable_pallof_press:["thoracic"],dead_bug:["thoracic"],bird_dog:["thoracic"],plank:["thoracic"],bear_hold:["thoracic"],side_plank:["thoracic"],
   band_clamshell:["ankle","hip"],single_leg_balance:["ankle","hip"],
   foam_roller_wall_slide:[],frog_hip_prep:[],foot_ankle_prep:[],wrist_prep:[],band_shoulder_circle:[],stretch_cat:[],breathing_360:[],chin_tuck:[],neck_isometric:[]

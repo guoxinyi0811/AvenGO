@@ -1,6 +1,6 @@
 # AvenGO
 
-Current app version: **v1.7.0** · [Changelog](CHANGELOG.md)
+Current app version: **v1.7.1** · [Changelog](CHANGELOG.md)
 
 ## English
 
@@ -20,6 +20,7 @@ The English prototype is a separate, non-persistent preview for reviewing wordin
 - Weight, sets, reps, RIR, cardio machine readings, notes, calendar, trends, and optional cycle reference.
 - Warm-up and optional post-training stretches are derived from the movements currently enabled that day; neither creates completion state.
 - Optional venue recording and a reusable custom-exercise catalog with independent exercise IDs.
+- Free combination includes confirmed standalone machines for hip abduction, calf extension, leg curl, leg extension, and rear delts; each keeps its own load history.
 - Local progression hints, including fixed-band progression through reps, sets, band length, or pauses.
 - Optional, user-triggered eight-week AI review through Cloudflare Workers AI.
 - Copy the latest value for every exercise and cardio type; full JSON backup/restore and CSV export remain available.
@@ -79,6 +80,7 @@ AvenGO 是一个平静、移动端优先的训练记录工具，覆盖力量、�
 - 记录重量、组数、次数、RIR、有氧器械读数、备注、月历、趋势与可选周期参考。
 - 热身与可选练后舒展按当天当前启用的动作动态生成，不产生完成或跳过状态。
 - 可选记录场地；可建立自定义动作目录，每个具体动作保留独立 ID 与历史。
+- 自由组合补充髋外展、Calf Extension、Leg Curl、Leg Extension 与 Rear Delt 器械；每台机器分别保存负重历史。
 - 本地渐进负荷提示；固定拉力带通过增加次数、组数、缩短有效长度或停顿来进阶。
 - 用户主动触发的八周 AI 复盘，由 Cloudflare Workers AI 提供。
 - 可复制每个动作和有氧类型的最新值；同时保留完整 JSON 备份/恢复与 CSV 导出。

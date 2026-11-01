@@ -18,6 +18,7 @@ const fresh=()=>run(`for(const key of Object.keys(log))delete log[key]; for(cons
 
 assert.equal(new Set(plain("Object.values(EXERCISE_IDS)")).size,plain("Object.keys(EXERCISE_IDS)").length);
 assert.equal(run("GYM_MOVEMENTS.length"),11);
+assert.equal(run("STANDALONE_GYM_MOVEMENTS.length"),5);
 assert.ok(run('EXERCISE_BY_ID.machine_chest_press.nm !== EXERCISE_BY_ID.machine_incline_press.nm'));
 assert.ok(!/machine_chest_or_incline_press|cable_leg_curl|barbell_/.test(run("JSON.stringify(EXERCISE_IDS)")));
 
@@ -35,6 +36,33 @@ for(const [id,name,base] of gymPairs){
   assert.equal(run(`movementMeta(${JSON.stringify(base)}).pattern === movementMeta(${JSON.stringify(name)}).pattern`),true);
   run(`delete log['2026-01-01'];`);
 }
+const standaloneGym=plain("STANDALONE_GYM_MOVEMENTS");
+const standalonePatterns={
+  machine_hip_abduction:"accessory",machine_calf_extension:"accessory",machine_leg_curl:"hinge",machine_leg_extension:"squat",machine_rear_delt:"accessory"
+};
+for(const {id,nm,base} of standaloneGym){
+  assert.equal(run(`LIBRARY_ITEMS[${JSON.stringify(nm)}].equipment`),"gym");
+  assert.equal(run(`LIBRARY_ITEMS[${JSON.stringify(nm)}].plan.w`),null);
+  assert.equal(plain(`defaultActual(${JSON.stringify(nm)},LIBRARY_ITEMS[${JSON.stringify(nm)}].plan)`).weight,null);
+  assert.equal(run(`movementMeta(${JSON.stringify(nm)}).pattern`),standalonePatterns[id]);
+  assert.equal(run(`Object.values(ALTERNATIVE_IDS).flat().includes(${JSON.stringify(id)})`),false,`${id}: must stay out of template replacement slots`);
+  assert.equal(run(`Object.values(TEMPLATES).some(template=>planItems(template).some(item=>item.exerciseId===${JSON.stringify(id)}))`),false,`${id}: must stay free-combination only`);
+  run(`log['2026-01-01']={actuals:{[${JSON.stringify(base)}]:{weight:99,sets:7,reps:3,rir:1}}};`);
+  assert.equal(run(`lastActual(${JSON.stringify(nm)})`),null,`${id}: must not inherit another exercise's history`);
+  run(`writeExerciseActual(log['2026-01-01'],${JSON.stringify(nm)},{weight:40,sets:2,reps:15,rir:3});`);
+  assert.equal(run(`lastActual(${JSON.stringify(nm)}).weight`),40);
+  assert.equal(run(`lastActual(${JSON.stringify(base)}).weight`),99);
+  run(`delete log['2026-01-01'];`);
+}
+assert.deepEqual(plain('STANDALONE_GYM_MOVEMENTS.map(item=>item.nm)'),["髋外展（器械）","Calf Extension（器械）","Leg Curl（器械）","Leg Extension（器械）","Rear Delt（器械）"]);
+run('templateId="custom";today.templateId="custom";renderTemplateControls();');
+for(const {nm} of standaloneGym) assert.ok(nodes.get("#customPicker").innerHTML.includes(nm),`${nm}: expected in free-combination picker`);
+fresh();
+run(`log['2026-10-25']={templateId:'custom',strength:true,doneExercises:['Leg Curl（器械）'],actuals:{machine_leg_curl:{weight:40,sets:2,reps:15,rir:3}}};`);
+assert.deepEqual(plain('moveSeries("Leg Curl（器械）")'),[{key:"2026-10-25",w:40}]);
+assert.ok(run('buildCSV().includes("machine_leg_curl")'));
+assert.ok(run('buildCoachReviewSummary().includes("Leg Curl（器械）")'));
+fresh();
 assert.equal(run('TEMPLATES.fullA.title'),"Gym Full Body A");
 assert.equal(run('TEMPLATES.fullB.title'),"Gym Full Body B");
 assert.deepEqual(plain('planItems(TEMPLATES.fullA).map(item=>item.exerciseId)'),["machine_leg_press","machine_shoulder_press","cable_row","cable_rdl","cable_lateral_raise","machine_calf_press"]);
@@ -194,6 +222,9 @@ assert.deepEqual(plain('completedNames(log["2026-01-03"])'),["哑铃肩推"]);
 const past={templateId:"lowerHinge",strength:true,doneExercises:["B-stance RDL","单腿 RDL"],exerciseChoices:{lowerHinge:{b_stance_rdl:"single_leg_rdl"}}};
 assert.equal(run(`itemsForEntry(${JSON.stringify(past)}).find(item=>item.nm==="B-stance RDL").historical`),true);
 for(const [id] of gymPairs){
+  for(const field of ["setup","start","breath","tempo","sequence","feel","errors"])assert.ok(run(`GYM_DETAILS.${id}.${field}`),`${id}.${field}`);
+}
+for(const {id} of standaloneGym){
   for(const field of ["setup","start","breath","tempo","sequence","feel","errors"])assert.ok(run(`GYM_DETAILS.${id}.${field}`),`${id}.${field}`);
 }
 assert.ok(run('GYM_DETAILS.cable_row.setup.includes("Dual Row 坐姿划船机")'));
