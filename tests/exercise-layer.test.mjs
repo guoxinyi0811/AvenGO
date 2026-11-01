@@ -9,7 +9,7 @@ const nodes=new Map(), storage=new Map();
 function element(){return {value:"",innerHTML:"",textContent:"",hidden:false,dataset:{},style:{},classList:{add(){},remove(){},toggle(){}},setAttribute(){},getAttribute(){return null;},querySelectorAll(){return [];},querySelector(){return element();},appendChild(){},remove(){},click(){}};}
 const context=vm.createContext({console,Date,Intl,URL,Blob,AbortController,TextEncoder,
   document:{querySelector(key){if(!nodes.has(key))nodes.set(key,element());return nodes.get(key);},querySelectorAll(){return [];},createElement:element,body:element(),addEventListener(){}},
-  window:{addEventListener(){}}, navigator:{}, location:{reload(){}}, localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},setTimeout(){},clearTimeout(){},FileReader:class {},crypto:{randomUUID:()=>"test-client"}
+  window:{addEventListener(){}}, navigator:{}, location:{reload(){}}, localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},setTimeout(){},clearTimeout(){},FileReader:class {},crypto:{randomUUID:()=>"test-client"}
 });
 vm.runInContext(source,context);
 const run=code=>vm.runInContext(code,context);
@@ -97,7 +97,10 @@ assert.equal(run('TEMPLATES.accessory.title'),"Accessory");
 assert.equal(run('TEMPLATES.accessory.short'),"Accessory");
 assert.equal(run('new Set(planItems(TEMPLATES.accessory).map(item=>item.nm)).size'),21);
 assert.equal(run('planItems(TEMPLATES.accessory).every(item=>ACCESSORY_USE[item.nm])'),true);
-assert.equal(run('TEMPLATE_ORDER.every(id=>WARMUP_GUIDES[id])'),true);
+assert.equal(run('Object.values(EXERCISE_IDS).every(id=>Object.prototype.hasOwnProperty.call(PREP_NEEDS_BY_ID,id))'),true);
+assert.equal(run('Object.values(LIBRARY_ITEMS).every(item=>Array.isArray(item.prepNeeds))'),true);
+assert.deepEqual(plain('LIBRARY_ITEMS["高脚杯深蹲"].prepNeeds'),["ankle","knee","hip"]);
+assert.deepEqual(plain('LIBRARY_ITEMS["收下巴(Chin Tuck)"].prepNeeds'),[]);
 for(const name of ["伟大伸展 / 猫式伸展","泡沫轴推墙上回旋(前锯)","死虫式(屈膝点地)","侧平板","毛巾滑动腿弯举"]){
   assert.ok(run(`planItems(TEMPLATES.accessory).some(item=>item.nm===${JSON.stringify(name)})`),`${name}: expected in Accessory`);
 }
@@ -106,7 +109,16 @@ assert.equal(nodes.get("#checkinBtn").hidden,true);
 assert.ok(nodes.get("#pBody").innerHTML.includes("Lower Squat / Lower Hinge · 练前"));
 assert.ok(!nodes.get("#pBody").innerHTML.includes("· 可选"));
 run('templateId="fullA";today.templateId=templateId;renderPlan();');
-assert.ok(nodes.get("#pBody").innerHTML.includes("热身部位 · 髋、膝、肩、上背、小腿"));
+assert.ok(nodes.get("#pBody").innerHTML.includes("推荐热身（可选）"));
+assert.ok(run('WARMUP_LIBRARY.some(item=>item.need==="knee"&&item.name.includes("舒适幅度"))'));
+assert.ok(nodes.get("#pBody").innerHTML.includes("练后舒展(可选)"));
+assert.ok(nodes.get("#pBody").innerHTML.includes("想活动一下刚才用到的部位时,可以从这里选;不需要做完。"));
+assert.ok(nodes.get("#pBody").innerHTML.includes("不要求精确百分比。器械按实际可用的较低档位选。"));
+assert.ok(!/促进恢复|减少酸痛|加速代谢|维持关节活动度/.test(nodes.get("#pBody").innerHTML));
+assert.ok(run('derivedPreparationActions(currentPlan(),WARMUP_LIBRARY,5).length<=5'));
+assert.ok(run('derivedPreparationActions(currentPlan(),POST_STRETCH_LIBRARY,5).length<=5'));
+assert.equal(run('derivedPreparationActions(currentPlan(),WARMUP_LIBRARY,5).every((item,index,list)=>index===0||({dynamic:0,mobility:1}[list[index-1].phase]<=({dynamic:0,mobility:1}[item.phase])))'),true);
+assert.deepEqual(plain('specificWarmupTargets(currentPlan()).map(item=>movementMeta(item.nm).pattern)'),["squat","push","pull","hinge"]);
 assert.ok(!nodes.get("#pBody").innerHTML.includes('aria-label="记录 360° 腹式呼吸"'));
 assert.ok(!nodes.get("#pBody").innerHTML.includes("切换到在家"));
 run('templateId="push";today.templateId=templateId;renderPlan();');
@@ -129,7 +141,13 @@ assert.ok(run('buildCSV().includes("machine_chest_press")'));
 assert.ok(run('buildCSV()').includes('"Chest Press（器械）","push","horizontal","45"'));
 assert.ok(!run('buildCSV().includes("machine_display")'));
 assert.ok(run('buildCSV().includes("aerobic_machine_reading")'));
-assert.equal(run('backupPayload().version'),5);
+run('log["2026-01-06"]={venue:"other",venueLabel:"朋友家"};cleanupDay("2026-01-06");');
+assert.equal(run('log["2026-01-06"].venueLabel'),"朋友家");
+assert.equal(run('hasActivity(log["2026-01-06"])'),false);
+assert.ok(run('buildCSV().includes("venue_label")&&buildCSV().includes("朋友家")'));
+assert.ok(!run('buildCoachReviewSummary().includes("朋友家")'));
+assert.equal(run('backupPayload().version'),6);
+assert.ok(run('Array.isArray(backupPayload().customExercises)'));
 assert.equal(run('AEROBIC_TYPES.includes("跑步机")&&AEROBIC_TYPES.includes("椭圆机")&&AEROBIC_TYPES.includes("划船机")&&AEROBIC_TYPES.includes("原地踏步")'),true);
 run('log["2026-01-05"]={aerobic:{type:"划船机",minutes:20,reading:"阻力 5 · 3000m",unknown:"keep"}};setAeroRec(log["2026-01-05"],"划船机",25,"阻力 6 · 3200m");');
 assert.deepEqual(plain('log["2026-01-05"].aerobic'),{type:"划船机",minutes:25,reading:"阻力 6 · 3200m",unknown:"keep"});
@@ -184,6 +202,49 @@ assert.ok(run('detailHTML(GYM_DETAILS.cable_row).indexOf("器械设置") < detai
 assert.ok(!run('detailHTML(DETAILS["高脚杯深蹲"]).includes("器械设置")'));
 assert.ok(!run('LIBRARY_ITEMS["Cable Row"].dose.g').startsWith("各"));
 assert.ok(run('LIBRARY_ITEMS["Cable Lateral Raise"].dose.g').startsWith("各"));
+
+// Custom catalog: immutable UUID identity, nullable pattern, prep needs, rename continuity and no cross-history.
+fresh();
+run('templateId="custom";today.templateId="custom";');
+const customSquat=plain('createCustomExercise("自定义深蹲","squat",null,["ankle","knee"])');
+assert.ok(customSquat.id.startsWith("custom_"));
+assert.equal(run('createCustomExercise("  自定义深蹲  ","hinge").id'),customSquat.id);
+assert.equal(run('createCustomExercise("高脚杯深蹲","hinge").id'),"goblet_squat");
+assert.deepEqual(plain(`customExerciseRegistry[${JSON.stringify(customSquat.id)}].prepNeeds`),["ankle","knee"]);
+run(`today.selectedExercises=["自定义深蹲"];today.doneExercises=["自定义深蹲"];writeExerciseActual(today,"自定义深蹲",{weight:22,sets:3,reps:10,rir:2});`);
+assert.deepEqual(plain('patternsForEntry(today)'),["squat"]);
+assert.ok(plain('derivedPreparationActions(currentPlan(),WARMUP_LIBRARY,5).map(item=>item.need)').includes("knee"));
+assert.equal(run(`readExerciseActual(today,${JSON.stringify(customSquat.id)}).weight`),22);
+assert.equal(run('readExerciseActual(today,"高脚杯深蹲")'),null);
+assert.equal(run(`renameCustomExercise(${JSON.stringify(customSquat.id)},"朋友家深蹲").ok`),true);
+assert.equal(run(`exerciseName(${JSON.stringify(customSquat.id)})`),"朋友家深蹲");
+assert.equal(run('exerciseName("自定义深蹲")'),"朋友家深蹲");
+assert.equal(run('readExerciseActual(today,"朋友家深蹲").weight'),22);
+assert.deepEqual(plain('completedNames(today)'),["朋友家深蹲"]);
+const customUnclassified=plain('createCustomExercise("未知器械动作",null,null,["shoulder"])');
+assert.equal(customUnclassified.id,"custom_test-client-2");
+run('today.selectedExercises=["未知器械动作"];today.doneExercises=["未知器械动作"];writeExerciseActual(today,"未知器械动作",{weight:17,sets:2,reps:9,rir:3});log[todayKey]=today;');
+assert.equal(run('movementMeta("未知器械动作").pattern'),null);
+assert.deepEqual(plain('patternsForEntry(today)'),[]);
+assert.ok(plain('allWeightedMoves()').includes("未知器械动作"));
+assert.ok(run('buildCoachReviewSummary().includes("未知器械动作")'));
+assert.ok(!run('buildCoachReviewSummary().includes("venue")'));
+
+// Different imported ID with the same normalized name reuses the local ID and remaps the imported log.
+const remoteBackup={format:"avengo-backup",version:6,customExercises:[{id:"custom_remote-uuid",name:"未知器械动作",normalizedName:"未知器械动作",pattern:"pull",subPattern:"horizontal",prepNeeds:["wrist"],unknownDefinition:"keep"}],log:{"2026-04-01":{templateId:"custom",strength:true,doneExercises:["未知器械动作"],selectedExercises:["未知器械动作"],actuals:{"custom_remote-uuid":{weight:31,sets:3,reps:8,rir:2,unknownActual:"keep"}},unknownEntry:"keep"}}};
+run(`doImport(${JSON.stringify(JSON.stringify(remoteBackup))});`);
+assert.equal(run('exerciseIdFor(log["2026-04-01"].doneExercises[0])'),customUnclassified.id);
+assert.equal(run(`log["2026-04-01"].actuals[${JSON.stringify(customUnclassified.id)}].weight`),31);
+assert.equal(run(`log["2026-04-01"].actuals[${JSON.stringify(customUnclassified.id)}].unknownActual`),"keep");
+assert.equal(run('log["2026-04-01"].unknownEntry'),"keep");
+
+// A v6 backup restores catalog definitions and history together; older envelopes remain accepted below.
+const customRoundtrip=run('JSON.stringify(backupPayload())');
+run('customExercises.splice(0,customExercises.length);localStorage.removeItem(CUSTOM_EXERCISE_KEY);for(const key of Object.keys(log))delete log[key];');
+run(`doImport(${JSON.stringify(customRoundtrip)});`);
+assert.ok(run('customExercises.some(item=>item.id.startsWith("custom_")&&item.prepNeeds.length)'));
+assert.equal(run(`readExerciseActual(log["2026-04-01"],${JSON.stringify(customUnclassified.id)}).weight`),31);
+assert.ok(run('backupPayload().customExercises.every(item=>item.normalizedName&&Array.isArray(item.prepNeeds))'));
 
 fresh();
 run(`Object.assign(log,{

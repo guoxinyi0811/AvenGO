@@ -1,7 +1,35 @@
-# AvenGO v1.6.0 Training-Flow Revision
+# AvenGO v1.7.0 Training-Flow Revision
 
-Date: 2026-09-23
-Scope: overwrite the existing Full Body A/B configurations with Gym versions, add executable equipment setup notes, and add a read-only latest-value copy. Stored template IDs, the ledger rules, and the backup schema remain unchanged.
+Date: 2026-11-01
+Scope: derive optional preparation from enabled exercise identities, add date-level venue recording, and add a portable custom-exercise catalog. Existing templates, `workout-log`, and ledger semantics remain unchanged.
+
+## v1.7.0 dynamic preparation
+
+- Every built-in and Gym exercise ID has an explicit `prepNeeds` array, including `[]`. The fixed vocabulary is `ankle`, `knee`, `hip`, `hamstring`, `thoracic`, `shoulder`, `wrist`, `chest`, and `lat`.
+- Generation reads the current enabled plan items, not completion checkmarks. General preparation sorts dynamic items before mobility items, then by need frequency and fixed need order; concrete action IDs are deduplicated and capped at five.
+- A separate specific-warm-up block lists the first main compound in each active Squat / Hinge / Push / Pull pattern. It uses a clearly easy set and an optional transition set rather than fixed percentages.
+- Optional post-training stretches use the same need counts and a five-item cap. They make no recovery, soreness, metabolism, or mobility claim. None of these derived sections writes completion state.
+
+## Venue and custom exercise identity
+
+Daily records may add `venue:"home"|"my_gym"|"other"` and optional `venueLabel`. Venue is never activity: a venue-only date remains unmarked and does not affect totals, ledgers, suggestions, or AI input. CSV includes `venue` and `venue_label`.
+
+Custom definitions live under `coach-card-custom-exercises`, separate from `workout-log`:
+
+```json
+{
+  "id": "custom_<uuid>",
+  "name": "坐姿腿屈伸",
+  "normalizedName": "坐姿腿屈伸",
+  "pattern": null,
+  "subPattern": null,
+  "prepNeeds": ["knee"]
+}
+```
+
+IDs never change when the display name changes. A blank pattern stays `null`; it does not update the four-pattern ledger, while same-ID actuals and weighted trends remain available. Names matching built-in definitions reuse the built-in ID. Home, Gym, and custom histories never inherit one another’s values.
+
+The JSON envelope is v6 and includes `customExercises`. Import remains compatible with v2–v5 and raw logs. Custom merge order is ID, normalized name, then append; imported log references are remapped when a remote ID reuses a local same-name identity. Unknown fields remain intact. AI requests exclude venue and may include a custom exercise name only when that action appears in the user-triggered compact strength summary.
 
 ## Gym Full Body A/B
 
@@ -93,8 +121,8 @@ All strength-machine `weight` values use lb. Machine increments are still unknow
 
 - `workout-log` and local-date keys are unchanged.
 - Existing `day`, `doneA`, `doneB`, `doneExercises`, `selectedExercises`, actuals, reviews, notes, cardio and cycle fields are not migrated or removed.
-- JSON envelope version is 5. The importer continues to accept v2–v5 envelopes and a raw date dictionary.
-- CSV keeps its existing columns, writes Home and Gym values to `weight_lb`, uses `weight_basis:lb`, and appends `aerobic_machine_reading`.
+- JSON envelope version is 6. The importer continues to accept v2–v5 envelopes and a raw date dictionary.
+- CSV writes Home, Gym, and custom values to `weight_lb`, uses `weight_basis:lb`, retains `aerobic_machine_reading`, and includes `venue` / `venue_label`.
 - “复制最新数据” scans existing records without mutating them, keeps one latest actual per concrete exercise ID and one latest entry per cardio type, and appends current pattern gaps plus the latest cycle marker. It does not copy a four-week session log or import prompt examples.
 - The unchanged ledger functions are `entryMode`, `hasStrengthActivity`, `completionSourceForEntry`, `patternsForEntry`, `displayTemplateIdForEntry`, and `patternLedger`.
 - The AI summary carries exerciseId and lb values. Gym actions enter same-ID load evaluation; the Worker still forbids cross-ID comparison, Home/Gym conversion, merged Chest/Incline history, invented machine increments, and Gym encouragement.
@@ -109,7 +137,7 @@ node worker/test.mjs
 git diff --check
 ```
 
-The exercise test covers Gym Full Body A/B composition, eleven independent Gym histories, Dual Row wording, seven-part equipment details, latest-value copying, plan-wide Home/Gym switching in supported plans, horizontal-push separation, bilateral/unilateral Hinge structure, legacy Light records, Full/Compact defaults, cardio readings, CSV lb fields, Accessory timing, and the known pattern-ledger fixture.
+The exercise test covers the prior Gym and compatibility fixtures plus explicit prep needs, dynamic ordering and caps, exact no-claim stretch copy, venue-only persistence, CSV venue fields, custom UUID identity, nullable patterns, rename continuity, same-name import remapping, custom weighted trends, v6 round trips, and AI venue exclusion.
 
 Manual local-browser checks at 375 × 812 covered:
 
@@ -126,7 +154,7 @@ No live AI review was requested during testing. Worker behavior was checked with
 
 - Strength-machine displays use lb. The current machine/cable instructions include the supplied station setup; Cable Row is specifically the Dual Row seated machine. Station-specific diagrams and safety labels still take precedence where hardware differs.
 - Cable leg curl, barbells and all unconfirmed machines remain absent.
-- `prototype-en.html` remains non-persistent; it now previews Gym Full Body A, the Dual Row label, equipment setup, Cardio day, and the latest-data action without reading `workout-log`.
+- `prototype-en.html` remains non-persistent; it previews dynamic preparation, venue, custom-action, Gym Full Body A, equipment setup, Cardio day, and data/privacy terminology without reading `workout-log`.
 - There is still no Service Worker; installation does not guarantee an offline cold start.
 
 Conservative technique references used for the new machine notes: [Mayo Clinic leg press](https://www.mayoclinic.org/healthy-lifestyle/fitness/multimedia/leg-press/vid-20084684), [NASM chest press machine](https://www.nasm.org/resource-center/exercise-library/chest-press-machine), [ACE seated row](https://www.acefitness.org/resources/everyone/exercise-library/168/seated-row/), [ACE Romanian deadlift](https://www.acefitness.org/continuing-education/certified/may-2025/8865/the-ace-do-it-better-series-the-romanian-deadlift/), and [ACE seated lat pulldown](https://www.acefitness.org/resources/everyone/exercise-library/158/seated-lat-pulldown/). These references do not establish which exact machines or attachments exist in the user’s building.

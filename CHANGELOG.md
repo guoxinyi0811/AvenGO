@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-11-01 — v1.7.0 dynamic preparation and portable custom exercises
+
+- Added warm-up and optional post-training stretch lists derived from the day’s currently enabled exercise IDs. General preparation is capped at five items; the separate specific-warm-up block identifies the first main compound in each active pattern.
+- Added optional `venue` / `venueLabel` fields without letting venue-only dates affect the calendar, activity count, pattern ledger, or coaching suggestions. JSON and CSV exports include both fields.
+- Added the independent `coach-card-custom-exercises` catalog. Custom exercises use immutable UUID-based IDs, optional `{pattern, subPattern}`, optional `prepNeeds`, and retain exercise-specific actuals and weighted trends even when pattern is left blank.
+- Upgraded JSON backups to v6 with lossless custom definitions. Import still accepts v2–v5 envelopes and raw date dictionaries, and remaps same-name custom IDs to the existing local identity.
+- Kept venue out of AI requests. User-triggered summaries include custom exercise names only when those actions appear in the compact strength summary; the interface now states this boundary.
+
 ## 2026-09-23 — v1.6.0 Gym full-body revision
 
 - Replaced the existing `fullA` / `fullB` configurations with Gym Full Body A/B without changing their stored template IDs or migrating historical records.

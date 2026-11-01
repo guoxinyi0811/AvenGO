@@ -492,6 +492,35 @@
   .picker-group:first-of-type{margin-top:0}
   .picker-group-label{font-size:10.5px;color:var(--soft);margin-bottom:6px;letter-spacing:.04em}
   .pattern-tag{display:inline-block;margin-left:6px;padding:2px 6px;border-radius:999px;background:var(--paper-deep);color:var(--soft);font-size:9.5px;font-weight:600;vertical-align:1px}
+  .custom-create{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+  .custom-form-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7px;margin-top:8px}
+  .custom-form-grid input,.custom-form-grid select{min-width:0;min-height:44px;border:1px solid var(--line);border-radius:9px;background:var(--paper);color:var(--ink);font:inherit;font-size:12px;padding:8px}
+  .custom-form-grid .wide{grid-column:1/-1}
+  .custom-prep{margin-top:8px;border:1px solid var(--line);border-radius:9px;padding:8px}
+  .custom-prep summary{min-height:36px;padding:0;font-size:11.5px;color:var(--soft)}
+  .custom-prep-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:7px}
+  .custom-prep-grid label{display:flex;align-items:center;gap:5px;font-size:10.5px;color:var(--soft)}
+  .custom-add{width:100%;min-height:44px;margin-top:8px;border:1px solid var(--ink);border-radius:9px;background:var(--ink);color:#fff;font:inherit;font-size:12.5px;font-weight:650}
+  .custom-status{min-height:18px;margin-top:5px;font-size:11px;color:var(--soft)}
+  .custom-manage{margin-top:12px}
+  .custom-manage-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;margin-top:6px}
+  .custom-manage-row input{min-width:0;min-height:44px;border:1px solid var(--line);border-radius:9px;background:var(--paper);color:var(--ink);font:inherit;padding:8px}
+  .custom-manage-row button{min-height:44px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);font:inherit;font-size:12px;padding:8px 11px}
+  .venue-row{display:grid;grid-template-columns:72px minmax(0,1fr);gap:9px;align-items:center;margin-bottom:10px}
+  .venue-row label{font-size:11px;font-weight:650;color:var(--soft)}
+  .venue-row select,.venue-row input{width:100%;min-width:0;min-height:44px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);font:inherit;padding:8px 10px}
+  .prep-card{margin:14px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--soft)}
+  .prep-card h3{margin:0;font-family:var(--serif);font-size:16px;font-weight:600;color:var(--ink)}
+  .prep-card>p{margin:5px 0 0;font-size:12px;line-height:1.65}
+  .prep-list{list-style:none;margin:10px 0 0;padding:0}
+  .prep-list li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:12.5px;line-height:1.5}
+  .prep-list b{color:var(--ink);font-weight:650}
+  .prep-list span{color:var(--soft);text-align:right}
+  .specific-prep{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+  .specific-prep b{display:block;color:var(--ink);font-size:13px}
+  .specific-prep .specific-targets{margin:5px 0 7px;color:var(--accent);font-size:11.5px;font-weight:650}
+  .specific-prep p{margin:6px 0;font-size:12px;line-height:1.65}
+  .post-stretch{margin-top:16px}
 
   .rir-quick{display:flex;align-items:center;gap:5px;min-height:44px}
   .rir-quick>span{font-size:10.5px;color:var(--soft);margin-right:1px}
@@ -536,6 +565,10 @@
     .template-grid{gap:6px}
     .template-grid button{padding:9px;min-height:58px}
     .ai-review{padding:15px 13px}
+    .venue-row{grid-template-columns:64px minmax(0,1fr)}
+    .prep-list li{grid-template-columns:1fr}
+    .prep-list span{text-align:left}
+    .custom-prep-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   }
   @media (min-width:720px){
     header{padding-top:calc(36px + env(safe-area-inset-top));padding-bottom:22px}
@@ -661,6 +694,20 @@
     <button class="checkin-btn" id="checkinBtn"></button>
     <div class="storage-hint" id="storageHint" style="display:none">当前浏览器不支持保存</div>
     <div class="aero-box">
+      <div class="venue-row">
+        <label for="venueSelect">训练场地</label>
+        <select id="venueSelect">
+          <option value="">未记录</option>
+          <option value="home">家</option>
+          <option value="my_gym">我的健身房</option>
+          <option value="other">其他</option>
+        </select>
+      </div>
+      <div class="venue-row" id="venueOtherRow" hidden>
+        <label for="venueLabel">场地名称</label>
+        <input id="venueLabel" type="text" maxlength="40" list="venueHistory" placeholder="可选，如朋友家">
+        <datalist id="venueHistory"></datalist>
+      </div>
       <div class="aero-label">今日有氧 · 可与力量同一天记录</div>
       <div class="chips" id="aeroType">
         <button data-t="骑车">骑车</button>
@@ -705,7 +752,7 @@
 
     <section class="ai-review" aria-labelledby="aiReviewTitle">
       <div class="ai-review-head"><h3 id="aiReviewTitle">AI 教练复盘</h3><span>主动生成 · 使用云端额度</span></div>
-      <p class="ai-review-copy">生成时只发送最近 8 周的力量动作、重量、组次、RIR、每周记录次数和模式间隔；不发送称呼、经期、有氧、备注或完整备份。没有网络或分析失败时，本地账本与加难度提示仍可使用。</p>
+      <p class="ai-review-copy">生成时只发送最近 8 周的力量动作名称（包括自定义动作名称）、重量、组次、RIR、每周记录次数和模式间隔；不发送场地、称呼、经期、有氧、备注或完整备份。没有网络或分析失败时，本地账本与加难度提示仍可使用。</p>
       <div class="ai-review-actions">
         <button id="aiReviewBtn" type="button">生成复盘</button>
         <button id="aiReviewAgain" class="ghost" type="button" hidden>重新生成</button>
@@ -730,7 +777,7 @@
     <details class="backup">
       <summary>备份 · 导出 / 导入</summary>
       <div class="det-body">
-        <p>数据只存在这台设备的浏览器里。JSON 包含完整记录并可再次导入；CSV 便于查看和分析。导入采用合并语义：同一天以导入内容为准，其它日期保留。</p>
+        <p>数据只存在这台设备的浏览器里。JSON 包含完整记录、自定义动作目录并可再次导入；CSV 便于查看和分析。导入采用合并语义：同一天以导入内容为准，其它日期保留。</p>
         <div class="dd-row profile-row"><label class="dd-lbl" for="profileName">本机称呼</label><input class="dd-note" id="profileName" type="text" maxlength="30" placeholder="可选；留空时不显示称呼"></div>
         <div class="backup-btns">
           <button id="copyLatestData" class="ghost">复制最新数据</button>
@@ -1125,6 +1172,7 @@ const NOTES = {
 const KEY = { green:"g", amber:"a", red:"r" };
 const STORAGE_KEY = "workout-log";
 const PROFILE_KEY = "coach-card-profile";
+const CUSTOM_EXERCISE_KEY = "coach-card-custom-exercises";
 const AI_REVIEWS_KEY = "coach-card-ai-reviews";
 const AI_CLIENT_KEY = "coach-card-ai-client";
 const AI_REVIEW_ENDPOINT = (document.querySelector('meta[name="avengo-ai-endpoint"]')?.content || "").trim();
@@ -1159,6 +1207,32 @@ function saveLog(){
   }catch(e){
     // 保存失败时不影响使用,只是不持久化
   }
+}
+
+function normalizeExerciseName(name){
+  return String(name||"").normalize("NFKC").trim().replace(/\s+/g," ").toLocaleLowerCase();
+}
+function canonicalCustomExercise(value){
+  if(!value||typeof value!=="object"||Array.isArray(value)||!/^custom_[0-9a-z-]+$/i.test(String(value.id||""))) return null;
+  const name=String(value.name||"").normalize("NFKC").trim().replace(/\s+/g," ");
+  if(!name) return null;
+  const patterns=["squat","hinge","push","pull","core","accessory"],subs=["horizontal","vertical"];
+  const pattern=patterns.includes(value.pattern)?value.pattern:null;
+  const subPattern=(pattern==="push"||pattern==="pull")&&subs.includes(value.subPattern)?value.subPattern:null;
+  const prepNeeds=Array.isArray(value.prepNeeds)?[...new Set(value.prepNeeds.filter(need=>["ankle","knee","hip","hamstring","thoracic","shoulder","wrist","chest","lat"].includes(need)))]:[];
+  const aliases=Array.isArray(value.aliases)?[...new Set(value.aliases.map(alias=>String(alias||"").trim()).filter(Boolean))]:[];
+  return {...value,id:String(value.id),name,normalizedName:normalizeExerciseName(name),pattern,subPattern,prepNeeds,...(aliases.length?{aliases}:{})};
+}
+function loadCustomExercises(){
+  if(!storageAvailable) return [];
+  try{
+    const value=JSON.parse(localStorage.getItem(CUSTOM_EXERCISE_KEY)||"[]");
+    return Array.isArray(value)?value.map(canonicalCustomExercise).filter(Boolean):[];
+  }catch(e){return [];}
+}
+function saveCustomExercises(){
+  if(!storageAvailable) return;
+  try{localStorage.setItem(CUSTOM_EXERCISE_KEY,JSON.stringify(customExercises));}catch(e){}
 }
 
 function loadProfile(){
@@ -1202,6 +1276,9 @@ function dateKey(d){
   return `${y}-${m}-${dd}`;
 }
 
+// 自定义目录先于每日日志读取；动作库在基础定义就绪后注册这些稳定 ID。
+const customExercises = loadCustomExercises();
+const customExerciseRegistry = Object.fromEntries(customExercises.map(item=>[item.id,item]));
 const log = loadLog();
 const profile = loadProfile();
 const todayKey = dateKey(new Date());
@@ -1255,7 +1332,7 @@ function planItems(plan){ return plan && Array.isArray(plan.blocks) ? plan.block
 function selectedNamesForEntry(entry){
   if(!entry) return [];
   const id = templateIdForEntry(entry);
-  if(id === "custom") return Array.isArray(entry.selectedExercises) ? entry.selectedExercises.filter(nm=>LIBRARY_ITEMS[nm]) : [];
+  if(id === "custom") return Array.isArray(entry.selectedExercises) ? entry.selectedExercises.map(exerciseName).filter(nm=>LIBRARY_ITEMS[nm]) : [];
   return planItems(TEMPLATES[id]).map(it=>it.nm);
 }
 function completionSourceForEntry(entry){
@@ -1303,7 +1380,7 @@ function patternsForEntry(entry){
 }
 function currentPlan(){
   if(templateId !== "custom") return resolvedPlanForEntry(today,templateId);
-  const names = Array.isArray(today.selectedExercises) ? today.selectedExercises : [];
+  const names = Array.isArray(today.selectedExercises) ? [...new Set(today.selectedExercises.map(exerciseName))] : [];
   return {title:"自由组合",sub:names.length?`${names.length} 个动作 · 可继续增减`:"先从下面选择今天想做的动作",blocks:[{name:"自选动作",items:names.map(nm=>LIBRARY_ITEMS[nm]).filter(Boolean)}]};
 }
 function doneListForEntry(entry){
@@ -1314,8 +1391,8 @@ function doneListForEntry(entry){
 }
 
 // 从动作库 / 旧计划找计划值与智能默认值
-function exerciseName(ref){ return EXERCISE_BY_ID[ref]?.nm || ref; }
-function exerciseIdFor(ref){ return EXERCISE_IDS[exerciseName(ref)] || ref; }
+function exerciseName(ref){ const id=EXERCISE_IDS[ref]||ref; return EXERCISE_BY_ID[id]?.nm || ref; }
+function exerciseIdFor(ref){ return EXERCISE_IDS[ref] || EXERCISE_IDS[exerciseName(ref)] || ref; }
 function readExerciseActual(entry,ref){
   const actuals=entry&&entry.actuals;
   if(!actuals || typeof actuals!=="object") return null;
@@ -1330,7 +1407,7 @@ function writeExerciseActual(entry,ref,value){
   for(const field of ["rir","weight"]) if(!(field in value)) delete entry.actuals[exerciseIdFor(ref)][field];
 }
 function isMachine(nm){ return LIBRARY_ITEMS[exerciseName(nm)]?.equipment==="gym"; }
-function recordsWeight(nm,plan){ return isMachine(nm)||plan.w>0||LOADABLE_BODYWEIGHT.has(nm); }
+function recordsWeight(nm,plan){ return !!LIBRARY_ITEMS[exerciseName(nm)]?.custom||isMachine(nm)||plan.w>0||LOADABLE_BODYWEIGHT.has(nm); }
 function planFor(nm){
   const current=planItems(currentPlan()).find(item=>item.nm===nm);
   if(current&&current.plan) return current.plan;
@@ -1398,17 +1475,36 @@ function renderTemplateControls(){
   const picker=$("#customPicker");
   picker.hidden=templateId!=="custom";
   if(picker.hidden) return;
-  const selected=Array.isArray(today.selectedExercises)?today.selectedExercises:[];
-  picker.innerHTML=`<div class="custom-picker-title">点动作加入或移出今天的组合。模式会自动计入账本。</div>` + PICKER_ORDER.map(pattern=>{
-    const names=Object.keys(LIBRARY_ITEMS).filter(nm=>movementMeta(nm).pattern===pattern);
+  const selected=Array.isArray(today.selectedExercises)?today.selectedExercises.map(exerciseName):[];
+  const builtInGroups=PICKER_ORDER.map(pattern=>{
+    const names=Object.keys(LIBRARY_ITEMS).filter(nm=>!LIBRARY_ITEMS[nm].custom&&movementMeta(nm).pattern===pattern);
     const meta=PATTERN_META[pattern], groupLabel=meta.zh&&meta.zh!==meta.label?`${meta.label} · ${meta.zh}`:meta.label;
-    return `<div class="picker-group"><div class="picker-group-label">${groupLabel}</div><div class="exercise-picker">${names.map(nm=>`<button data-nm="${escapeAttr(nm)}" aria-pressed="${selected.includes(nm)}">${nm}</button>`).join("")}</div></div>`;
+    return `<div class="picker-group"><div class="picker-group-label">${groupLabel}</div><div class="exercise-picker">${names.map(nm=>`<button data-pick-name="${escapeAttr(nm)}" aria-pressed="${selected.includes(nm)}">${nm}</button>`).join("")}</div></div>`;
   }).join("");
-  picker.querySelectorAll("button").forEach(b=>{ b.onclick=()=>{
+  const customGroup=customExercises.length?`<div class="picker-group"><div class="picker-group-label">我添加的</div><div class="exercise-picker">${customExercises.map(def=>`<button data-pick-name="${escapeAttr(def.name)}" aria-pressed="${selected.includes(def.name)}">${escapeAttr(def.name)}</button>`).join("")}</div></div>`:"";
+  const prepOptions=PREP_NEEDS.map(need=>`<label><input type="checkbox" value="${need}">${PREP_NEED_LABELS[need]}</label>`).join("");
+  const manage=customExercises.length?`<div class="custom-manage"><div class="picker-group-label">修改显示名（历史 ID 不变）</div>${customExercises.map(def=>`<div class="custom-manage-row"><input data-custom-rename="${def.id}" value="${escapeAttr(def.name)}" maxlength="50"><button type="button" data-rename-id="${def.id}">保存</button></div>`).join("")}</div>`:"";
+  picker.innerHTML=`<div class="custom-picker-title">点动作加入或移出今天的组合。未分类的自定义动作不会更新模式账本。</div>${builtInGroups}${customGroup}<div class="custom-create"><div class="picker-group-label">添加自定义动作</div><div class="custom-form-grid"><input class="wide" id="customExerciseName" maxlength="50" placeholder="动作名称（必填）"><select id="customPattern"><option value="">模式留空</option><option value="squat">Squat</option><option value="hinge">Hinge</option><option value="push">Push</option><option value="pull">Pull</option><option value="core">Core</option><option value="accessory">Accessory</option></select><select id="customSubPattern" hidden><option value="">方向留空</option><option value="horizontal">水平</option><option value="vertical">垂直</option></select></div><details class="custom-prep"><summary>准备需求（可选）</summary><div class="custom-prep-grid">${prepOptions}</div></details><button type="button" class="custom-add" id="customExerciseAdd">添加并放入今天</button><div class="custom-status" id="customExerciseStatus" role="status"></div></div>${manage}`;
+  picker.querySelectorAll("button[data-pick-name]").forEach(b=>{ b.onclick=()=>{
     const list=today.selectedExercises=Array.isArray(today.selectedExercises)?today.selectedExercises:[];
-    const i=list.indexOf(b.dataset.nm); if(i<0) list.push(b.dataset.nm); else list.splice(i,1);
+    const name=b.dataset.pickName,i=list.findIndex(ref=>exerciseName(ref)===name); if(i<0) list.push(name); else list.splice(i,1);
     saveLog(); renderTemplateControls(); renderPlan(); renderRecommendation();
   }; });
+  $("#customPattern").onchange=()=>{$("#customSubPattern").hidden=!["push","pull"].includes($("#customPattern").value);if($("#customSubPattern").hidden) $("#customSubPattern").value="";};
+  $("#customExerciseAdd").onclick=()=>{
+    const name=$("#customExerciseName").value,pattern=$("#customPattern").value||null,subPattern=$("#customSubPattern").value||null;
+    const prepNeeds=[...picker.querySelectorAll(".custom-prep input:checked")].map(input=>input.value);
+    const def=createCustomExercise(name,pattern,subPattern,prepNeeds),status=$("#customExerciseStatus");
+    if(!def){status.textContent="请填写动作名称。";return;}
+    const list=today.selectedExercises=Array.isArray(today.selectedExercises)?today.selectedExercises:[];
+    if(!list.some(ref=>exerciseIdFor(ref)===def.id)) list.push(exerciseName(def.id));
+    saveLog();renderTemplateControls();renderPlan();renderRecommendation();
+  };
+  picker.querySelectorAll("button[data-rename-id]").forEach(button=>{button.onclick=()=>{
+    const input=picker.querySelector(`input[data-custom-rename="${button.dataset.renameId}"]`),result=renameCustomExercise(button.dataset.renameId,input.value);
+    if(!result.ok){$("#customExerciseStatus").textContent="已有同名动作，名称未改。";return;}
+    renderTemplateControls();renderPlan();refreshHistoryDerivedViews();
+  };});
 }
 
 // ---- 第一层:今天是什么日子 ----
@@ -1609,6 +1705,7 @@ function renderPlan(){
   $("#pSub").textContent = p.sub;
 
   const doneList = doneListForEntry(today);
+  const completedNow=completedNames(today);
 
   let html = locationSwitchHTML(today,templateId)+preparationHTML(p,templateId);
   p.blocks.forEach(blk => {
@@ -1620,11 +1717,11 @@ function renderPlan(){
       if(it.inactive){ html+=`<li class="optional-item"><div class="mv">${exerciseChoiceHTML(it)}</div></li>`; return; }
       const d = it.dose[k];
       const skip = d === "跳过";
-      const done = doneList.indexOf(it.nm) !== -1;
+      const done = completedNow.includes(it.nm);
       html += `<li data-nm="${escapeAttr(it.nm)}"${skip?' style="opacity:.45"':''}${done?' class="done"':''}>
         <button class="tick" type="button" aria-label="${done?'取消记录':'记录'} ${escapeAttr(it.nm)}" aria-pressed="${done}">✓</button>
         <div class="mv">
-          <div class="nm"><button class="move-name" type="button" aria-expanded="false">${it.nm}${it.swap?`<span class="swap">${it.swap}</span>`:""}${it.detail?'<span class="caret">▸</span>':""}</button><span class="pattern-tag">${PATTERN_META[it.pattern||"accessory"].label}</span></div>
+          <div class="nm"><button class="move-name" type="button" aria-expanded="false">${escapeAttr(it.nm)}${it.swap?`<span class="swap">${escapeAttr(it.swap)}</span>`:""}${it.detail?'<span class="caret">▸</span>':""}</button><span class="pattern-tag">${patternLabel(it)}</span></div>
           <div class="dose"><b>${d}</b></div>
           ${templateId==="accessory"&&ACCESSORY_USE[it.nm]?`<div class="accessory-use">${ACCESSORY_USE[it.nm]}</div>`:""}
           ${exerciseChoiceHTML(it)}
@@ -1636,6 +1733,7 @@ function renderPlan(){
     });
     html += `</ul>`;
   });
+  html += postStretchHTML(p);
   $("#pBody").innerHTML = html;
   bindLocationSwitch($("#pBody"),today,templateId,()=>{renderPlan();renderCheckin();refreshHistoryDerivedViews();});
   bindExerciseChoices($("#pBody"),today,templateId,()=>{renderPlan();renderCheckin();refreshHistoryDerivedViews();});
@@ -1689,7 +1787,7 @@ function renderPlan(){
       const li = t.closest("li");
       const nm = li.dataset.nm;
       const list = doneListForEntry(today);
-      const idx = list.indexOf(nm);
+      const idx = list.findIndex(ref=>exerciseName(ref)===nm);
       if(idx === -1){
         list.push(nm);
         li.classList.add("done");
@@ -1728,7 +1826,7 @@ function actualHTML(nm, plan){
     rF = `<span class="fld">每组次<input class="a-r" type="number" inputmode="numeric" min="0" value="${reps}"></span><button class="a-toggle" data-act="expand">分组</button>`;
   }
   const rirF = rirQuickHTML(cur.rir != null ? cur.rir : "");
-  return `<div class="act" data-nm="${nm}">${wF}${sF}${rF}${rirF}</div>`;
+  return `<div class="act" data-nm="${escapeAttr(nm)}">${wF}${sF}${rF}${rirF}</div>`;
 }
 function readActualRow(actEl){
   const nm = actEl.dataset.nm;
@@ -1804,6 +1902,25 @@ function syncAeroUI(){
   reading.hidden=!hasCardioReading(a.type)&&!a.reading;
   $("#noteInput").value = today.note || "";
 }
+const VENUE_LABELS={home:"家",my_gym:"我的健身房",other:"其他"};
+function venueHistoryLabels(){
+  return [...new Set(Object.values(log).map(entry=>entry&&entry.venue==="other"?String(entry.venueLabel||"").trim():"").filter(Boolean))].sort((a,b)=>a.localeCompare(b,"zh-CN"));
+}
+function venueText(entry){
+  if(!entry||!VENUE_LABELS[entry.venue]) return "未记录";
+  return entry.venue==="other"&&String(entry.venueLabel||"").trim()?String(entry.venueLabel).trim():VENUE_LABELS[entry.venue];
+}
+function setVenue(entry,value,label=""){
+  if(["home","my_gym","other"].includes(value)) entry.venue=value; else delete entry.venue;
+  if(entry.venue==="other"&&String(label||"").trim()) entry.venueLabel=String(label).trim(); else delete entry.venueLabel;
+}
+function syncVenueUI(){
+  const select=$("#venueSelect"), input=$("#venueLabel"), row=$("#venueOtherRow"), history=$("#venueHistory");
+  select.value=VENUE_LABELS[today.venue]?today.venue:"";
+  input.value=today.venue==="other"?(today.venueLabel||""):"";
+  row.hidden=select.value!=="other";
+  history.innerHTML=venueHistoryLabels().map(label=>`<option value="${escapeAttr(label)}"></option>`).join("");
+}
 function saveAero(type, minutes, reading=""){
   const value=String(reading||"").trim();
   if(type || minutes > 0 || value){
@@ -1839,6 +1956,14 @@ document.querySelectorAll(".qmin").forEach(b=>{
 $("#noteInput").oninput = () => {
   const v = $("#noteInput").value.trim();
   if(v) today.note = v; else delete today.note;
+  saveLog();
+};
+$("#venueSelect").onchange=()=>{
+  setVenue(today,$("#venueSelect").value,$("#venueLabel").value);
+  saveLog();syncVenueUI();
+};
+$("#venueLabel").oninput=()=>{
+  setVenue(today,"other",$("#venueLabel").value);
   saveLog();
 };
 
@@ -2020,7 +2145,7 @@ function parseReps(value){
 }
 function itemsForEntry(entry){
   const id=displayTemplateIdForEntry(entry||{});
-  if(id==="custom") return (Array.isArray(entry&&entry.selectedExercises)?entry.selectedExercises:[]).map(nm=>LIBRARY_ITEMS[nm]).filter(Boolean);
+  if(id==="custom") return (Array.isArray(entry&&entry.selectedExercises)?entry.selectedExercises:[]).map(exerciseName).map(nm=>LIBRARY_ITEMS[nm]).filter(Boolean);
   const plan=resolvedPlanForEntry(entry||{},id);
   const current=plan.blocks.filter(block=>!block.preparation&&!block.name.startsWith("热身")).flatMap(block=>block.items).filter(item=>!item.inactive);
   // Past selections, including older parallel RDL records, stay editable without becoming default tasks.
@@ -2030,7 +2155,7 @@ function itemsForEntry(entry){
 function displayTemplateIdForEntry(entry){
   const stored=templateIdForEntry(entry||{});
   if(stored==="custom" || stored.startsWith("legacy") || !Array.isArray(entry&&entry.doneExercises)) return stored;
-  const completedPatterns=[...new Set(entry.doneExercises.map(nm=>movementMeta(nm).pattern).filter(pattern=>["squat","hinge","push","pull"].includes(pattern)))];
+  const completedPatterns=[...new Set(entry.doneExercises.map(exerciseName).map(nm=>movementMeta(nm).pattern).filter(pattern=>["squat","hinge","push","pull"].includes(pattern)))];
   if(completedPatterns.length!==1) return stored;
   const storedPatterns=new Set(planItems(TEMPLATES[stored]).map(item=>movementMeta(item.nm).pattern));
   if(storedPatterns.has(completedPatterns[0])) return stored;
@@ -2251,6 +2376,7 @@ function renderDayDetail(key){
       }
     }
     if(entry.aerobic) rows.push(`<div><b>有氧：</b>${escapeAttr(entry.aerobic.type || "其他")}${entry.aerobic.minutes ? ` ${entry.aerobic.minutes} 分钟` : ""}${entry.aerobic.reading?` · ${escapeAttr(entry.aerobic.reading)}`:""}</div>`);
+    rows.push(`<div><b>场地：</b>${escapeAttr(venueText(entry))}</div>`);
     if(entry.note) rows.push(`<div><b>备注：</b>${escapeAttr(entry.note)}</div>`);
     if(entry.period) rows.push(`<div>🩸 这天有经期记录</div>`);
   }
@@ -2266,6 +2392,8 @@ function renderDayDetail(key){
     const cardioType = (entry && entry.aerobic && entry.aerobic.type) || "";
     const cardioMinutes = (entry && entry.aerobic && entry.aerobic.minutes) || "";
     const cardioReading = (entry && entry.aerobic && entry.aerobic.reading) || "";
+    const currentVenue = entry && VENUE_LABELS[entry.venue] ? entry.venue : "";
+    const currentVenueLabel = currentVenue === "other" ? (entry.venueLabel || "") : "";
     const note = (entry && entry.note) || "";
     const periodMarked = !!(entry && entry.period);
     let html = `<div class="dd-edit">`;
@@ -2283,8 +2411,9 @@ function renderDayDetail(key){
       }).join("")}</select></div>`;
 
       if(currentTemplate === "custom"){
-        const chosen = Array.isArray(entry && entry.selectedExercises) ? entry.selectedExercises : [];
-        html += `<div class="dd-row"><span class="dd-lbl">自由选择</span><div class="picker-group"><div class="exercise-picker" id="ddCustomPicker">${PICKER_ORDER.flatMap(pattern=>Object.keys(LIBRARY_ITEMS).filter(nm=>movementMeta(nm).pattern === pattern)).map(nm=>`<button type="button" data-nm="${escapeAttr(nm)}" aria-pressed="${chosen.includes(nm)}">${nm}</button>`).join("")}</div></div></div>`;
+        const chosen = Array.isArray(entry && entry.selectedExercises) ? entry.selectedExercises.map(exerciseName) : [];
+        const pickerNames=[...PICKER_ORDER.flatMap(pattern=>Object.keys(LIBRARY_ITEMS).filter(nm=>!LIBRARY_ITEMS[nm].custom&&movementMeta(nm).pattern === pattern)),...customExercises.map(def=>def.name)];
+        html += `<div class="dd-row"><span class="dd-lbl">自由选择</span><div class="picker-group"><div class="exercise-picker" id="ddCustomPicker">${pickerNames.map(nm=>`<button type="button" data-nm="${escapeAttr(nm)}" aria-pressed="${chosen.includes(nm)}">${escapeAttr(nm)}</button>`).join("")}</div></div></div>`;
       }
 
       html += `<div class="dd-row"><span class="dd-lbl">投入</span><div class="dd-chips st" id="ddState">
@@ -2300,10 +2429,17 @@ function renderDayDetail(key){
       html += `<div class="dd-moves"><span class="dd-lbl">动作</span>${itemsForEntry(entry).map(item=>{
         const checked = done.includes(item.nm);
         const meta = movementMeta(item.nm);
-        return `<div class="dd-move${checked ? " selected" : ""}"><button class="dd-move-toggle" data-nm="${escapeAttr(item.nm)}" aria-pressed="${checked}"><span class="dd-box">${checked ? "✓" : ""}</span><span>${item.nm}${item.historical?" · 既有记录":""}<small class="pattern-tag">${PATTERN_META[meta.pattern].label}${meta.subPattern ? ` · ${meta.subPattern === "horizontal" ? "水平" : "垂直"}` : ""}</small></span></button>${checked ? detailActualHTML(item.nm,key,entry) : ""}</div>`;
+        return `<div class="dd-move${checked ? " selected" : ""}"><button class="dd-move-toggle" data-nm="${escapeAttr(item.nm)}" aria-pressed="${checked}"><span class="dd-box">${checked ? "✓" : ""}</span><span>${escapeAttr(item.nm)}${item.historical?" · 既有记录":""}<small class="pattern-tag">${patternLabel(meta)}${meta.subPattern ? ` · ${meta.subPattern === "horizontal" ? "水平" : "垂直"}` : ""}</small></span></button>${checked ? detailActualHTML(item.nm,key,entry) : ""}</div>`;
       }).join("")}</div>`;
     }
 
+    html += `<div class="dd-row"><label class="dd-lbl" for="ddVenue">场地</label><select id="ddVenue" class="dd-template">
+      <option value=""${currentVenue===""?" selected":""}>未记录</option>
+      <option value="home"${currentVenue==="home"?" selected":""}>家</option>
+      <option value="my_gym"${currentVenue==="my_gym"?" selected":""}>我的健身房</option>
+      <option value="other"${currentVenue==="other"?" selected":""}>其他</option>
+    </select></div>`;
+    html += `<div class="dd-row" id="ddVenueOther"${currentVenue==="other"?"":" hidden"}><label class="dd-lbl" for="ddVenueLabel">名称</label><input class="dd-note" id="ddVenueLabel" type="text" maxlength="40" list="ddVenueHistory" placeholder="可选，如朋友家" value="${escapeAttr(currentVenueLabel)}"><datalist id="ddVenueHistory">${venueHistoryLabels().map(label=>`<option value="${escapeAttr(label)}"></option>`).join("")}</datalist></div>`;
     html += `<div class="dd-row dd-aero-row"><span class="dd-lbl">有氧</span><div class="dd-chips" id="ddAeroType">
       ${AEROBIC_TYPES.map(type=>`<button data-t="${type}" aria-pressed="${cardioType === type}">${type}</button>`).join("")}
     </div><input class="dd-min" id="ddAeroMin" type="number" inputmode="numeric" min="0" max="600" placeholder="分钟" value="${cardioMinutes}"><input class="dd-note" id="ddAeroReading" type="text" maxlength="60" placeholder="器械读数（速度 / 阻力 / 距离）" value="${escapeAttr(cardioReading)}"${hasCardioReading(cardioType)||cardioReading?"":" hidden"}></div>`;
@@ -2369,7 +2505,7 @@ function renderDayDetail(key){
       button.onclick = () => {
         const rec = ensure();
         rec.selectedExercises = Array.isArray(rec.selectedExercises) ? rec.selectedExercises : [];
-        const index = rec.selectedExercises.indexOf(button.dataset.nm);
+        const index = rec.selectedExercises.findIndex(ref=>exerciseName(ref)===button.dataset.nm);
         if(index < 0) rec.selectedExercises.push(button.dataset.nm); else rec.selectedExercises.splice(index,1);
         structural();
       };
@@ -2382,7 +2518,7 @@ function renderDayDetail(key){
       button.onclick = () => {
         const rec = ensure();
         const done = doneListForEntry(rec);
-        const index = done.indexOf(button.dataset.nm);
+        const index = done.findIndex(ref=>exerciseName(ref)===button.dataset.nm);
         if(index < 0){
           done.push(button.dataset.nm);
           if(!readExerciseActual(rec,button.dataset.nm)){
@@ -2425,6 +2561,14 @@ function renderDayDetail(key){
     }; });
     $("#ddAeroMin").oninput = () => { const rec=ensure(); const current=rec.aerobic&&rec.aerobic.type; setAeroRec(rec,current||null,Number($("#ddAeroMin").value)||0,$("#ddAeroReading").value); light(); };
     $("#ddAeroReading").oninput = () => { const rec=ensure(); const current=rec.aerobic&&rec.aerobic.type; setAeroRec(rec,current||null,Number($("#ddAeroMin").value)||0,$("#ddAeroReading").value); light(); };
+    $("#ddVenue").onchange=()=>{
+      const rec=ensure(), value=$("#ddVenue").value;
+      setVenue(rec,value,$("#ddVenueLabel").value);
+      structural();
+    };
+    $("#ddVenueLabel").oninput=()=>{
+      const rec=ensure();setVenue(rec,"other",$("#ddVenueLabel").value);light();
+    };
     $("#ddPeriod").onclick = () => { const rec=ensure(); if(rec.period) delete rec.period; else rec.period=true; structural(); };
     $("#ddNote").oninput = () => { const rec=ensure(); const value=$("#ddNote").value.trim(); if(value) rec.note=value; else delete rec.note; light(); };
     const clearButton = $("#ddClear");
@@ -2687,7 +2831,7 @@ $("#aiReviewAgain").onclick=()=>generateAIReview(true);
 // ---- 备份:导出 / 导入 ----
 function setBackupMsg(m, cls){ const el = $("#backupMsg"); el.textContent = m; el.className = "backup-msg " + (cls||""); }
 function backupPayload(){
-  return { format:"avengo-backup", version:5, exportedAt:new Date().toString(), profile:{...profile}, reviews:aiReviews.map(item=>({...item})), log };
+  return { format:"avengo-backup", version:6, exportedAt:new Date().toString(), profile:{...profile}, reviews:aiReviews.map(item=>({...item})), customExercises:customExercises.map(item=>({...item,prepNeeds:[...item.prepNeeds],...(item.aliases?{aliases:[...item.aliases]}:{})})), log };
 }
 function downloadText(text, filename, mime){
   const blob = new Blob([text], {type:mime});
@@ -2703,7 +2847,7 @@ function safeCsvCell(value){
   return `"${s.replace(/"/g,'""')}"`;
 }
 function buildCSV(){
-  const headers = ["date","strength_mode","legacy_day_type","legacy_strength_day","template_id","template_name","selected_exercises","investment_level","strength_recorded","exercise","pattern","sub_pattern","weight_lb","sets","reps","rir","aerobic_type","aerobic_minutes","period","note","display_name","exercise_id","weight_recorded","weight_basis","aerobic_machine_reading"];
+  const headers = ["date","strength_mode","legacy_day_type","legacy_strength_day","template_id","template_name","selected_exercises","investment_level","strength_recorded","venue","venue_label","exercise","pattern","sub_pattern","weight_lb","sets","reps","rir","aerobic_type","aerobic_minutes","period","note","display_name","exercise_id","weight_recorded","weight_basis","aerobic_machine_reading"];
   const rows = [headers];
   Object.keys(log).filter(k=>/^\d{4}-\d{2}-\d{2}$/.test(k)).sort().forEach(key=>{
     const e = log[key] && typeof log[key] === "object" ? log[key] : {};
@@ -2711,7 +2855,7 @@ function buildCSV(){
     const isStrength = entryMode(e) === "train" || hasStrengthActivity(e);
     const currentTemplate = isStrength ? templateIdForEntry(e) : "";
     const selected = isStrength ? itemsForEntry(e).map(item=>item.nm) : [];
-    const common = [key,entryMode(e),e.dayType||"",e.day||"",currentTemplate,currentTemplate ? entryTemplateTitle(e) : "",selected.join(" | "),LEVEL_TXT[e.state]||"",hasStrengthActivity(e)?"true":"false"];
+    const common = [key,entryMode(e),e.dayType||"",e.day||"",currentTemplate,currentTemplate ? entryTemplateTitle(e) : "",selected.join(" | "),LEVEL_TXT[e.state]||"",hasStrengthActivity(e)?"true":"false",VENUE_LABELS[e.venue]?e.venue:"",e.venue==="other"?(e.venueLabel||""):""];
     const tail = [e.aerobic&&e.aerobic.type||"",e.aerobic&&e.aerobic.minutes!=null?e.aerobic.minutes:"",e.period===true?"true":"false",e.note||"",profile.displayName||""];
     const cardioReading=e.aerobic&&e.aerobic.reading||"";
     if(!names.length) rows.push([...common,"","","","","","","",...tail,"","","",cardioReading]);
@@ -2753,6 +2897,7 @@ const PATTERN_META = {
   core:{label:"Core", zh:"核心"}, carry:{label:"Carry", zh:"负重行走"},
   accessory:{label:"Accessory", zh:"辅助"}
 };
+function patternLabel(value){const meta=value&&value.pattern!==undefined?value:movementMeta(value);return PATTERN_META[meta&&meta.pattern]?.label||"未分类";}
 const MOVEMENT_META = {
   "高脚杯深蹲":{pattern:"squat"}, "分腿蹲 / 保加利亚分腿蹲":{pattern:"squat"}, "徒手深蹲":{pattern:"squat"},
   "哑铃罗马尼亚硬拉":{pattern:"hinge"}, "臀桥 / 单腿臀桥":{pattern:"hinge"}, "B-stance RDL":{pattern:"hinge"}, "单腿 RDL":{pattern:"hinge"},
@@ -2767,7 +2912,10 @@ const MOVEMENT_META = {
   "农夫行走 / Suitcase March":{pattern:"carry"}, "收下巴(Chin Tuck)":{pattern:"accessory"}, "颈部四向等长对抗":{pattern:"accessory"}
 };
 
-function movementMeta(nm){ return MOVEMENT_META[nm] || {pattern:"accessory"}; }
+function movementMeta(nm){
+  const custom=customExerciseRegistry[nm];
+  return MOVEMENT_META[nm] || (custom?{pattern:custom.pattern,subPattern:custom.subPattern}:{pattern:"accessory"});
+}
 Object.values(PLAN).forEach(p=>p.blocks.forEach(blk=>blk.items.forEach(it=>Object.assign(it,movementMeta(it.nm)))));
 
 const LIBRARY_ITEMS = {
@@ -2941,8 +3089,71 @@ GYM_MOVEMENTS.forEach(([id,nm,base])=>{
   const dose=Object.fromEntries(Object.entries(source.dose).map(([key,value])=>[key,value==="—"?value:(["cable_lateral_raise","cable_pallof_press"].includes(id)?"各 ":"")+value.replace(/^各\s*/,"")]));
   LIBRARY_ITEMS[nm]={...source,nm,...MOVEMENT_META[nm],equipment:"gym",dose,plan:{...source.plan,w:null},why:"重量按 lb 记录；与在家动作分开保存历史。",detail:GYM_DETAILS[id]};
 });
-Object.values(LIBRARY_ITEMS).forEach(item=>{ item.exerciseId=EXERCISE_IDS[item.nm]; });
+function registerCustomDefinition(definition){
+  const def=canonicalCustomExercise(definition);if(!def) return null;
+  EXERCISE_IDS[def.name]=def.id;
+  (def.aliases||[]).forEach(alias=>{EXERCISE_IDS[alias]=def.id;MOVEMENT_META[alias]={pattern:def.pattern,subPattern:def.subPattern};});
+  MOVEMENT_META[def.name]={pattern:def.pattern,subPattern:def.subPattern};
+  LIBRARY_ITEMS[def.name]={
+    nm:def.name,exerciseId:def.id,custom:true,pattern:def.pattern,subPattern:def.subPattern,prepNeeds:[...def.prepNeeds],
+    dose:{g:"1 组 × 10",a:"1 组 × 8",r:"—"},plan:{w:null,s:1,r:10},why:"按当天实际使用的重量、组数、次数与 RIR 记录。"
+  };
+  customExerciseRegistry[def.id]=def;
+  return def;
+}
+customExercises.forEach(registerCustomDefinition);
+const PREP_NEEDS=["ankle","knee","hip","hamstring","thoracic","shoulder","wrist","chest","lat"];
+const PREP_NEED_LABELS={ankle:"脚踝",knee:"膝",hip:"髋",hamstring:"腘绳肌",thoracic:"胸椎",shoulder:"肩",wrist:"腕",chest:"胸",lat:"背阔肌"};
+const PREP_NEEDS_BY_ID={
+  goblet_squat:["ankle","knee","hip"],split_squat:["ankle","knee","hip"],bodyweight_squat:["ankle","knee","hip"],machine_leg_press:["ankle","knee","hip"],
+  dumbbell_rdl:["ankle","hip","hamstring"],cable_rdl:["ankle","hip","hamstring"],b_stance_rdl:["ankle","hip","hamstring"],single_leg_rdl:["ankle","hip","hamstring"],
+  glute_bridge:["hip","hamstring"],towel_leg_curl:["hip","hamstring"],
+  dumbbell_shoulder_press:["shoulder","thoracic","wrist"],machine_shoulder_press:["shoulder","thoracic","wrist"],
+  incline_pushup:["chest","shoulder","wrist","thoracic"],kneeling_pushup:["chest","shoulder","wrist","thoracic"],machine_chest_press:["chest","shoulder","wrist","thoracic"],machine_incline_press:["chest","shoulder","wrist","thoracic"],
+  one_arm_dumbbell_row:["thoracic","shoulder","wrist"],cable_row:["thoracic","shoulder","wrist"],band_seated_row:["thoracic","shoulder","wrist"],
+  band_pulldown:["lat","shoulder","thoracic"],machine_lat_pulldown:["lat","shoulder","thoracic"],
+  dumbbell_lateral_raise:["shoulder","thoracic"],cable_lateral_raise:["shoulder","thoracic"],cable_face_pull:["shoulder","thoracic"],prone_t:["shoulder","thoracic"],band_external_rotation_t:["shoulder","thoracic"],
+  calf_raise:["ankle"],machine_calf_press:["ankle"],carry_march:["shoulder","wrist"],
+  pallof_press:["thoracic"],cable_pallof_press:["thoracic"],dead_bug:["thoracic"],bird_dog:["thoracic"],plank:["thoracic"],bear_hold:["thoracic"],side_plank:["thoracic"],
+  band_clamshell:["ankle","hip"],single_leg_balance:["ankle","hip"],
+  foam_roller_wall_slide:[],frog_hip_prep:[],foot_ankle_prep:[],wrist_prep:[],band_shoulder_circle:[],stretch_cat:[],breathing_360:[],chin_tuck:[],neck_isometric:[]
+};
+customExercises.forEach(def=>{PREP_NEEDS_BY_ID[def.id]=[...def.prepNeeds];});
+Object.values(EXERCISE_IDS).forEach(id=>{
+  if(!Object.prototype.hasOwnProperty.call(PREP_NEEDS_BY_ID,id)) throw new Error(`Missing prepNeeds for ${id}`);
+});
+Object.values(LIBRARY_ITEMS).forEach(item=>{ item.exerciseId=EXERCISE_IDS[item.nm]; item.prepNeeds=[...PREP_NEEDS_BY_ID[item.exerciseId]]; });
 const EXERCISE_BY_ID=Object.fromEntries(Object.entries(EXERCISE_IDS).map(([nm,id])=>[id,{nm,id}]));
+customExercises.forEach(def=>{EXERCISE_BY_ID[def.id]={nm:def.name,id:def.id};});
+function builtInExerciseIdByName(name){
+  const normalized=normalizeExerciseName(name);
+  const match=Object.values(EXERCISE_BY_ID).find(item=>!String(item.id).startsWith("custom_")&&normalizeExerciseName(item.nm)===normalized);
+  return match&&match.id||null;
+}
+function customExerciseByName(name){const normalized=normalizeExerciseName(name);return customExercises.find(item=>item.normalizedName===normalized)||null;}
+function nextCustomExerciseId(){
+  const base=`custom_${crypto.randomUUID?crypto.randomUUID():`${Date.now()}-${Math.random().toString(36).slice(2,12)}`}`;
+  let id=base,index=2;while(customExerciseRegistry[id]) id=`${base}-${index++}`;
+  return id;
+}
+function createCustomExercise(name,pattern=null,subPattern=null,prepNeeds=[]){
+  const normalizedName=normalizeExerciseName(name);if(!normalizedName) return null;
+  const builtInId=builtInExerciseIdByName(name);if(builtInId) return {id:builtInId,name:exerciseName(builtInId),existing:true,builtIn:true};
+  const existing=customExerciseByName(name);if(existing) return {...existing,existing:true};
+  const def=canonicalCustomExercise({id:nextCustomExerciseId(),name,normalizedName,pattern,subPattern,prepNeeds});
+  customExercises.push(def);registerCustomDefinition(def);PREP_NEEDS_BY_ID[def.id]=[...def.prepNeeds];EXERCISE_BY_ID[def.id]={nm:def.name,id:def.id};saveCustomExercises();
+  return def;
+}
+function renameCustomExercise(id,newName){
+  const def=customExercises.find(item=>item.id===id),normalizedName=normalizeExerciseName(newName);if(!def||!normalizedName) return {ok:false};
+  const builtInId=builtInExerciseIdByName(newName),sameName=customExercises.find(item=>item.id!==id&&item.normalizedName===normalizedName);
+  if(builtInId||sameName) return {ok:false,existingId:builtInId||(sameName&&sameName.id)};
+  const oldName=def.name;
+  if(normalizedName===def.normalizedName) return {ok:true,id};
+  def.aliases=[...new Set([...(def.aliases||[]),oldName])];def.name=String(newName).normalize("NFKC").trim().replace(/\s+/g," ");def.normalizedName=normalizedName;
+  delete LIBRARY_ITEMS[oldName];registerCustomDefinition(def);EXERCISE_BY_ID[id]={nm:def.name,id};saveCustomExercises();
+  return {ok:true,id};
+}
 const ALTERNATIVE_IDS=Object.fromEntries(GYM_MOVEMENTS.map(([, ,base])=>[base,[EXERCISE_IDS[base],...GYM_MOVEMENTS.filter(row=>row[2]===base).map(row=>row[0])]]));
 const AEROBIC_TYPES=["骑车","快走","原地踏步","散步","游泳","跑步机","椭圆机","划船机","其他"];
 const pickItems = (...names) => names.map(nm=>LIBRARY_ITEMS[nm]).filter(Boolean);
@@ -2969,18 +3180,28 @@ const ACCESSORY_USE={
   "毛巾滑动腿弯举":"Lower Hinge · 练后",
   "农夫行走 / Suitcase March":"Full Body / Lower · 练后"
 };
-const WARMUP_GUIDES={
-  fullA:{areas:"髋、膝、肩、上背、小腿",moves:"先用很轻的器械重量各做几次，再进入工作重量；也可按需从 Accessory 选择准备动作。"},
-  fullB:{areas:"髋、膝、胸、背、核心",moves:"先用很轻的器械重量各做几次，再进入工作重量；也可按需从 Accessory 选择准备动作。"},
-  push:{areas:"肩胛、肩、腕",moves:"空手肩推、墙面俯卧撑各 6–8 次；Accessory：腕功能、肩环绕、墙上回旋。"},
-  pull:{areas:"肩胛、肩、腕",moves:"轻拉力划船、下拉各 8 次；Accessory：腕功能、肩环绕。"},
-  lowerSquat:{areas:"脚踝、髋、膝",moves:"徒手深蹲 8–10 次；Accessory：足踝、髋内旋。"},
-  lowerHinge:{areas:"髋、腘绳肌、脚踝",moves:"空手髋折叠、徒手臀桥各 8 次；Accessory：猫式伸展、足踝。"},
-  accessory:{areas:"按所选动作",moves:"先做小幅度空手活动，再按动作下方标注放在练前或练后。"},
-  legacyA:{areas:"脚踝、髋",moves:"徒手深蹲、空手髋折叠各 8 次；Accessory：足踝。"},
-  legacyB:{areas:"肩、腕、肩胛",moves:"空手肩推、轻拉划船各 8 次；Accessory：腕功能、肩环绕。"},
-  custom:{areas:"今天会用到的关节",moves:"先把第一个主动作空手做 6–8 次；需要时从 Accessory 选对应部位。"}
-};
+const WARMUP_LIBRARY=[
+  {id:"warm_ankle_shift",need:"ankle",phase:"dynamic",name:"站姿脚掌前后滚动 / 重心转移",dose:"每脚 30–45 秒"},
+  {id:"warm_ankle_wall",need:"ankle",phase:"dynamic",name:"靠墙踝背屈",dose:"每侧 8 次"},
+  {id:"warm_knee_squat",need:"knee",phase:"dynamic",name:"扶器械徒手空蹲 · 舒适幅度",dose:"8 次"},
+  {id:"warm_hip_swing",need:"hip",phase:"dynamic",name:"扶杆摆腿",dose:"每侧前后 10 次"},
+  {id:"warm_hinge",need:"hamstring",phase:"dynamic",name:"站姿髋铰链空转",dose:"10 次"},
+  {id:"warm_thoracic_rotation",need:"thoracic",phase:"dynamic",name:"站姿胸椎旋转",dose:"每侧 8 次"},
+  {id:"warm_shoulder_circle",need:"shoulder",phase:"dynamic",name:"阻力绳肩环绕",dose:"10–12 次"},
+  {id:"warm_wrist",need:"wrist",phase:"dynamic",name:"手腕唤醒（屈伸 / 桡尺偏 / 前臂旋转 / 画圈）",dose:"各 8 次"},
+  {id:"warm_chest",need:"chest",phase:"mobility",name:"扶柱扩胸",dose:"每侧 20–30 秒"},
+  {id:"warm_lat",need:"lat",phase:"mobility",name:"扶杆后坐背阔舒展",dose:"每侧 20–30 秒"}
+];
+const POST_STRETCH_LIBRARY=[
+  {id:"stretch_ankle",need:"ankle",phase:"static",name:"推墙小腿拉伸",dose:"每侧 20–30 秒"},
+  {id:"stretch_knee",need:"knee",phase:"static",name:"站姿抓脚背大腿前侧拉伸（扶器械）",dose:"每侧 20–30 秒"},
+  {id:"stretch_hip",need:"hip",phase:"static",name:"站姿弓步髋屈肌拉伸（扶器械）",dose:"每侧 20–30 秒"},
+  {id:"stretch_hamstring",need:"hamstring",phase:"static",name:"站姿腘绳肌拉伸（脚跟搭矮台）",dose:"每侧 20–30 秒"},
+  {id:"stretch_thoracic",need:"thoracic",phase:"static",name:"站姿胸椎旋转保持",dose:"每侧 20–30 秒"},
+  {id:"stretch_shoulder",need:"shoulder",phase:"static",name:"站姿横臂拉伸（手臂横过胸前，另一手压住）",dose:"每侧 20–30 秒"},
+  {id:"stretch_chest",need:"chest",phase:"static",name:"扶柱扩胸",dose:"每侧 20–30 秒"},
+  {id:"stretch_lat",need:"lat",phase:"static",name:"扶杆后坐背阔舒展",dose:"每侧 20–30 秒"}
+];
 const templatePlan = (title, short, sub, names, warmups=[]) => ({title,short,sub,blocks:[
   ...(warmups.length ? [{name:"推荐准备",preparation:true,items:pickItems(...warmups)}] : []),
   {name:"今天的动作",items:pickItems(...names)}
@@ -3110,12 +3331,98 @@ function bindExerciseChoices(root,entry,id,refresh){
   root.querySelectorAll("select[data-slot]").forEach(select=>{select.onchange=()=>{setExerciseChoice(entry,id,select.dataset.slot,select.value);saveLog();refresh();};});
   root.querySelectorAll("button[data-slot]").forEach(button=>{button.onclick=()=>{setExerciseChoice(entry,id,button.dataset.slot,button.dataset.choice||null);saveLog();refresh();};});
 }
-function preparationHTML(plan,id=templateId){
-  const guide=WARMUP_GUIDES[id]||WARMUP_GUIDES.custom;
-  return `<div class="plan-prep"><b>热身部位 · ${guide.areas}</b>${guide.moves}</div>`;
+function activePreparationItems(plan,level=state){
+  const key=KEY[level]||"g";
+  return planItems(plan).filter(item=>!item.inactive&&!item.preparation&&!(item.dose&&item.dose[key]==="—"));
+}
+function preparationNeedCounts(plan,level=state){
+  const counts=Object.fromEntries(PREP_NEEDS.map(need=>[need,0]));
+  activePreparationItems(plan,level).forEach(item=>(item.prepNeeds||[]).forEach(need=>{if(need in counts) counts[need]++;}));
+  return counts;
+}
+function derivedPreparationActions(plan,library,limit,level=state){
+  const counts=preparationNeedCounts(plan,level), phaseOrder={dynamic:0,mobility:1,static:0};
+  const sorted=library.map((item,index)=>({...item,index,score:counts[item.need]||0})).filter(item=>item.score>0).sort((a,b)=>
+    (phaseOrder[a.phase]??9)-(phaseOrder[b.phase]??9)||b.score-a.score||PREP_NEEDS.indexOf(a.need)-PREP_NEEDS.indexOf(b.need)||a.index-b.index
+  );
+  const seen=new Set();
+  return sorted.filter(item=>!seen.has(item.id)&&seen.add(item.id)).slice(0,limit);
+}
+const MAIN_COMPOUND_IDS=new Set([
+  "goblet_squat","split_squat","bodyweight_squat","machine_leg_press",
+  "dumbbell_rdl","cable_rdl","b_stance_rdl","single_leg_rdl",
+  "dumbbell_shoulder_press","machine_shoulder_press","incline_pushup","kneeling_pushup","machine_chest_press","machine_incline_press",
+  "one_arm_dumbbell_row","cable_row","band_seated_row","band_pulldown","machine_lat_pulldown"
+]);
+function specificWarmupTargets(plan,level=state){
+  const seen=new Set();
+  return activePreparationItems(plan,level).filter(item=>{
+    const pattern=movementMeta(item.nm).pattern,id=exerciseIdFor(item.nm);
+    if(!MAIN_PATTERNS.includes(pattern)||!MAIN_COMPOUND_IDS.has(id)||seen.has(pattern)) return false;
+    seen.add(pattern);return true;
+  });
+}
+function prepListHTML(items){
+  return items.length?`<ul class="prep-list">${items.map(item=>`<li><b>${item.name}</b><span>${item.dose}</span></li>`).join("")}</ul>`:"";
+}
+function preparationHTML(plan){
+  if(!activePreparationItems(plan).length) return "";
+  const general=derivedPreparationActions(plan,WARMUP_LIBRARY,5),targets=specificWarmupTargets(plan);
+  const targetText=targets.length?`<div class="specific-targets">${targets.map(item=>`${PATTERN_META[movementMeta(item.nm).pattern].label} · ${item.nm}`).join("；")}</div>`:"";
+  return `<section class="prep-card" aria-label="推荐热身"><h3>推荐热身（可选）</h3><p>按今天当前启用的动作生成；可以整体跳过，也可以只选需要的部分。</p>${prepListHTML(general)}<div class="specific-prep"><b>专项热身</b>${targetText}<p><strong>每个主要模式中排在最前的主要复合动作:</strong> 先用明显轻松的重量做 1 组 × 8 次。工作重量明显较高、或今天第一次使用该器械时,可再做 1 组 3–5 次的过渡。</p><p><strong>同一模式的后续动作、辅助动作、小重量动作(侧平举、Face Pull 等)、徒手和核心动作:</strong> 只做几次动作排练,不做递增组。</p><p>不要求精确百分比。器械按实际可用的较低档位选。</p></div></section>`;
+}
+function postStretchHTML(plan){
+  if(!activePreparationItems(plan).length) return "";
+  const stretches=derivedPreparationActions(plan,POST_STRETCH_LIBRARY,5);
+  return `<section class="prep-card post-stretch" aria-label="练后舒展"><h3>练后舒展(可选)</h3><p>想活动一下刚才用到的部位时,可以从这里选;不需要做完。</p>${prepListHTML(stretches)}</section>`;
 }
 const TEMPLATE_ORDER = ["fullA","fullB","push","pull","lowerSquat","lowerHinge","accessory"];
 const PICKER_ORDER = ["squat","hinge","push","pull","core","carry","accessory"];
+function activateCustomDefinition(def,oldName=""){
+  if(oldName&&oldName!==def.name) delete LIBRARY_ITEMS[oldName];
+  registerCustomDefinition(def);PREP_NEEDS_BY_ID[def.id]=[...def.prepNeeds];
+  const item=LIBRARY_ITEMS[def.name];item.prepNeeds=[...def.prepNeeds];item.exerciseId=def.id;
+  EXERCISE_BY_ID[def.id]={nm:def.name,id:def.id};
+}
+function mergeCustomExerciseDefinitions(values){
+  const idMap={},nameToImportedId={};
+  (Array.isArray(values)?values:[]).map(canonicalCustomExercise).filter(Boolean).forEach(def=>{
+    nameToImportedId[def.normalizedName]=def.id;(def.aliases||[]).forEach(alias=>{nameToImportedId[normalizeExerciseName(alias)]=def.id;});
+    const sameId=customExercises.find(item=>item.id===def.id);
+    if(sameId){
+      const oldName=sameId.name,index=customExercises.indexOf(sameId);
+      const merged=canonicalCustomExercise({...def,aliases:[...new Set([...(def.aliases||[]),...(sameId.aliases||[]),...(oldName!==def.name?[oldName]:[])])]});
+      customExercises[index]=merged;idMap[def.id]=merged.id;activateCustomDefinition(merged,oldName);return;
+    }
+    const builtInId=builtInExerciseIdByName(def.name);
+    if(builtInId){idMap[def.id]=builtInId;return;}
+    const sameName=customExercises.find(item=>item.normalizedName===def.normalizedName);
+    if(sameName){idMap[def.id]=sameName.id;return;}
+    customExercises.push(def);idMap[def.id]=def.id;activateCustomDefinition(def);
+  });
+  saveCustomExercises();
+  return {idMap,nameToImportedId};
+}
+function remapImportedLogEntry(value,mergeInfo){
+  if(!value||typeof value!=="object"||Array.isArray(value)) return value;
+  const entry={...value},resolveId=ref=>{
+    if(mergeInfo.idMap[ref]) return mergeInfo.idMap[ref];
+    const importedId=mergeInfo.nameToImportedId[normalizeExerciseName(ref)];
+    return importedId&&mergeInfo.idMap[importedId]||null;
+  },resolveName=ref=>{const id=resolveId(ref);return id?exerciseName(id):ref;};
+  for(const field of ["selectedExercises","doneExercises","doneA","doneB"]){
+    if(Array.isArray(entry[field])) entry[field]=entry[field].map(resolveName);
+  }
+  if(entry.actuals&&typeof entry.actuals==="object"&&!Array.isArray(entry.actuals)){
+    const actuals={};Object.entries(entry.actuals).forEach(([ref,actual])=>{actuals[resolveId(ref)||ref]=actual;});entry.actuals=actuals;
+  }
+  if(entry.exerciseChoices&&typeof entry.exerciseChoices==="object"&&!Array.isArray(entry.exerciseChoices)){
+    entry.exerciseChoices=Object.fromEntries(Object.entries(entry.exerciseChoices).map(([template,choices])=>[
+      template,choices&&typeof choices==="object"&&!Array.isArray(choices)?Object.fromEntries(Object.entries(choices).map(([slot,choice])=>[resolveId(slot)||slot,choice==null?choice:(resolveId(choice)||choice)])):choices
+    ]));
+  }
+  return entry;
+}
 function doImport(txt){
   let data;
   try{ data = JSON.parse(txt); }catch(e){ setBackupMsg("导入失败:不是有效的备份文本。", "err"); return; }
@@ -3123,9 +3430,10 @@ function doImport(txt){
   const importedLog = data.log && typeof data.log === "object" && !Array.isArray(data.log) ? data.log : data;
   const keys = Object.keys(importedLog).filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k) && importedLog[k] && typeof importedLog[k] === "object" && !Array.isArray(importedLog[k]));
   if(!keys.length){ setBackupMsg("导入失败:没找到任何日期记录。", "err"); return; }
+  const mergeInfo=mergeCustomExerciseDefinitions(data.customExercises);
   const added = keys.filter(k => !log[k]).length;
   const over = keys.length - added;
-  keys.forEach(k => { log[k] = importedLog[k]; });
+  keys.forEach(k => { log[k] = remapImportedLogEntry(importedLog[k],mergeInfo); });
   if(data.profile && typeof data.profile === "object" && typeof data.profile.displayName === "string"){
     const importedName=data.profile.displayName.trim();
     if(importedName) profile.displayName=importedName; else delete profile.displayName;
@@ -3154,7 +3462,7 @@ $("#importFile").onchange = (e) => {
 
 // ---- 力量趋势 ----
 function allWeightedMoves(){
-  return Object.values(LIBRARY_ITEMS).filter(item=>item.plan && (item.plan.w > 0||isMachine(item.nm))).map(item=>item.nm);
+  return Object.values(LIBRARY_ITEMS).filter(item=>item.plan && (item.plan.w > 0||isMachine(item.nm)||(item.custom&&Object.values(log).some(entry=>Number(readExerciseActual(entry,item.nm)?.weight)>0)))).map(item=>item.nm);
 }
 function initTrendSelect(){
   const sel = $("#trendMove");
@@ -3246,6 +3554,7 @@ function renderWeekBars(){
 renderDayType();
 renderCheckin();
 syncAeroUI();
+syncVenueUI();
 syncProfileUI();
 syncPeriodUI();
 renderCycle();

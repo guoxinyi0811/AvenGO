@@ -1,6 +1,6 @@
 # AvenGO
 
-Current app version: **v1.6.0** · [Changelog](CHANGELOG.md)
+Current app version: **v1.7.0** · [Changelog](CHANGELOG.md)
 
 ## English
 
@@ -18,7 +18,8 @@ The English prototype is a separate, non-persistent preview for reviewing wordin
 - One-tap Home/Gym switching in supported plans; every concrete exercise keeps separate history.
 - Six-part movement guidance; machine and cable movements add a practical equipment-setup section.
 - Weight, sets, reps, RIR, cardio machine readings, notes, calendar, trends, and optional cycle reference.
-- Each plan includes a short warm-up guide; Accessory shows the best day and timing for each movement.
+- Warm-up and optional post-training stretches are derived from the movements currently enabled that day; neither creates completion state.
+- Optional venue recording and a reusable custom-exercise catalog with independent exercise IDs.
 - Local progression hints, including fixed-band progression through reps, sets, band length, or pauses.
 - Optional, user-triggered eight-week AI review through Cloudflare Workers AI.
 - Copy the latest value for every exercise and cardio type; full JSON backup/restore and CSV export remain available.
@@ -35,7 +36,7 @@ The current version has no Service Worker, so reopening it offline is not guaran
 
 ### Data and privacy
 
-Training records stay in browser `localStorage` under `workout-log`. Normal use does not upload them. AI review runs only after the user requests it and sends a compact eight-week strength summary; it excludes the display name, cycle records, cardio, notes, and full backups. Local coaching rules continue to work without the network.
+Training records stay in browser `localStorage` under `workout-log`; custom definitions use `coach-card-custom-exercises`. Normal use uploads nothing. AI review runs only when requested and sends a compact eight-week strength summary, including custom exercise names when present. Venue, display name, cycle records, cardio, notes, and full backups are excluded. Local coaching rules continue to work without the network.
 
 ### Run locally
 
@@ -76,7 +77,8 @@ AvenGO 是一个平静、移动端优先的训练记录工具，覆盖力量、�
 - 支持的计划可一键切换在家或健身房；每个具体动作的历史独立。
 - 动作指令固定六段；器械与龙门架动作另有可执行的“器械设置”。
 - 记录重量、组数、次数、RIR、有氧器械读数、备注、月历、趋势与可选周期参考。
-- 每套计划提供简短热身；Accessory 标注动作适用日及练前/练后位置。
+- 热身与可选练后舒展按当天当前启用的动作动态生成，不产生完成或跳过状态。
+- 可选记录场地；可建立自定义动作目录，每个具体动作保留独立 ID 与历史。
 - 本地渐进负荷提示；固定拉力带通过增加次数、组数、缩短有效长度或停顿来进阶。
 - 用户主动触发的八周 AI 复盘，由 Cloudflare Workers AI 提供。
 - 可复制每个动作和有氧类型的最新值；同时保留完整 JSON 备份/恢复与 CSV 导出。
@@ -93,7 +95,7 @@ Gym 动作纳入重量评估，但不与在家动作混用历史。
 
 ### 数据与隐私
 
-训练记录保存在浏览器 `localStorage` 的 `workout-log` 中，日常使用不会上传。AI 复盘只在用户主动生成时运行，并仅发送最近八周的精简力量摘要；称呼、周期记录、有氧、备注与完整备份不会发送。无网络时，本地建议仍可使用。
+训练记录保存在浏览器 `localStorage` 的 `workout-log` 中；自定义动作目录使用 `coach-card-custom-exercises`。日常使用不会上传数据。AI 复盘只在用户主动生成时运行，并发送最近八周的精简力量摘要；若有自定义动作，会包含其名称。场地、称呼、周期记录、有氧、备注与完整备份不会发送。无网络时，本地建议仍可使用。
 
 ### 本地运行
 
